@@ -8,7 +8,7 @@ AudioService::AudioService(
     WasapiClient& wasapiClient,
     moodycamel::ReaderWriterQueue<std::string>* queue
 )
-    : wasapiClient(wasapiClient), queue(queue)
+    : wasapiClient(wasapiClient), queue(queue), sequencer(midiService)
 {
     unsigned long samplesPerSecond = wasapiClient.waveFormat.Format.nSamplesPerSec;
     secondsPerSample = 1.0 / (double)samplesPerSecond;
@@ -17,6 +17,8 @@ AudioService::AudioService(
     sampleBuffer.init(bufferSizeBytes);
 
     bufferSizeFrames = wasapiClient.getBufferSizeFrames();
+
+    midiService.openMidiPort(1);
 }
 
 void AudioService::run() {
@@ -45,6 +47,8 @@ void AudioService::run() {
             }
         }
 
+        sequencer.doTick();
+
         unsigned numPaddingFrames = wasapiClient.getCurrentPadding();
 
         // recall that each elt of buffer stores 1 sample
@@ -67,14 +71,10 @@ void AudioService::fillSampleBuffer(size_t numSamplesToWrite) {
     unsigned numChannels = 2;
 
     for (int i = 0; i < numSamplesToWrite; i += numChannels) {
-
         double sig = getSample();
-
         unsigned samp = scaleSignal(sig);
-
         sampleBuffer.buffer[i] = samp;       // L
         sampleBuffer.buffer[i + 1] = samp;   // R
-
         sampleCounter++;
     }
 }
@@ -83,24 +83,28 @@ double getRand() {
     return rand() / (RAND_MAX + 1.0);
 }
 
+// double AudioService::getSample() {
+//     if (trig) {
+//         r = getRand();
+//     }
+
+//     double t = getTime();
+
+//     double w = twoPi * freq;
+
+//     double theta = sin(w * t * 0.5) * modEnv.get(trig, 1, 50, 200, t) * 8 * r;
+
+//     double sinSig = sin((w * t) + theta);
+
+//     double envSig = ampEnv.get(trig, 1, 200, 500, t);
+
+//     double sig = sinSig * envSig * 0.5;
+
+//     return sig;
+// }
+
 double AudioService::getSample() {
-    if (trig) {
-        r = getRand();
-    }
-
-    double t = getTime();
-
-    double w = twoPi * freq;
-
-    double theta = sin(w * t * 0.5) * modEnv.get(trig, 1, 50, 200, t) * 8 * r;
-
-    double sinSig = sin((w * t) + theta);
-
-    double envSig = ampEnv.get(trig, 1, 200, 500, t);
-
-    double sig = sinSig * envSig * 0.5;
-
-    return sig;
+    return 0.0f;
 }
 
 double AudioService::getTime() {
