@@ -1,46 +1,63 @@
 #pragma once
 
+#include <iostream>
+#include <vector>
+
 #include "midi_service.hpp"
+
+struct SeqEvent {
+    int note;
+    int duration;
+};
 
 class Sequencer {
 public:
     MidiService& midiService;
-    unsigned tick = 0;
-    int ticksPer4Note  = 16;
-    int ticksPer8Note  = 8;
-    int ticksPer16Note = 4;
-    int ticksPer32Note = 2;
-    int ticksPer64Note = 1;
+    int tick = 0;
+    int ticksPer64Note = 2;
+    int ticksPer32Note = ticksPer64Note * 2;
+    int ticksPer16Note = ticksPer32Note * 2;
+    int ticksPer8Note  = ticksPer16Note * 2;
+    int ticksPer4Note  = ticksPer8Note  * 2;
+
     int ticksPerBar = ticksPer4Note * 4;
 
     int bdNote = 60;
     int sdNote = 61;
     int hhNote = 62;
 
+    std::vector<SeqEvent> events;
+    std::vector<int> eventsToRemove;
+
     Sequencer(MidiService& midiService) : midiService(midiService) {}
 
-    // tick is triggered at the beginning of processing every audio buffer
+    // tick is triggered at the beginning of processing each audio buffer
     // thus, the sequencer has at best the timing granularity of the audio buffer size
     // also, the tempo will change if you change the audio buffer size
 
     void doTick() {
+        handleEvents();
+
         if (is4Note()) {
             int n4 = get4Note();
-            if ((n4 % 2) == 0) {
-                midiService.noteOn(bdNote, 100);
-                midiService.noteOff(sdNote);
-            } else {
-                midiService.noteOff(bdNote);
-                midiService.noteOn(sdNote, 100);
+            addEvent(bdNote, 100, ticksPer8Note);
+            if (n4 % 2 != 0) {
+                addEvent(sdNote, 100, ticksPer8Note);
             }
         }
 
         if (is8Note()) {
+            addEvent(hhNote, 100, ticksPer8Note);
             int n8 = get8Note();
-            if ((n8 % 2) == 0) {
-                midiService.noteOn(hhNote, 100);
-            } else {
-                midiService.noteOff(hhNote);
+            if (n8 == 7) {
+                addEvent(bdNote, 100, ticksPer8Note);
+            }
+        }
+
+        if (is16Note()) {
+            int n16 = get16Note();
+            if (n16 % 3 == 0) {
+                addEvent(hhNote, 100, ticksPer8Note);
             }
         }
 
@@ -61,5 +78,35 @@ public:
 
     int get8Note() {
         return tick / ticksPer8Note;
+    }
+
+    bool is16Note() {
+        return ((tick % ticksPer16Note) == 0);
+    }
+
+    int get16Note() {
+        return tick / ticksPer16Note;
+    }
+
+    void addEvent(int note, int velocity, int duration) {
+        midiService.noteOn(note, 100);
+        events.push_back(SeqEvent{note, duration});
+    }
+
+    void handleEvents() {
+        for (int i = events.size() - 1; i >= 0; --i) {
+            auto& event = events[i];
+            --event.duration;
+            if (event.duration == 0) {
+                midiService.noteOff(event.note);
+                eventsToRemove.push_back(i);
+            }
+        }
+
+        for (auto i : eventsToRemove) {
+            events.erase(events.begin() + i);
+        }
+
+        eventsToRemove.clear();
     }
 };
