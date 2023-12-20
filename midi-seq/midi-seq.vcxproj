@@ -40,6 +40,10 @@
     <ClInclude Include="src/audio/ugens.hpp" />
     <ClInclude Include="src/audio/wasapi_client.hpp" />
   </ItemGroup>
+  <!-- midi hpp -->
+  <ItemGroup>
+    <ClInclude Include="src/midi/midi_main.hpp" />
+  </ItemGroup>
   <!-- 3rd party libraries -->
   <ItemGroup>
     <ClInclude Include="src/lib/atomicops.h" />

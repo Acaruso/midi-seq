@@ -16,6 +16,7 @@
 #include "../lib/readerwriterqueue.h"
 
 #include "../audio/audio_main.hpp"
+#include "../midi/midi_main.hpp"
 #include "constants.hpp"
 #include "graphics_service.hpp"
 #include "util.hpp"
@@ -26,6 +27,7 @@ public:
     GraphicsService gfx;
     moodycamel::ReaderWriterQueue<std::string> queue;
     std::thread audioThread;
+    std::thread midiThread;
 
     std::vector<UINT> messageTypes{
         WM_PAINT,
@@ -40,6 +42,7 @@ public:
         gfx(window, hr)
     {
         audioThread = std::thread(&audioMain, &queue);
+        midiThread  = std::thread(&midiMain);
     }
 
     bool shouldHandleMessage(UINT message) {
