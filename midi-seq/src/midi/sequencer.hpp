@@ -14,7 +14,7 @@ class Sequencer {
 public:
     MidiService& midiService;
     int tick = 0;
-    int ticksPer64Note = 2;
+    int ticksPer64Note = 24;
     int ticksPer32Note = ticksPer64Note * 2;
     int ticksPer16Note = ticksPer32Note * 2;
     int ticksPer8Note  = ticksPer16Note * 2;
@@ -30,10 +30,6 @@ public:
     std::vector<int> eventsToRemove;
 
     Sequencer(MidiService& midiService) : midiService(midiService) {}
-
-    // tick is triggered at the beginning of processing each audio buffer
-    // thus, the sequencer has at best the timing granularity of the audio buffer size
-    // also, the tempo will change if you change the audio buffer size
 
     void doTick() {
         handleEvents();
@@ -58,6 +54,13 @@ public:
             int n16 = get16Note();
             if (n16 % 3 == 0) {
                 addEvent(hhNote, 100, ticksPer8Note);
+            }
+        }
+
+        if (is32Note()) {
+            int n32 = get32Note();
+            if (n32 < 8) {
+                addEvent(hhNote, 100, ticksPer32Note);
             }
         }
 
@@ -86,6 +89,14 @@ public:
 
     int get16Note() {
         return tick / ticksPer16Note;
+    }
+
+    bool is32Note() {
+        return ((tick % ticksPer32Note) == 0);
+    }
+
+    int get32Note() {
+        return tick / ticksPer32Note;
     }
 
     void addEvent(int note, int velocity, int duration) {

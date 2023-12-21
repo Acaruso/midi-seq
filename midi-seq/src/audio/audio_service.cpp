@@ -8,7 +8,7 @@ AudioService::AudioService(
     WasapiClient& wasapiClient,
     moodycamel::ReaderWriterQueue<std::string>* queue
 )
-    : wasapiClient(wasapiClient), queue(queue), sequencer(midiService)
+    : wasapiClient(wasapiClient), queue(queue)
 {
     unsigned long samplesPerSecond = wasapiClient.waveFormat.Format.nSamplesPerSec;
     secondsPerSample = 1.0 / (double)samplesPerSecond;
@@ -17,8 +17,6 @@ AudioService::AudioService(
     sampleBuffer.init(bufferSizeBytes);
 
     bufferSizeFrames = wasapiClient.getBufferSizeFrames();
-
-    midiService.openMidiPort(1);
 }
 
 void AudioService::run() {
@@ -46,8 +44,6 @@ void AudioService::run() {
                 trig = true;
             }
         }
-
-        sequencer.doTick();
 
         unsigned numPaddingFrames = wasapiClient.getCurrentPadding();
 

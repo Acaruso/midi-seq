@@ -34,15 +34,15 @@
     <ClInclude Include="src/audio/audio_main.hpp" />
     <ClInclude Include="src/audio/audio_service.hpp" />
     <ClInclude Include="src/audio/audio_util.hpp" />
-    <ClInclude Include="src/audio/midi_service.hpp" />
     <ClInclude Include="src/audio/sample_buffer.hpp" />
-    <ClInclude Include="src/audio/sequencer.hpp" />
     <ClInclude Include="src/audio/ugens.hpp" />
     <ClInclude Include="src/audio/wasapi_client.hpp" />
   </ItemGroup>
   <!-- midi hpp -->
   <ItemGroup>
     <ClInclude Include="src/midi/midi_main.hpp" />
+    <ClInclude Include="src/midi/midi_service.hpp" />
+    <ClInclude Include="src/midi/sequencer.hpp" />
   </ItemGroup>
   <!-- 3rd party libraries -->
   <ItemGroup>

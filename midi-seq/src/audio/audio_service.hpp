@@ -2,9 +2,7 @@
 
 #include "../lib/readerwriterqueue.h"
 
-#include "midi_service.hpp"
 #include "sample_buffer.hpp"
-#include "sequencer.hpp"
 #include "ugens.hpp"
 #include "wasapi_client.hpp"
 
@@ -21,8 +19,6 @@ public:
 
 private:
     WasapiClient& wasapiClient;
-    MidiService midiService;
-    Sequencer sequencer;
     SampleBuffer sampleBuffer;
     unsigned bufferSizeBytes{0};
     unsigned bufferSizeFrames{0};
