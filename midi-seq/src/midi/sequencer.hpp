@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 
+#include "chords.hpp"
 #include "midi_service.hpp"
 
 struct SeqEvent {
@@ -55,26 +56,59 @@ public:
         ticksPerDur[N_1]  = ticksPer64Note * 64;
     }
 
+    // void doTick() {
+    //     handleEvents();
+
+    //     if (isNote(N_4)) {
+    //         addEvent(bdNote, 100, N_8);
+    //         if (getNote(N_4) % 2 != 0) {
+    //             addEvent(sdNote, 100, N_8);
+    //         }
+    //     }
+
+    //     if (isNote(N_8)) {
+    //         addEvent(hhNote, 100, N_8);
+    //         if (getNote(N_8) == 7) {
+    //             addEvent(bdNote, 100, N_8);
+    //         }
+    //     }
+
+    //     if (isNote(N_16)) {
+    //         if (getNote(N_16) % 3 == 0) {
+    //             addEvent(hhNote, 100, N_8);
+    //         }
+    //     }
+
+    //     tick = (tick + 1) % ticksPerBar;
+    // }
+
     void doTick() {
         handleEvents();
 
         if (isNote(N_4)) {
-            addEvent(bdNote, 100, N_8);
-            if (getNote(N_4) % 2 != 0) {
-                addEvent(sdNote, 100, N_8);
+            if (getNote(N_4) == 0) {
+                addChord(
+                    createChordByRoot(50, MAJOR, ROOT),
+                    N_8
+                );
             }
-        }
-
-        if (isNote(N_8)) {
-            addEvent(hhNote, 100, N_8);
-            if (getNote(N_8) == 7) {
-                addEvent(bdNote, 100, N_8);
+            if (getNote(N_4) == 1) {
+                addChord(
+                    createChordByRoot(52, MINOR, SECOND_INV),
+                    N_8
+                );
             }
-        }
-
-        if (isNote(N_16)) {
-            if (getNote(N_16) % 3 == 0) {
-                addEvent(hhNote, 100, N_8);
+            if (getNote(N_4) == 2) {
+                addChord(
+                    createChordByRoot(55, MAJOR, FIRST_INV),
+                    N_8
+                );
+            }
+            if (getNote(N_4) == 3) {
+                addChord(
+                    createChordByRoot(57, MAJOR, FIRST_INV),
+                    N_8
+                );
             }
         }
 
@@ -89,6 +123,12 @@ public:
         return (tick / ticksPerDur[dur]);
     }
 
+    void addChord(std::vector<int> chord, Duration dur) {
+        for (auto note : chord) {
+            addEvent(note, 100, dur);
+        }
+    }
+
     void addEvent(int note, int velocity, int offset, Duration dur) {
         events.push_back(
             SeqEvent{
@@ -101,6 +141,7 @@ public:
     }
 
     void addEvent(int note, int velocity, Duration dur) {
+        std::cout << "adding event " << note << std::endl;
         midiService.noteOn(note, 100);
         events.push_back(
             SeqEvent{
