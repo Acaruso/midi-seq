@@ -5,6 +5,8 @@ VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "midi-seq", "midi-seq\midi-seq.vcxproj", "{CDBBEF35-D012-4A22-BF10-8DFE9AE4B71D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "midi-seq-tests", "midi-seq-tests\midi-seq-tests.vcxproj", "{D462A0C5-98A3-4A84-838B-31CF0A4959BD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{CDBBEF35-D012-4A22-BF10-8DFE9AE4B71D}.Release|x64.Build.0 = Release|x64
 		{CDBBEF35-D012-4A22-BF10-8DFE9AE4B71D}.Release|x86.ActiveCfg = Release|Win32
 		{CDBBEF35-D012-4A22-BF10-8DFE9AE4B71D}.Release|x86.Build.0 = Release|Win32
+		{D462A0C5-98A3-4A84-838B-31CF0A4959BD}.Debug|x64.ActiveCfg = Debug|x64
+		{D462A0C5-98A3-4A84-838B-31CF0A4959BD}.Debug|x64.Build.0 = Debug|x64
+		{D462A0C5-98A3-4A84-838B-31CF0A4959BD}.Debug|x86.ActiveCfg = Debug|Win32
+		{D462A0C5-98A3-4A84-838B-31CF0A4959BD}.Debug|x86.Build.0 = Debug|Win32
+		{D462A0C5-98A3-4A84-838B-31CF0A4959BD}.Release|x64.ActiveCfg = Release|x64
+		{D462A0C5-98A3-4A84-838B-31CF0A4959BD}.Release|x64.Build.0 = Release|x64
+		{D462A0C5-98A3-4A84-838B-31CF0A4959BD}.Release|x86.ActiveCfg = Release|Win32
+		{D462A0C5-98A3-4A84-838B-31CF0A4959BD}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
