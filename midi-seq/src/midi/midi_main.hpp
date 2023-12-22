@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdlib>
+#include <ctime>
 #include <iostream>
 
 #include <windows.h>
@@ -16,6 +18,9 @@ void CALLBACK timerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1
 const UINT TIMER_INTERVAL_MS = 1;
 
 inline int midiMain() {
+    // seed the rand() fn
+    srand(static_cast<unsigned int>(time(0)));
+
     MidiService midiService(1);
     Sequencer sequencer(midiService);
 

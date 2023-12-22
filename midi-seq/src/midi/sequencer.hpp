@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdlib>
 #include <iostream>
 #include <vector>
 
@@ -7,7 +8,9 @@
 
 struct SeqEvent {
     int note;
+    int offset;
     int duration;
+    bool shouldTrigger = false;
 };
 
 enum Duration {
@@ -19,6 +22,11 @@ enum Duration {
     N_2  = 5,
     N_1  = 6,
 };
+
+// inclusive of min and max
+inline int getRand(int min, int max) {
+    return min + (rand() % (max - min + 1));
+}
 
 class Sequencer {
 public:
@@ -70,12 +78,6 @@ public:
             }
         }
 
-        if (isNote(N_32)) {
-            if (getNote(N_32) < 8) {
-                addEvent(hhNote, 100, N_32);
-            }
-        }
-
         tick = (tick + 1) % ticksPerBar;
     }
 
@@ -87,20 +89,44 @@ public:
         return (tick / ticksPerDur[dur]);
     }
 
+    void addEvent(int note, int velocity, int offset, Duration dur) {
+        events.push_back(
+            SeqEvent{
+                note,               // note
+                offset,             // offset
+                ticksPerDur[dur],   // duration
+                true                // shouldTrigger
+            }
+        );
+    }
+
     void addEvent(int note, int velocity, Duration dur) {
         midiService.noteOn(note, 100);
         events.push_back(
-            SeqEvent{note, ticksPerDur[dur]}
+            SeqEvent{
+                note,               // note
+                0,                  // offset
+                ticksPerDur[dur],   // duration
+                false               // shouldTrigger
+            }
         );
     }
 
     void handleEvents() {
         for (int i = events.size() - 1; i >= 0; --i) {
             auto& event = events[i];
-            --event.duration;
-            if (event.duration == 0) {
-                midiService.noteOff(event.note);
-                eventsToRemove.push_back(i);
+
+            if (event.offset > 0) {
+                --event.offset;
+            } else if (event.offset == 0 && event.shouldTrigger) {
+                midiService.noteOn(event.note, 100);
+                event.shouldTrigger = false;
+            } else {
+                --event.duration;
+                if (event.duration == 0) {
+                    midiService.noteOff(event.note);
+                    eventsToRemove.push_back(i);
+                }
             }
         }
 
