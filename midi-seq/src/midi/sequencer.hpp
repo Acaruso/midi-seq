@@ -10,17 +10,25 @@ struct SeqEvent {
     int duration;
 };
 
+enum Duration {
+    N_64 = 0,
+    N_32 = 1,
+    N_16 = 2,
+    N_8  = 3,
+    N_4  = 4,
+    N_2  = 5,
+    N_1  = 6,
+};
+
 class Sequencer {
 public:
     MidiService& midiService;
     int tick = 0;
-    int ticksPer64Note = 24;
-    int ticksPer32Note = ticksPer64Note * 2;
-    int ticksPer16Note = ticksPer32Note * 2;
-    int ticksPer8Note  = ticksPer16Note * 2;
-    int ticksPer4Note  = ticksPer8Note  * 2;
 
-    int ticksPerBar = ticksPer4Note * 4;
+    std::vector<int> ticksPerDur = std::vector<int>(7, 0);
+
+    int ticksPer64Note = 24;
+    int ticksPerBar = ticksPer64Note * 64;
 
     int bdNote = 60;
     int sdNote = 61;
@@ -29,79 +37,61 @@ public:
     std::vector<SeqEvent> events;
     std::vector<int> eventsToRemove;
 
-    Sequencer(MidiService& midiService) : midiService(midiService) {}
+    Sequencer(MidiService& midiService) : midiService(midiService) {
+        ticksPerDur[N_64] = ticksPer64Note * 1;
+        ticksPerDur[N_32] = ticksPer64Note * 2;
+        ticksPerDur[N_16] = ticksPer64Note * 4;
+        ticksPerDur[N_8]  = ticksPer64Note * 8;
+        ticksPerDur[N_4]  = ticksPer64Note * 16;
+        ticksPerDur[N_2]  = ticksPer64Note * 32;
+        ticksPerDur[N_1]  = ticksPer64Note * 64;
+    }
 
     void doTick() {
         handleEvents();
 
-        if (is4Note()) {
-            int n4 = get4Note();
-            addEvent(bdNote, 100, ticksPer8Note);
-            if (n4 % 2 != 0) {
-                addEvent(sdNote, 100, ticksPer8Note);
+        if (isNote(N_4)) {
+            addEvent(bdNote, 100, N_8);
+            if (getNote(N_4) % 2 != 0) {
+                addEvent(sdNote, 100, N_8);
             }
         }
 
-        if (is8Note()) {
-            addEvent(hhNote, 100, ticksPer8Note);
-            int n8 = get8Note();
-            if (n8 == 7) {
-                addEvent(bdNote, 100, ticksPer8Note);
+        if (isNote(N_8)) {
+            addEvent(hhNote, 100, N_8);
+            if (getNote(N_8) == 7) {
+                addEvent(bdNote, 100, N_8);
             }
         }
 
-        if (is16Note()) {
-            int n16 = get16Note();
-            if (n16 % 3 == 0) {
-                addEvent(hhNote, 100, ticksPer8Note);
+        if (isNote(N_16)) {
+            if (getNote(N_16) % 3 == 0) {
+                addEvent(hhNote, 100, N_8);
             }
         }
 
-        if (is32Note()) {
-            int n32 = get32Note();
-            if (n32 < 8) {
-                addEvent(hhNote, 100, ticksPer32Note);
+        if (isNote(N_32)) {
+            if (getNote(N_32) < 8) {
+                addEvent(hhNote, 100, N_32);
             }
         }
 
         tick = (tick + 1) % ticksPerBar;
     }
 
-    bool is4Note() {
-        return ((tick % ticksPer4Note) == 0);
+    bool isNote(Duration dur) {
+        return ((tick % ticksPerDur[dur]) == 0);
     }
 
-    int get4Note() {
-        return tick / ticksPer4Note;
+    int getNote(Duration dur) {
+        return (tick / ticksPerDur[dur]);
     }
 
-    bool is8Note() {
-        return ((tick % ticksPer8Note) == 0);
-    }
-
-    int get8Note() {
-        return tick / ticksPer8Note;
-    }
-
-    bool is16Note() {
-        return ((tick % ticksPer16Note) == 0);
-    }
-
-    int get16Note() {
-        return tick / ticksPer16Note;
-    }
-
-    bool is32Note() {
-        return ((tick % ticksPer32Note) == 0);
-    }
-
-    int get32Note() {
-        return tick / ticksPer32Note;
-    }
-
-    void addEvent(int note, int velocity, int duration) {
+    void addEvent(int note, int velocity, Duration dur) {
         midiService.noteOn(note, 100);
-        events.push_back(SeqEvent{note, duration});
+        events.push_back(
+            SeqEvent{note, ticksPerDur[dur]}
+        );
     }
 
     void handleEvents() {
