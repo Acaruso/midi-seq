@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <vector>
 
+#include "../main/util.hpp"
+
 enum ChordType {
     MAJOR = 0,
     MINOR = 1,
@@ -13,6 +15,14 @@ enum ChordInversion {
     FIRST_INV  = 1,
     SECOND_INV = 2,
 };
+
+inline ChordType getRandChordType() {
+    return (ChordType)(getRand(0, 1));
+}
+
+inline ChordInversion getRandChordInversion() {
+    return (ChordInversion)(getRand(0, 2));
+}
 
 template<typename T>
 inline void rotate(std::vector<T>& vec) {

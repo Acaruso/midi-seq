@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 
+#include "../main/util.hpp"
 #include "chords.hpp"
 #include "midi_service.hpp"
 
@@ -24,11 +25,6 @@ enum Duration {
     N_1  = 6,
 };
 
-// inclusive of min and max
-inline int getRand(int min, int max) {
-    return min + (rand() % (max - min + 1));
-}
-
 class Sequencer {
 public:
     MidiService& midiService;
@@ -36,7 +32,8 @@ public:
 
     std::vector<int> ticksPerDur = std::vector<int>(7, 0);
 
-    int ticksPer64Note = 24;
+    // int ticksPer64Note = 24;
+    int ticksPer64Note = 60;
     int ticksPerBar = ticksPer64Note * 64;
 
     int bdNote = 60;
@@ -46,6 +43,16 @@ public:
     std::vector<SeqEvent> events;
     std::vector<int> eventsToRemove;
 
+    std::vector<int> curChord;
+    int chordCounter = 0;
+
+    // MIDI note 45 == A string on guitar == A1
+    int chordLow = 48;
+    int chordHigh = 54;
+
+    int curRoot = 0;
+    int prevRoot = 0;
+
     Sequencer(MidiService& midiService) : midiService(midiService) {
         ticksPerDur[N_64] = ticksPer64Note * 1;
         ticksPerDur[N_32] = ticksPer64Note * 2;
@@ -54,6 +61,29 @@ public:
         ticksPerDur[N_4]  = ticksPer64Note * 16;
         ticksPerDur[N_2]  = ticksPer64Note * 32;
         ticksPerDur[N_1]  = ticksPer64Note * 64;
+    }
+
+    void doTick() {
+        handleEvents();
+
+        if (isNote(N_4)) {
+            if ((chordCounter % 8) == 0) {
+                curRoot = getRand(chordLow, chordHigh);
+                while (curRoot == prevRoot) {
+                    curRoot = getRand(chordLow, chordHigh);
+                }
+                prevRoot = curRoot;
+                curChord = createChordByLowestNote(
+                    curRoot,
+                    getRandChordType(),
+                    getRandChordInversion()
+                );
+            }
+            addChord(curChord, N_8);
+            ++chordCounter;
+        }
+
+        tick = (tick + 1) % ticksPerBar;
     }
 
     // void doTick() {
@@ -82,38 +112,38 @@ public:
     //     tick = (tick + 1) % ticksPerBar;
     // }
 
-    void doTick() {
-        handleEvents();
+    // void doTick() {
+    //     handleEvents();
 
-        if (isNote(N_4)) {
-            if (getNote(N_4) == 0) {
-                addChord(
-                    createChordByRoot(50, MAJOR, ROOT),
-                    N_8
-                );
-            }
-            if (getNote(N_4) == 1) {
-                addChord(
-                    createChordByRoot(52, MINOR, SECOND_INV),
-                    N_8
-                );
-            }
-            if (getNote(N_4) == 2) {
-                addChord(
-                    createChordByRoot(55, MAJOR, FIRST_INV),
-                    N_8
-                );
-            }
-            if (getNote(N_4) == 3) {
-                addChord(
-                    createChordByRoot(57, MAJOR, FIRST_INV),
-                    N_8
-                );
-            }
-        }
+    //     if (isNote(N_4)) {
+    //         if (getNote(N_4) == 0) {
+    //             addChord(
+    //                 createChordByRoot(50, MAJOR, ROOT),
+    //                 N_8
+    //             );
+    //         }
+    //         if (getNote(N_4) == 1) {
+    //             addChord(
+    //                 createChordByRoot(52, MINOR, SECOND_INV),
+    //                 N_8
+    //             );
+    //         }
+    //         if (getNote(N_4) == 2) {
+    //             addChord(
+    //                 createChordByRoot(55, MAJOR, FIRST_INV),
+    //                 N_8
+    //             );
+    //         }
+    //         if (getNote(N_4) == 3) {
+    //             addChord(
+    //                 createChordByRoot(57, MAJOR, FIRST_INV),
+    //                 N_8
+    //             );
+    //         }
+    //     }
 
-        tick = (tick + 1) % ticksPerBar;
-    }
+    //     tick = (tick + 1) % ticksPerBar;
+    // }
 
     bool isNote(Duration dur) {
         return ((tick % ticksPerDur[dur]) == 0);
@@ -141,7 +171,6 @@ public:
     }
 
     void addEvent(int note, int velocity, Duration dur) {
-        std::cout << "adding event " << note << std::endl;
         midiService.noteOn(note, 100);
         events.push_back(
             SeqEvent{
