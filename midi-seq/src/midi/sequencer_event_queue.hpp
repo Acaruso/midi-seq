@@ -5,8 +5,9 @@
 #include <vector>
 
 enum SeqEventType {
-    NOTE_ON = 0,
+    NOTE_ON  = 0,
     NOTE_OFF = 1,
+    CC       = 2,
 };
 
 struct SeqEvent {
@@ -14,7 +15,37 @@ struct SeqEvent {
     int note;
     int velocity;
     int timestamp;
+    int channel;        // for midi cc
+    int controller;     // for midi cc
+    int value;          // for midi cc
 };
+
+inline SeqEvent createNoteOnEvent(int note, int velocity, int timestamp) {
+    SeqEvent s;
+    s.type = NOTE_ON;
+    s.note = note;
+    s.velocity = velocity;
+    s.timestamp = timestamp;
+    return s;
+}
+
+inline SeqEvent createNoteOffEvent(int note, int timestamp) {
+    SeqEvent s;
+    s.type = NOTE_OFF;
+    s.note = note;
+    s.timestamp = timestamp;
+    return s;
+}
+
+inline SeqEvent createCCEvent(int channel, int controller, int value, int timestamp) {
+    SeqEvent s;
+    s.type = CC;
+    s.channel = channel;
+    s.controller = controller;
+    s.value = value;
+    s.timestamp = timestamp;
+    return s;
+}
 
 template <typename MidiServiceType>
 class SequencerEventQueue {
@@ -63,6 +94,10 @@ public:
             }
             case NOTE_OFF: {
                 midiService.noteOff(event.note);
+                break;
+            }
+            case CC: {
+                midiService.cc(event.channel, event.controller, event.value);
                 break;
             }
         }

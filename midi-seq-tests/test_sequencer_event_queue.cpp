@@ -38,10 +38,10 @@ TEST(SequencerEventQueueTests, TestQueueOperations) {
     StubMidiService midiService(0);
     SequencerEventQueue<StubMidiService> q(midiService);
 
-    q.addEvent(SeqEvent{NOTE_ON, 1, 100, 99});
-    q.addEvent(SeqEvent{NOTE_ON, 1, 100, 2});
-    q.addEvent(SeqEvent{NOTE_ON, 1, 100, 55});
-    q.addEvent(SeqEvent{NOTE_ON, 1, 100, 43});
+    q.addEvent(createNoteOnEvent(1, 100, 99));
+    q.addEvent(createNoteOnEvent(1, 100, 2));
+    q.addEvent(createNoteOnEvent(1, 100, 55));
+    q.addEvent(createNoteOnEvent(1, 100, 43));
 
     EXPECT_EQ(q.eventsLen, 4);
     EXPECT_EQ(q.events[0].timestamp, 99);
@@ -55,7 +55,7 @@ TEST(SequencerEventQueueTests, TestQueueOperations) {
     EXPECT_EQ(q.events[0].timestamp, 99);
     EXPECT_EQ(q.events[1].timestamp, 55);
 
-    q.addEvent(SeqEvent{NOTE_ON, 1, 100, 999});
+    q.addEvent(createNoteOnEvent(1, 100, 999));
 
     EXPECT_EQ(q.eventsLen, 3);
     EXPECT_EQ(q.events[0].timestamp, 999);
@@ -66,7 +66,7 @@ TEST(SequencerEventQueueTests, TestQueueOperations) {
 
     EXPECT_EQ(q.eventsLen, 0);
 
-    q.addEvent(SeqEvent{NOTE_ON, 1, 100, 123});
+    q.addEvent(createNoteOnEvent(1, 100, 123));
 
     EXPECT_EQ(q.eventsLen, 1);
     EXPECT_EQ(q.events[0].timestamp, 123);
@@ -76,14 +76,21 @@ TEST(SequencerEventQueueTests, TestMidiSideEffects) {
     StubMidiService m(0);
     SequencerEventQueue<StubMidiService> q(m);
 
-    q.addEvent(SeqEvent{NOTE_ON, 1, 10, 99});
-    q.addEvent(SeqEvent{NOTE_ON, 2, 11, 2});
-    q.addEvent(SeqEvent{NOTE_ON, 3, 12, 55});
-    q.addEvent(SeqEvent{NOTE_ON, 4, 13, 43});
+    q.addEvent(createNoteOnEvent(1, 10, 99));
+    q.addEvent(createNoteOnEvent(2, 11, 2));
+    q.addEvent(createNoteOnEvent(3, 12, 55));
+    q.addEvent(createNoteOnEvent(4, 13, 43));
 
     q.handleEvents(43);
 
     EXPECT_EQ(m.messages.size(), 2);
     EXPECT_EQ(m.messages[0], "noteOn 2 11");
     EXPECT_EQ(m.messages[1], "noteOn 4 13");
+
+    q.addEvent(createCCEvent(1, 1, 7, 45));
+
+    q.handleEvents(46);
+
+    EXPECT_EQ(m.messages.size(), 3);
+    EXPECT_EQ(m.messages[2], "cc 1 1 7");
 }
