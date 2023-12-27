@@ -63,12 +63,24 @@ public:
     void addEvent(SeqEvent event) {
         if (eventsLen == eventsCapacity) {
             // TODO: handle this better
-            std::cout << "events at capacity" << std::endl;
+            std::cerr << "SequencerEventQueue at capacity" << std::endl;
             return;
         }
         events[eventsLen] = event;
         ++eventsLen;
         sortEvents();
+    }
+
+    void addNoteOnEvent(int note, int velocity, int timestamp) {
+        addEvent(createNoteOnEvent(note, velocity, timestamp));
+    }
+
+    void addNoteOffEvent(int note, int timestamp) {
+        addEvent(createNoteOffEvent(note, timestamp));
+    }
+
+    void addCCEvent(int channel, int controller, int value, int timestamp) {
+        addEvent(createCCEvent(channel, controller, value, timestamp));
     }
 
     void handleEvents(int curTimestamp) {
@@ -104,6 +116,8 @@ public:
     }
 
 private:
+    // sort events by timestamp in decending order
+    // example: [99, 50, 45, 12, 1]
     void sortEvents() {
         std::sort(
             events.begin(), 
