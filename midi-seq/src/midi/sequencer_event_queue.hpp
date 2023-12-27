@@ -15,11 +15,18 @@ struct SeqEvent {
     int timestamp;
 };
 
+template <typename MidiServiceType>
 class SequencerEventQueue {
 public:
+    MidiServiceType& midiService;
+
     int eventsCapacity = 10000;
     int eventsLen = 0;
     std::vector<SeqEvent> events = std::vector<SeqEvent>(eventsCapacity, SeqEvent{});
+
+    SequencerEventQueue(MidiServiceType& _midiService)
+        : midiService(_midiService)
+    {}
 
     void addEvent(SeqEvent event) {
         if (eventsLen == eventsCapacity) {
@@ -50,9 +57,11 @@ public:
     void handleEvent(SeqEvent& event) {
         switch (event.type) {
             case NOTE_ON: {
+                midiService.noteOn(event.note, 100); // TODO: add velocity
                 break;
             }
             case NOTE_OFF: {
+                midiService.noteOff(event.note);
                 break;
             }
         }
