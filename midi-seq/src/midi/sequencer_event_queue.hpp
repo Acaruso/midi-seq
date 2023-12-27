@@ -12,6 +12,7 @@ enum SeqEventType {
 struct SeqEvent {
     SeqEventType type;
     int note;
+    int velocity;
     int timestamp;
 };
 
@@ -57,7 +58,7 @@ public:
     void handleEvent(SeqEvent& event) {
         switch (event.type) {
             case NOTE_ON: {
-                midiService.noteOn(event.note, 100); // TODO: add velocity
+                midiService.noteOn(event.note, event.velocity);
                 break;
             }
             case NOTE_OFF: {

@@ -38,10 +38,10 @@ TEST(SequencerEventQueueTests, TestQueueOperations) {
     StubMidiService midiService(0);
     SequencerEventQueue<StubMidiService> q(midiService);
 
-    q.addEvent(SeqEvent{NOTE_ON, 1, 99});
-    q.addEvent(SeqEvent{NOTE_ON, 1, 2});
-    q.addEvent(SeqEvent{NOTE_ON, 1, 55});
-    q.addEvent(SeqEvent{NOTE_ON, 1, 43});
+    q.addEvent(SeqEvent{NOTE_ON, 1, 100, 99});
+    q.addEvent(SeqEvent{NOTE_ON, 1, 100, 2});
+    q.addEvent(SeqEvent{NOTE_ON, 1, 100, 55});
+    q.addEvent(SeqEvent{NOTE_ON, 1, 100, 43});
 
     EXPECT_EQ(q.eventsLen, 4);
     EXPECT_EQ(q.events[0].timestamp, 99);
@@ -55,7 +55,7 @@ TEST(SequencerEventQueueTests, TestQueueOperations) {
     EXPECT_EQ(q.events[0].timestamp, 99);
     EXPECT_EQ(q.events[1].timestamp, 55);
 
-    q.addEvent(SeqEvent{NOTE_ON, 1, 999});
+    q.addEvent(SeqEvent{NOTE_ON, 1, 100, 999});
 
     EXPECT_EQ(q.eventsLen, 3);
     EXPECT_EQ(q.events[0].timestamp, 999);
@@ -66,7 +66,7 @@ TEST(SequencerEventQueueTests, TestQueueOperations) {
 
     EXPECT_EQ(q.eventsLen, 0);
 
-    q.addEvent(SeqEvent{NOTE_ON, 1, 123});
+    q.addEvent(SeqEvent{NOTE_ON, 1, 100, 123});
 
     EXPECT_EQ(q.eventsLen, 1);
     EXPECT_EQ(q.events[0].timestamp, 123);
@@ -76,14 +76,14 @@ TEST(SequencerEventQueueTests, TestMidiSideEffects) {
     StubMidiService m(0);
     SequencerEventQueue<StubMidiService> q(m);
 
-    q.addEvent(SeqEvent{NOTE_ON, 1, 99});
-    q.addEvent(SeqEvent{NOTE_ON, 2, 2});
-    q.addEvent(SeqEvent{NOTE_ON, 3, 55});
-    q.addEvent(SeqEvent{NOTE_ON, 4, 43});
+    q.addEvent(SeqEvent{NOTE_ON, 1, 10, 99});
+    q.addEvent(SeqEvent{NOTE_ON, 2, 11, 2});
+    q.addEvent(SeqEvent{NOTE_ON, 3, 12, 55});
+    q.addEvent(SeqEvent{NOTE_ON, 4, 13, 43});
 
     q.handleEvents(43);
 
     EXPECT_EQ(m.messages.size(), 2);
-    EXPECT_EQ(m.messages[0], "noteOn 2 100");
-    EXPECT_EQ(m.messages[1], "noteOn 4 100");
+    EXPECT_EQ(m.messages[0], "noteOn 2 11");
+    EXPECT_EQ(m.messages[1], "noteOn 4 13");
 }
