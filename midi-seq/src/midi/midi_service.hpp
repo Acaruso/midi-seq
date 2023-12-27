@@ -34,9 +34,12 @@ class MidiService {
 public:
     HMIDIOUT midiDevice;
 
-    MidiService() {}
+    MidiService() {
+        printMidiOutputDevices();
+    }
 
     MidiService(int midiPort) {
+        printMidiOutputDevices();
         openMidiPort(midiPort);
     }
 
@@ -69,6 +72,29 @@ public:
         if (rc != MMSYSERR_NOERROR) {
             std::cout << "Warning: MIDI Output is not open" << std::endl;
         }
+    }
+
+    // each midi port contains 16 channels
+    // each channel typically corresponds to an instrument 
+    // each channel contains 128 controllers: 0 - 127
+    // each controller corresponds to a parameter on an instrument
+    // some controller numbers have "standard" mappings, for example:
+    // Controller 1: Modulation Wheel
+    // Controller 7: Main Volume
+    // Controller 10: Pan
+    // Controller 64: Sustain Pedal (Hold)
+    // Controller 121: Reset All Controllers
+    // controllers from 70 - 119 are often safe to use for custom mappings, 
+    // as they are less frequently assigned to specific functions.
+    // controllers 102 - 119 are often completely unassigned, 
+    // making them a good choice for custom use.
+
+    void cc(int channel, int controller, int value) {
+        unsigned int midiCCMessage = 0xB0 | (channel - 1);
+        midiCCMessage |= (controller << 8);
+        midiCCMessage |= (value << 16);
+
+        midiOutShortMsg(midiDevice, midiCCMessage);
     }
 
     void printMidiOutputDevices() {

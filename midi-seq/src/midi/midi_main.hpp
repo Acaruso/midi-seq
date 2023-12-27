@@ -21,7 +21,7 @@ inline int midiMain() {
     // seed the rand() fn
     srand(static_cast<unsigned int>(time(0)));
 
-    MidiService midiService(1);
+    MidiService midiService(2);
     Sequencer sequencer(midiService);
 
     DWORD taskIndex = 0;

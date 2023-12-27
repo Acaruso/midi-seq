@@ -8,7 +8,7 @@
 #include "chords.hpp"
 #include "midi_service.hpp"
 
-struct SeqEvent {
+struct SeqEvent_ {
     int note;
     int offset;
     int duration;
@@ -40,7 +40,7 @@ public:
     int sdNote = 61;
     int hhNote = 62;
 
-    std::vector<SeqEvent> events;
+    std::vector<SeqEvent_> events;
     std::vector<int> eventsToRemove;
 
     std::vector<int> curChord;
@@ -52,6 +52,8 @@ public:
 
     int curRoot = 0;
     int prevRoot = 0;
+
+    int midiCCCounter = 0;
 
     Sequencer(MidiService& midiService) : midiService(midiService) {
         ticksPerDur[N_64] = ticksPer64Note * 1;
@@ -80,10 +82,13 @@ public:
                 );
             }
             addChord(curChord, N_8);
+            midiService.cc(1, 70, 126);
+            midiCCCounter = (midiCCCounter + 1) % 16;
             ++chordCounter;
         }
 
-        tick = (tick + 1) % ticksPerBar;
+        // tick = (tick + 1) % ticksPerBar;
+        ++tick;
     }
 
     // void doTick() {
@@ -161,7 +166,7 @@ public:
 
     void addEvent(int note, int velocity, int offset, Duration dur) {
         events.push_back(
-            SeqEvent{
+            SeqEvent_{
                 note,               // note
                 offset,             // offset
                 ticksPerDur[dur],   // duration
@@ -173,7 +178,7 @@ public:
     void addEvent(int note, int velocity, Duration dur) {
         midiService.noteOn(note, 100);
         events.push_back(
-            SeqEvent{
+            SeqEvent_{
                 note,               // note
                 0,                  // offset
                 ticksPerDur[dur],   // duration
