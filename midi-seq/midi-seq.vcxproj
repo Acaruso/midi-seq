@@ -40,6 +40,7 @@
   </ItemGroup>
   <!-- midi hpp -->
   <ItemGroup>
+    <ClInclude Include="src/midi/beats.hpp" />
     <ClInclude Include="src/midi/chords.hpp" />
     <ClInclude Include="src/midi/midi_main.hpp" />
     <ClInclude Include="src/midi/midi_service.hpp" />
