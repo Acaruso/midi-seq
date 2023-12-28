@@ -10,12 +10,12 @@ enum BeatUnit {
     B_4,
     B_2,
     B_1,
-    SIZE,
+    COUNT,
 };
 
 class Beats {
 public:
-    std::vector<int> ticksPerBeatUnit = std::vector<int>(BeatUnit::SIZE, 0);
+    std::vector<int> ticksPerBeatUnit = std::vector<int>(BeatUnit::COUNT, 0);
 
     Beats(int ticksPer64Note) {
         ticksPerBeatUnit[B_64] = ticksPer64Note * 1;
@@ -27,11 +27,15 @@ public:
         ticksPerBeatUnit[B_1]  = ticksPer64Note * 64;
     }
 
+    int ticksPerBeat(BeatUnit beatUnit) {
+        return ticksPerBeatUnit[beatUnit];
+    }
+
     bool isBeat(int tick, BeatUnit beatUnit) {
         return ((tick % ticksPerBeatUnit[beatUnit]) == 0);
     }
 
-    int getBeat(int tick, BeatUnit beatUnit) {
+    int tickToBeat(int tick, BeatUnit beatUnit) {
         return (tick / ticksPerBeatUnit[beatUnit]);
     }
 };

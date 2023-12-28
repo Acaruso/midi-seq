@@ -5,29 +5,17 @@
 #include <vector>
 
 #include "../main/util.hpp"
+#include "beats.hpp"
 #include "chords.hpp"
 #include "sequencer_event_queue.hpp"
-
-enum Duration {
-    N_64 = 0,
-    N_32 = 1,
-    N_16 = 2,
-    N_8  = 3,
-    N_4  = 4,
-    N_2  = 5,
-    N_1  = 6,
-};
 
 template <typename MidiServiceType>
 class Sequencer {
 public:
     SequencerEventQueue<MidiServiceType>& queue;
-    int tick = 0;
+    Beats beats{60};
 
-    std::vector<int> ticksPerDur = std::vector<int>(7, 0);
-
-    int ticksPer64Note = 60;
-    int ticksPerBar = ticksPer64Note * 64;
+    int curTick = 0;
 
     int bdNote = 60;
     int sdNote = 61;
@@ -43,20 +31,10 @@ public:
     int curRoot = 0;
     int prevRoot = 0;
 
-    Sequencer(SequencerEventQueue<MidiServiceType>& queue) 
-        : queue(queue) 
-    {
-        ticksPerDur[N_64] = ticksPer64Note * 1;
-        ticksPerDur[N_32] = ticksPer64Note * 2;
-        ticksPerDur[N_16] = ticksPer64Note * 4;
-        ticksPerDur[N_8]  = ticksPer64Note * 8;
-        ticksPerDur[N_4]  = ticksPer64Note * 16;
-        ticksPerDur[N_2]  = ticksPer64Note * 32;
-        ticksPerDur[N_1]  = ticksPer64Note * 64;
-    }
+    Sequencer(SequencerEventQueue<MidiServiceType>& queue) : queue(queue) {}
 
-    void doTick() {
-        if (isNote(N_4)) {
+    void tick() {
+        if (beats.isBeat(curTick, B_4)) {
             if ((chordCounter % 8) == 0) {
                 curRoot = getRand(chordLow, chordHigh);
                 while (curRoot == prevRoot) {
@@ -69,27 +47,19 @@ public:
                     getRandChordInversion()
                 );
             }
-            addChord(curChord, N_8);
+            addChord(curChord, B_8);
             ++chordCounter;
         }
 
-        queue.handleEvents(tick);
+        queue.handleEvents(curTick);
 
-        ++tick;
+        ++curTick;
     }
 
-    bool isNote(Duration dur) {
-        return ((tick % ticksPerDur[dur]) == 0);
-    }
-
-    int getNote(Duration dur) {
-        return (tick / ticksPerDur[dur]);
-    }
-
-    void addChord(std::vector<int>& chord, Duration dur) {
+    void addChord(std::vector<int>& chord, BeatUnit beat) {
         for (auto note : chord) {
-            queue.addNoteOnEvent(note, 100, tick);
-            queue.addNoteOffEvent(note, tick + ticksPerDur[dur]);
+            queue.addNoteOnEvent(note, 100, curTick);
+            queue.addNoteOffEvent(note, curTick + beats.ticksPerBeat(beat));
         }
     }
 };

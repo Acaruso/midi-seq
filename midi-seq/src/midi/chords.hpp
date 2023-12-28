@@ -6,14 +6,14 @@
 #include "../main/util.hpp"
 
 enum ChordType {
-    MAJOR = 0,
-    MINOR = 1,
+    MAJOR,
+    MINOR,
 };
 
 enum ChordInversion {
-    ROOT       = 0,
-    FIRST_INV  = 1,
-    SECOND_INV = 2,
+    ROOT,
+    FIRST_INV,
+    SECOND_INV,
 };
 
 inline ChordType getRandChordType() {

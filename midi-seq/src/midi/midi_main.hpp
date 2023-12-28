@@ -61,7 +61,6 @@ inline int midiMain() {
 }
 
 inline void CALLBACK timerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2) {
-    // std::cout << "MIDI message sent" << std::endl;
     Sequencer<MidiService>* sequencer = (Sequencer<MidiService>*)dwUser;
-    sequencer->doTick();
+    sequencer->tick();
 }
