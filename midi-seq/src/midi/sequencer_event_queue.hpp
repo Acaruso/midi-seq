@@ -52,22 +52,21 @@ class SequencerEventQueue {
 public:
     MidiServiceType& midiService;
 
-    int eventsCapacity = 10000;
-    int eventsLen = 0;
-    std::vector<SeqEvent> events = std::vector<SeqEvent>(eventsCapacity, SeqEvent{});
+    int capacity = 10000;
+    int size = 0;
+    std::vector<SeqEvent> events = std::vector<SeqEvent>(capacity, SeqEvent{});
 
-    SequencerEventQueue(MidiServiceType& _midiService)
-        : midiService(_midiService)
+    SequencerEventQueue(MidiServiceType& midiService)
+        : midiService(midiService)
     {}
 
     void addEvent(SeqEvent event) {
-        if (eventsLen == eventsCapacity) {
+        if (size == capacity) {
             // TODO: handle this better
             std::cerr << "SequencerEventQueue at capacity" << std::endl;
             return;
         }
-        events[eventsLen] = event;
-        ++eventsLen;
+        events[size++] = event;
         sortEvents();
     }
 
@@ -84,17 +83,17 @@ public:
     }
 
     void handleEvents(int curTimestamp) {
-        if (eventsLen == 0) {
+        if (size == 0) {
             return;
         }
 
-        while (eventsLen > 0) {
-            auto& event = events[eventsLen - 1];
+        while (size > 0) {
+            auto& event = events[size - 1];
             if (event.timestamp > curTimestamp) {
                 break;
             }
             handleEvent(event);
-            --eventsLen;
+            --size;
         }
     }
 
@@ -121,7 +120,7 @@ private:
     void sortEvents() {
         std::sort(
             events.begin(), 
-            events.begin() + eventsLen, 
+            events.begin() + size, 
             [](const SeqEvent &a, const SeqEvent &b) {
                 return a.timestamp > b.timestamp;
             }

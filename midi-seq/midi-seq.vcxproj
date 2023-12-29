@@ -44,6 +44,7 @@
     <ClInclude Include="src/midi/chords.hpp" />
     <ClInclude Include="src/midi/midi_main.hpp" />
     <ClInclude Include="src/midi/midi_service.hpp" />
+    <ClInclude Include="src/midi/sequence.hpp" />
     <ClInclude Include="src/midi/sequencer.hpp" />
     <ClInclude Include="src/midi/sequencer_event_queue.hpp" />
   </ItemGroup>

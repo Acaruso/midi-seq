@@ -3,6 +3,7 @@
   <ItemGroup>
     <ClCompile Include="test.cpp" />
     <ClCompile Include="test_beats.cpp" />
+    <ClCompile Include="test_sequence.cpp" />
     <ClCompile Include="test_sequencer_event_queue.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -10,6 +11,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ClInclude Include="stub_midi_service.hpp" />
   </ItemGroup>
 
   <ItemGroup Label="ProjectConfigurations">
