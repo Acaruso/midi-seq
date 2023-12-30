@@ -7,9 +7,10 @@
 
 class Event {
 public:
-    int note;
-    int velocity;
-    int duration;
+    bool on = false;
+    int note = 0;
+    int velocity = 0;
+    int duration = 0;
 };
 
 template <typename MidiServiceType>
@@ -32,7 +33,8 @@ public:
         queue(queue), 
         events(size, Event{}), 
         size(size), 
-        stepSize(stepSize)
+        stepSize(stepSize),
+        playHead(0)
     {}
 
     void addEvent(int idx, int note, int velocity, int duration) {
@@ -42,13 +44,15 @@ public:
             return;
         }
 
-        events[idx] = Event{note, velocity, duration};
+        events[idx] = Event{true, note, velocity, duration};
     }
 
     void tick(int tick) {
         if (beats.isBeat(tick, stepSize)) {
             Event& e = events[playHead];
-            handleEvent(tick, e);
+            if (e.on) {
+                handleEvent(tick, e);
+            }
             playHead = ((playHead + 1) % size);
         }
     }

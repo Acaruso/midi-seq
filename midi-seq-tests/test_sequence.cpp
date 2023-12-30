@@ -10,10 +10,27 @@ TEST(TestSequence, T1) {
     SequencerEventQueue<StubMidiService> queue(midiService);
     Sequence<StubMidiService> seq(beats, queue, 16, B_16);
 
-    // seq.addEvent(0, 1, 100, 1000);
-    // seq.addEvent(2, 2, 100, 1000);
+    seq.addEvent(0, 1, 100, beats.ticksPerBeat(B_16));
+    seq.addEvent(2, 2, 100, beats.ticksPerBeat(B_16));
 
-    // seq.tick(0);
+    int curTick = 0;
 
-    EXPECT_EQ(1, 1);
+    seq.tick(curTick);
+    queue.handleEvents(curTick);
+
+    EXPECT_EQ(midiService.getMessagesSize(), 1);
+    EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");
+
+    curTick = beats.ticksPerBeat(B_16) * 1;
+    seq.tick(curTick);
+    queue.handleEvents(curTick);
+
+    curTick = beats.ticksPerBeat(B_16) * 2;
+    seq.tick(curTick);
+    queue.handleEvents(curTick);
+
+    EXPECT_EQ(midiService.getMessagesSize(), 3);
+    EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");
+    EXPECT_EQ(midiService.getMessage(1), "noteOff 1");
+    EXPECT_EQ(midiService.getMessage(2), "noteOn 2 100");
 }
