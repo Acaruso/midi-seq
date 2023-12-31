@@ -10,8 +10,8 @@ TEST(TestSequence, T1) {
     MidiQueue<StubMidiService> midiQueue(midiService);
     Sequence<StubMidiService> seq(beats, midiQueue, 16, B_16);
 
-    seq.addEvent(0, 1, 100, beats.ticksPerBeat(B_16));
-    seq.addEvent(2, 2, 100, beats.ticksPerBeat(B_16));
+    seq.addNoteEvent(0, 1, 100, beats.ticksPerBeat(B_16));
+    seq.addNoteEvent(2, 2, 100, beats.ticksPerBeat(B_16));
 
     int curTick = 0;
 

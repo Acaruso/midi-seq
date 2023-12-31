@@ -2,43 +2,43 @@
 #include <vector>
 #include "../midi-seq/src/midi/chords.hpp"
 
-TEST(ChordTests, CreateChordByRoot1) {
+TEST(TestChords, CreateChordByRoot1) {
     std::vector<int> res = createChordByRoot(10, MAJOR, ROOT);
     std::vector<int> expected = {10, 14, 17};
     EXPECT_EQ(res, expected);
 }
 
-TEST(ChordTests, CreateChordByRoot2) {
+TEST(TestChords, CreateChordByRoot2) {
     std::vector<int> res = createChordByRoot(10, MINOR, ROOT);
     std::vector<int> expected = {10, 13, 17};
     EXPECT_EQ(res, expected);
 }
 
-TEST(ChordTests, CreateChordByRoot3) {
+TEST(TestChords, CreateChordByRoot3) {
     std::vector<int> res = createChordByRoot(10, MAJOR, FIRST_INV);
     std::vector<int> expected = {2, 5, 10};
     EXPECT_EQ(res, expected);
 }
 
-TEST(ChordTests, CreateChordByRoot4) {
+TEST(TestChords, CreateChordByRoot4) {
     std::vector<int> res = createChordByRoot(10, MAJOR, SECOND_INV);
     std::vector<int> expected = {5, 10, 14};
     EXPECT_EQ(res, expected);
 }
 
-TEST(ChordTests, CreateChordByLowestNote1) {
+TEST(TestChords, CreateChordByLowestNote1) {
     std::vector<int> res = createChordByLowestNote(10, MAJOR, ROOT);
     std::vector<int> expected = {10, 14, 17};
     EXPECT_EQ(res, expected);
 }
 
-TEST(ChordTests, CreateChordByLowestNote2) {
+TEST(TestChords, CreateChordByLowestNote2) {
     std::vector<int> res = createChordByLowestNote(10, MAJOR, FIRST_INV);
     std::vector<int> expected = {10, 13, 18};
     EXPECT_EQ(res, expected);
 }
 
-TEST(ChordTests, CreateChordByLowestNote3) {
+TEST(TestChords, CreateChordByLowestNote3) {
     std::vector<int> res = createChordByLowestNote(10, MAJOR, SECOND_INV);
     std::vector<int> expected = {10, 15, 19};
     EXPECT_EQ(res, expected);

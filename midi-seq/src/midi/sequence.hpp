@@ -34,6 +34,13 @@ inline Event createNoteEvent(int note, int velocity, int duration) {
     return event;
 }
 
+inline Event createNoteRollEvent(int note, int velocity, int duration, int numRepeats, int freqRepeats) {
+    Event event;
+    event.on = true;
+    event.eventType = NoteRoll{note, velocity, duration, numRepeats, freqRepeats};
+    return event;
+}
+
 template <typename MidiServiceType>
 class Sequence {
 public:
@@ -58,14 +65,21 @@ public:
         playHead(0)
     {}
 
-    void addEvent(int idx, int note, int velocity, int duration) {
+    void addNoteEvent(int idx, int note, int velocity, int duration) {
+        addEvent(idx, createNoteEvent(note, velocity, duration));
+    }
+
+    void addNoteRollEvent(int idx, int note, int velocity, int duration, int numRepeats, int freqRepeats) {
+        addEvent(idx, createNoteRollEvent(note, velocity, duration, numRepeats, freqRepeats));
+    }
+
+    void addEvent(int idx, Event& event) {
         if (idx >= size) {
             // TODO: handle this better
             std::cerr << "Sequence: idx >= size" << std::endl;
             return;
         }
-
-        events[idx] = createNoteEvent(note, velocity, duration);
+        events[idx] = event;
     }
 
     void tick(int curTick) {

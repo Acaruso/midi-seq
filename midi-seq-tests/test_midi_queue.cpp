@@ -4,7 +4,7 @@
 #include "../midi-seq/src/midi/midi_queue.hpp"
 #include "stub_midi_service.hpp"
 
-TEST(MidiQueueTests, TestMidiQueueOperations) {
+TEST(TestMidiQueue, TestMidiQueueOperations) {
     StubMidiService midiService(0);
     MidiQueue<StubMidiService> q(midiService);
 
@@ -42,7 +42,7 @@ TEST(MidiQueueTests, TestMidiQueueOperations) {
     EXPECT_EQ(q.events[0].tick, 123);
 }
 
-TEST(MidiQueueTests, TestMidiQueueSideEffects) {
+TEST(TestMidiQueue, TestMidiQueueSideEffects) {
     StubMidiService m(0);
     MidiQueue<StubMidiService> q(m);
 
