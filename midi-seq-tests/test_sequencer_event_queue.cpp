@@ -14,23 +14,23 @@ TEST(SequencerEventQueueTests, TestQueueOperations) {
     q.addEvent(createNoteOnEvent(1, 100, 43));
 
     EXPECT_EQ(q.size, 4);
-    EXPECT_EQ(q.events[0].timestamp, 99);
-    EXPECT_EQ(q.events[1].timestamp, 55);
-    EXPECT_EQ(q.events[2].timestamp, 43);
-    EXPECT_EQ(q.events[3].timestamp, 2);
+    EXPECT_EQ(q.events[0].tick, 99);
+    EXPECT_EQ(q.events[1].tick, 55);
+    EXPECT_EQ(q.events[2].tick, 43);
+    EXPECT_EQ(q.events[3].tick, 2);
 
     q.handleEvents(43);
 
     EXPECT_EQ(q.size, 2);
-    EXPECT_EQ(q.events[0].timestamp, 99);
-    EXPECT_EQ(q.events[1].timestamp, 55);
+    EXPECT_EQ(q.events[0].tick, 99);
+    EXPECT_EQ(q.events[1].tick, 55);
 
     q.addEvent(createNoteOnEvent(1, 100, 999));
 
     EXPECT_EQ(q.size, 3);
-    EXPECT_EQ(q.events[0].timestamp, 999);
-    EXPECT_EQ(q.events[1].timestamp, 99);
-    EXPECT_EQ(q.events[2].timestamp, 55);
+    EXPECT_EQ(q.events[0].tick, 999);
+    EXPECT_EQ(q.events[1].tick, 99);
+    EXPECT_EQ(q.events[2].tick, 55);
 
     q.handleEvents(999);
 
@@ -39,7 +39,7 @@ TEST(SequencerEventQueueTests, TestQueueOperations) {
     q.addEvent(createNoteOnEvent(1, 100, 123));
 
     EXPECT_EQ(q.size, 1);
-    EXPECT_EQ(q.events[0].timestamp, 123);
+    EXPECT_EQ(q.events[0].tick, 123);
 }
 
 TEST(SequencerEventQueueTests, TestMidiSideEffects) {

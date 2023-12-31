@@ -14,36 +14,36 @@ struct SeqEvent {
     SeqEventType type;
     int note;
     int velocity;
-    int timestamp;
+    int tick;
     int channel;        // for midi cc
     int controller;     // for midi cc
     int value;          // for midi cc
 };
 
-inline SeqEvent createNoteOnEvent(int note, int velocity, int timestamp) {
+inline SeqEvent createNoteOnEvent(int note, int velocity, int tick) {
     SeqEvent s;
     s.type = NOTE_ON;
     s.note = note;
     s.velocity = velocity;
-    s.timestamp = timestamp;
+    s.tick = tick;
     return s;
 }
 
-inline SeqEvent createNoteOffEvent(int note, int timestamp) {
+inline SeqEvent createNoteOffEvent(int note, int tick) {
     SeqEvent s;
     s.type = NOTE_OFF;
     s.note = note;
-    s.timestamp = timestamp;
+    s.tick = tick;
     return s;
 }
 
-inline SeqEvent createCCEvent(int channel, int controller, int value, int timestamp) {
+inline SeqEvent createCCEvent(int channel, int controller, int value, int tick) {
     SeqEvent s;
     s.type = CC;
     s.channel = channel;
     s.controller = controller;
     s.value = value;
-    s.timestamp = timestamp;
+    s.tick = tick;
     return s;
 }
 
@@ -70,26 +70,26 @@ public:
         sortEvents();
     }
 
-    void addNoteOnEvent(int note, int velocity, int timestamp) {
-        addEvent(createNoteOnEvent(note, velocity, timestamp));
+    void addNoteOnEvent(int note, int velocity, int tick) {
+        addEvent(createNoteOnEvent(note, velocity, tick));
     }
 
-    void addNoteOffEvent(int note, int timestamp) {
-        addEvent(createNoteOffEvent(note, timestamp));
+    void addNoteOffEvent(int note, int tick) {
+        addEvent(createNoteOffEvent(note, tick));
     }
 
-    void addCCEvent(int channel, int controller, int value, int timestamp) {
-        addEvent(createCCEvent(channel, controller, value, timestamp));
+    void addCCEvent(int channel, int controller, int value, int tick) {
+        addEvent(createCCEvent(channel, controller, value, tick));
     }
 
-    void handleEvents(int curTimestamp) {
+    void handleEvents(int curTick) {
         if (size == 0) {
             return;
         }
 
         while (size > 0) {
             auto& event = events[size - 1];
-            if (event.timestamp > curTimestamp) {
+            if (event.tick > curTick) {
                 break;
             }
             handleEvent(event);
@@ -115,14 +115,14 @@ public:
     }
 
 private:
-    // sort events by timestamp in decending order
+    // sort events by tick in decending order
     // example: [99, 50, 45, 12, 1]
     void sortEvents() {
         std::sort(
-            events.begin(), 
-            events.begin() + size, 
+            events.begin(),
+            events.begin() + size,
             [](const SeqEvent &a, const SeqEvent &b) {
-                return a.timestamp > b.timestamp;
+                return a.tick > b.tick;
             }
         );
     }

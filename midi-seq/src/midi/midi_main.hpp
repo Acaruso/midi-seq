@@ -19,7 +19,7 @@ void CALLBACK timerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1
 const UINT TIMER_INTERVAL_MS = 1;
 
 inline int midiMain() {
-    // seed the rand() fn
+    // seed rand
     srand(static_cast<unsigned int>(time(0)));
 
     MidiService midiService(2);
