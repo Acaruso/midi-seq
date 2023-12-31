@@ -47,8 +47,6 @@ public:
             addChord(curTick, curChord, B_8);
             ++chordCounter;
         }
-
-        midiQueue.handleEvents(curTick);
     }
 
     void addChord(int curTick, std::vector<int>& chord, BeatUnit beat) {

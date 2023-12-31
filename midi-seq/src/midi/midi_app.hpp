@@ -23,6 +23,11 @@ public:
 
     void tick() {
         chordGenerator.tick(curTick);
+
+        // TODO: refactor code so that handleEvents can be first
+        // this will make timing more stable
+        midiQueue.handleEvents(curTick);
+
         ++curTick;
     }
 };
