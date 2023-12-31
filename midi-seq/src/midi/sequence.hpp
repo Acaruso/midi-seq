@@ -73,7 +73,7 @@ public:
         addEvent(idx, createNoteRollEvent(note, velocity, numRepeats, totalDuration, restDuration));
     }
 
-    void addEvent(int idx, Event& event) {
+    void addEvent(int idx, Event event) {
         if (idx >= size) {
             // TODO: handle this better
             std::cerr << "Sequence: idx >= size" << std::endl;
