@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include "beats.hpp"
-#include "sequencer_event_queue.hpp"
+#include "midi_queue.hpp"
 
 class Event {
 public:
@@ -17,22 +17,22 @@ template <typename MidiServiceType>
 class Sequence {
 public:
     Beats& beats;
-    SequencerEventQueue<MidiServiceType>& queue;
+    MidiQueue<MidiServiceType>& queue;
     std::vector<Event> events;
     int size;
     BeatUnit stepSize;
     int playHead;
 
     Sequence(
-        Beats& beats, 
-        SequencerEventQueue<MidiServiceType>& queue, 
-        int size, 
+        Beats& beats,
+        MidiQueue<MidiServiceType>& queue,
+        int size,
         BeatUnit stepSize
-    ) :  
-        beats(beats), 
-        queue(queue), 
-        events(size, Event{}), 
-        size(size), 
+    ) :
+        beats(beats),
+        queue(queue),
+        events(size, Event{}),
+        size(size),
         stepSize(stepSize),
         playHead(0)
     {}

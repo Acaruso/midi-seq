@@ -1,12 +1,12 @@
 #include "pch.h"
 #include <string>
 #include <vector>
-#include "../midi-seq/src/midi/sequencer_event_queue.hpp"
+#include "../midi-seq/src/midi/midi_queue.hpp"
 #include "stub_midi_service.hpp"
 
-TEST(SequencerEventQueueTests, TestQueueOperations) {
+TEST(MidiQueueTests, TestMidiQueueOperations) {
     StubMidiService midiService(0);
-    SequencerEventQueue<StubMidiService> q(midiService);
+    MidiQueue<StubMidiService> q(midiService);
 
     q.addEvent(createNoteOnEvent(1, 100, 99));
     q.addEvent(createNoteOnEvent(1, 100, 2));
@@ -42,9 +42,9 @@ TEST(SequencerEventQueueTests, TestQueueOperations) {
     EXPECT_EQ(q.events[0].tick, 123);
 }
 
-TEST(SequencerEventQueueTests, TestMidiSideEffects) {
+TEST(MidiQueueTests, TestMidiQueueSideEffects) {
     StubMidiService m(0);
-    SequencerEventQueue<StubMidiService> q(m);
+    MidiQueue<StubMidiService> q(m);
 
     q.addEvent(createNoteOnEvent(1, 10, 99));
     q.addEvent(createNoteOnEvent(2, 11, 2));

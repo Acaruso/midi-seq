@@ -7,12 +7,12 @@
 #include "../main/util.hpp"
 #include "beats.hpp"
 #include "chords.hpp"
-#include "sequencer_event_queue.hpp"
+#include "midi_queue.hpp"
 
 template <typename MidiServiceType>
 class Sequencer {
 public:
-    SequencerEventQueue<MidiServiceType>& queue;
+    MidiQueue<MidiServiceType>& midiQueue;
     Beats beats{60};
 
     int curTick = 0;
@@ -31,7 +31,7 @@ public:
     int curRoot = 0;
     int prevRoot = 0;
 
-    Sequencer(SequencerEventQueue<MidiServiceType>& queue) : queue(queue) {}
+    Sequencer(MidiQueue<MidiServiceType>& queue) : midiQueue(queue) {}
 
     void tick() {
         if (beats.isBeat(curTick, B_4)) {
@@ -51,15 +51,15 @@ public:
             ++chordCounter;
         }
 
-        queue.handleEvents(curTick);
+        midiQueue.handleEvents(curTick);
 
         ++curTick;
     }
 
     void addChord(std::vector<int>& chord, BeatUnit beat) {
         for (auto note : chord) {
-            queue.addNoteOnEvent(note, 100, curTick);
-            queue.addNoteOffEvent(note, curTick + beats.ticksPerBeat(beat));
+            midiQueue.addNoteOnEvent(note, 100, curTick);
+            midiQueue.addNoteOffEvent(note, curTick + beats.ticksPerBeat(beat));
         }
     }
 };

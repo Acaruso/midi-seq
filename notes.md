@@ -1,8 +1,8 @@
-- `SequencerEventQueue` only handles "low level events"
+- `MidiQueue` only handles "low level events"
   - its main purpose is for scheduling corresponding noteOff events for each noteOn event
 
 - create higher level constructs that are more useful
-  - these can use `SequencerEventQueue` to do low level things
+  - these can use `MidiQueue` to do low level things
 
 - think about being able to quickly and easily "spin up" sequences
   - each sequence is an object
@@ -53,7 +53,7 @@
   - generate an entire new sequence
 
 - i guess what we will probably want is some sort of "global" vector of all sequences
-    - each tick, do something like: 
+    - each tick, do something like:
       - `for seq in seqVector: seq.onTick(curTick)`
     - similar to video game development
 

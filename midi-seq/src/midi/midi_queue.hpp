@@ -4,14 +4,14 @@
 #include <iostream>
 #include <vector>
 
-enum SeqEventType {
+enum MidiEventType {
     NOTE_ON  = 0,
     NOTE_OFF = 1,
     CC       = 2,
 };
 
-struct SeqEvent {
-    SeqEventType type;
+struct MidiEvent {
+    MidiEventType type;
     int note;
     int velocity;
     int tick;
@@ -20,50 +20,48 @@ struct SeqEvent {
     int value;          // for midi cc
 };
 
-inline SeqEvent createNoteOnEvent(int note, int velocity, int tick) {
-    SeqEvent s;
-    s.type = NOTE_ON;
-    s.note = note;
-    s.velocity = velocity;
-    s.tick = tick;
-    return s;
+inline MidiEvent createNoteOnEvent(int note, int velocity, int tick) {
+    MidiEvent e;
+    e.type = NOTE_ON;
+    e.note = note;
+    e.velocity = velocity;
+    e.tick = tick;
+    return e;
 }
 
-inline SeqEvent createNoteOffEvent(int note, int tick) {
-    SeqEvent s;
-    s.type = NOTE_OFF;
-    s.note = note;
-    s.tick = tick;
-    return s;
+inline MidiEvent createNoteOffEvent(int note, int tick) {
+    MidiEvent e;
+    e.type = NOTE_OFF;
+    e.note = note;
+    e.tick = tick;
+    return e;
 }
 
-inline SeqEvent createCCEvent(int channel, int controller, int value, int tick) {
-    SeqEvent s;
-    s.type = CC;
-    s.channel = channel;
-    s.controller = controller;
-    s.value = value;
-    s.tick = tick;
-    return s;
+inline MidiEvent createCCEvent(int channel, int controller, int value, int tick) {
+    MidiEvent e;
+    e.type = CC;
+    e.channel = channel;
+    e.controller = controller;
+    e.value = value;
+    e.tick = tick;
+    return e;
 }
 
 template <typename MidiServiceType>
-class SequencerEventQueue {
+class MidiQueue {
 public:
     MidiServiceType& midiService;
 
     int capacity = 10000;
     int size = 0;
-    std::vector<SeqEvent> events = std::vector<SeqEvent>(capacity, SeqEvent{});
+    std::vector<MidiEvent> events = std::vector<MidiEvent>(capacity, MidiEvent{});
 
-    SequencerEventQueue(MidiServiceType& midiService)
-        : midiService(midiService)
-    {}
+    MidiQueue(MidiServiceType& m) : midiService(m) {}
 
-    void addEvent(SeqEvent event) {
+    void addEvent(MidiEvent event) {
         if (size == capacity) {
             // TODO: handle this better
-            std::cerr << "SequencerEventQueue at capacity" << std::endl;
+            std::cerr << "MidiQueue at capacity" << std::endl;
             return;
         }
         events[size++] = event;
@@ -97,7 +95,7 @@ public:
         }
     }
 
-    void handleEvent(SeqEvent& event) {
+    void handleEvent(MidiEvent& event) {
         switch (event.type) {
             case NOTE_ON: {
                 midiService.noteOn(event.note, event.velocity);
@@ -121,7 +119,7 @@ private:
         std::sort(
             events.begin(),
             events.begin() + size,
-            [](const SeqEvent &a, const SeqEvent &b) {
+            [](const MidiEvent &a, const MidiEvent &b) {
                 return a.tick > b.tick;
             }
         );

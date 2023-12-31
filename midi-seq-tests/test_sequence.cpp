@@ -7,8 +7,8 @@
 TEST(TestSequence, T1) {
     Beats beats(24);
     StubMidiService midiService(0);
-    SequencerEventQueue<StubMidiService> queue(midiService);
-    Sequence<StubMidiService> seq(beats, queue, 16, B_16);
+    MidiQueue<StubMidiService> midiQueue(midiService);
+    Sequence<StubMidiService> seq(beats, midiQueue, 16, B_16);
 
     seq.addEvent(0, 1, 100, beats.ticksPerBeat(B_16));
     seq.addEvent(2, 2, 100, beats.ticksPerBeat(B_16));
@@ -16,14 +16,14 @@ TEST(TestSequence, T1) {
     int curTick = 0;
 
     seq.tick(curTick);
-    queue.handleEvents(curTick);
+    midiQueue.handleEvents(curTick);
 
     EXPECT_EQ(midiService.getMessagesSize(), 1);
     EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");
 
     curTick = beats.ticksPerBeat(B_16) * 1;
     seq.tick(curTick);
-    queue.handleEvents(curTick);
+    midiQueue.handleEvents(curTick);
 
     EXPECT_EQ(midiService.getMessagesSize(), 2);
     EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");
@@ -31,7 +31,7 @@ TEST(TestSequence, T1) {
 
     curTick = beats.ticksPerBeat(B_16) * 2;
     seq.tick(curTick);
-    queue.handleEvents(curTick);
+    midiQueue.handleEvents(curTick);
 
     EXPECT_EQ(midiService.getMessagesSize(), 3);
     EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");
@@ -40,7 +40,7 @@ TEST(TestSequence, T1) {
 
     curTick = beats.ticksPerBeat(B_16) * 3;
     seq.tick(curTick);
-    queue.handleEvents(curTick);
+    midiQueue.handleEvents(curTick);
 
     EXPECT_EQ(midiService.getMessagesSize(), 4);
     EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");

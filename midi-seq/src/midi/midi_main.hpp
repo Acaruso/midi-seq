@@ -11,7 +11,7 @@
 
 #include "midi_service.hpp"
 #include "sequencer.hpp"
-#include "sequencer_event_queue.hpp"
+#include "midi_queue.hpp"
 
 void CALLBACK timerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
 
@@ -22,9 +22,9 @@ inline int midiMain() {
     // seed rand
     srand(static_cast<unsigned int>(time(0)));
 
-    MidiService midiService(2);
-    SequencerEventQueue<MidiService> sequencerEventQueue(midiService);
-    Sequencer<MidiService> sequencer(sequencerEventQueue);
+    MidiService midiService(1);
+    MidiQueue<MidiService> midiQueue(midiService);
+    Sequencer<MidiService> sequencer(midiQueue);
 
     DWORD taskIndex = 0;
     HANDLE hTask = AvSetMmThreadCharacteristics(TEXT("Pro Audio"), &taskIndex);
