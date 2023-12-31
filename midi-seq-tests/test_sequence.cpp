@@ -25,6 +25,10 @@ TEST(TestSequence, T1) {
     seq.tick(curTick);
     queue.handleEvents(curTick);
 
+    EXPECT_EQ(midiService.getMessagesSize(), 2);
+    EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");
+    EXPECT_EQ(midiService.getMessage(1), "noteOff 1");
+
     curTick = beats.ticksPerBeat(B_16) * 2;
     seq.tick(curTick);
     queue.handleEvents(curTick);
@@ -33,4 +37,14 @@ TEST(TestSequence, T1) {
     EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");
     EXPECT_EQ(midiService.getMessage(1), "noteOff 1");
     EXPECT_EQ(midiService.getMessage(2), "noteOn 2 100");
+
+    curTick = beats.ticksPerBeat(B_16) * 3;
+    seq.tick(curTick);
+    queue.handleEvents(curTick);
+
+    EXPECT_EQ(midiService.getMessagesSize(), 4);
+    EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");
+    EXPECT_EQ(midiService.getMessage(1), "noteOff 1");
+    EXPECT_EQ(midiService.getMessage(2), "noteOn 2 100");
+    EXPECT_EQ(midiService.getMessage(3), "noteOff 2");
 }
