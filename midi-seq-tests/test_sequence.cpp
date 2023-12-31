@@ -1,115 +1,123 @@
 #include "pch.h"
 #include <string>
+#include <vector>
 #include "../midi-seq/src/midi/beats.hpp"
 #include "../midi-seq/src/midi/sequence.hpp"
 #include "stub_midi_service.hpp"
 
+class TestSequenceHelper {
+public:
+    Beats beats;
+    StubMidiService midiService;
+    MidiQueue<StubMidiService> midiQueue;
+    Sequence<StubMidiService> sequence;
+    BeatUnit stepInc;
+    int stepIdx = 0;
+
+    TestSequenceHelper(BeatUnit stepInc) :
+        beats(24),
+        midiService(0),
+        midiQueue(midiService),
+        sequence(beats, midiQueue, 16, B_16),
+        stepInc(stepInc)
+    {}
+
+    void step() {
+        int curTick = beats.ticksPerBeat(B_16) * stepIdx;
+        sequence.tick(curTick);
+        midiQueue.handleEvents(curTick);
+        ++stepIdx;
+    }
+
+    void assertMidi(std::vector<std::string> messages) {
+        EXPECT_EQ(midiService.getMessagesSize(), messages.size());
+        int i = 0;
+        for (auto& message : messages) {
+            EXPECT_EQ(midiService.getMessage(i++), message);
+        }
+    }
+};
+
 TEST(TestSequence, NoteEvent) {
-    Beats beats(24);
-    StubMidiService midiService(0);
-    MidiQueue<StubMidiService> midiQueue(midiService);
-    Sequence<StubMidiService> seq(beats, midiQueue, 16, B_16);
+    TestSequenceHelper h(B_16);
 
-    seq.addNoteEvent(0, 1, 100, beats.ticksPerBeat(B_16));
-    seq.addNoteEvent(2, 2, 100, beats.ticksPerBeat(B_16));
+    h.sequence.addNoteEvent(0, 1, 100, h.beats.ticksPerBeat(B_16));
+    h.sequence.addNoteEvent(2, 2, 100, h.beats.ticksPerBeat(B_16));
 
-    int curTick = beats.ticksPerBeat(B_16) * 0;
-    seq.tick(curTick);
-    midiQueue.handleEvents(curTick);
+    h.step();
+    h.assertMidi(std::vector<std::string>{
+        "noteOn 1 100",
+    });
 
-    EXPECT_EQ(midiService.getMessagesSize(), 1);
-    EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");
+    h.step();
+    h.assertMidi(std::vector<std::string>{
+        "noteOn 1 100",
+        "noteOff 1",
+    });
 
-    curTick = beats.ticksPerBeat(B_16) * 1;
-    seq.tick(curTick);
-    midiQueue.handleEvents(curTick);
+    h.step();
+    h.assertMidi(std::vector<std::string>{
+        "noteOn 1 100",
+        "noteOff 1",
+        "noteOn 2 100",
+    });
 
-    EXPECT_EQ(midiService.getMessagesSize(), 2);
-    EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");
-    EXPECT_EQ(midiService.getMessage(1), "noteOff 1");
-
-    curTick = beats.ticksPerBeat(B_16) * 2;
-    seq.tick(curTick);
-    midiQueue.handleEvents(curTick);
-
-    EXPECT_EQ(midiService.getMessagesSize(), 3);
-    EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");
-    EXPECT_EQ(midiService.getMessage(1), "noteOff 1");
-    EXPECT_EQ(midiService.getMessage(2), "noteOn 2 100");
-
-    curTick = beats.ticksPerBeat(B_16) * 3;
-    seq.tick(curTick);
-    midiQueue.handleEvents(curTick);
-
-    EXPECT_EQ(midiService.getMessagesSize(), 4);
-    EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");
-    EXPECT_EQ(midiService.getMessage(1), "noteOff 1");
-    EXPECT_EQ(midiService.getMessage(2), "noteOn 2 100");
-    EXPECT_EQ(midiService.getMessage(3), "noteOff 2");
+    h.step();
+    h.assertMidi(std::vector<std::string>{
+        "noteOn 1 100",
+        "noteOff 1",
+        "noteOn 2 100",
+        "noteOff 2",
+    });
 }
 
 TEST(TestSequence, NoteRollEvent) {
-    Beats beats(24);
-    StubMidiService midiService(0);
-    MidiQueue<StubMidiService> midiQueue(midiService);
-    Sequence<StubMidiService> seq(beats, midiQueue, 16, B_16);
+    TestSequenceHelper h(B_16);
 
-    seq.addNoteRollEvent(0, 1, 100, 3, beats.ticksPerBeat(B_8), beats.ticksPerBeat(B_16));
+    h.sequence.addNoteRollEvent(0, 1, 100, 3, h.beats.ticksPerBeat(B_8), h.beats.ticksPerBeat(B_16));
 
-    int curTick = beats.ticksPerBeat(B_16) * 0;
-    seq.tick(curTick);
-    midiQueue.handleEvents(curTick);
+    h.step();
+    h.assertMidi(std::vector<std::string>{
+        "noteOn 1 100",
+    });
 
-    EXPECT_EQ(midiService.getMessagesSize(), 1);
-    EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");
+    h.step();
+    h.assertMidi(std::vector<std::string>{
+        "noteOn 1 100",
+        "noteOff 1",
+    });
 
-    curTick = beats.ticksPerBeat(B_16) * 1;
-    seq.tick(curTick);
-    midiQueue.handleEvents(curTick);
+    h.step();
+    h.assertMidi(std::vector<std::string>{
+        "noteOn 1 100",
+        "noteOff 1",
+        "noteOn 1 100",
+    });
 
-    EXPECT_EQ(midiService.getMessagesSize(), 2);
-    EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");
-    EXPECT_EQ(midiService.getMessage(1), "noteOff 1");
+    h.step();
+    h.assertMidi(std::vector<std::string>{
+        "noteOn 1 100",
+        "noteOff 1",
+        "noteOn 1 100",
+        "noteOff 1",
+    });
 
-    curTick = beats.ticksPerBeat(B_16) * 2;
-    seq.tick(curTick);
-    midiQueue.handleEvents(curTick);
+    h.step();
+    h.assertMidi(std::vector<std::string>{
+        "noteOn 1 100",
+        "noteOff 1",
+        "noteOn 1 100",
+        "noteOff 1",
+        "noteOn 1 100",
+    });
 
-    EXPECT_EQ(midiService.getMessagesSize(), 3);
-    EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");
-    EXPECT_EQ(midiService.getMessage(1), "noteOff 1");
-    EXPECT_EQ(midiService.getMessage(2), "noteOn 1 100");
-
-    curTick = beats.ticksPerBeat(B_16) * 3;
-    seq.tick(curTick);
-    midiQueue.handleEvents(curTick);
-
-    EXPECT_EQ(midiService.getMessagesSize(), 4);
-    EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");
-    EXPECT_EQ(midiService.getMessage(1), "noteOff 1");
-    EXPECT_EQ(midiService.getMessage(2), "noteOn 1 100");
-    EXPECT_EQ(midiService.getMessage(3), "noteOff 1");
-
-    curTick = beats.ticksPerBeat(B_16) * 4;
-    seq.tick(curTick);
-    midiQueue.handleEvents(curTick);
-
-    EXPECT_EQ(midiService.getMessagesSize(), 5);
-    EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");
-    EXPECT_EQ(midiService.getMessage(1), "noteOff 1");
-    EXPECT_EQ(midiService.getMessage(2), "noteOn 1 100");
-    EXPECT_EQ(midiService.getMessage(3), "noteOff 1");
-    EXPECT_EQ(midiService.getMessage(4), "noteOn 1 100");
-
-    curTick = beats.ticksPerBeat(B_16) * 5;
-    seq.tick(curTick);
-    midiQueue.handleEvents(curTick);
-
-    EXPECT_EQ(midiService.getMessagesSize(), 6);
-    EXPECT_EQ(midiService.getMessage(0), "noteOn 1 100");
-    EXPECT_EQ(midiService.getMessage(1), "noteOff 1");
-    EXPECT_EQ(midiService.getMessage(2), "noteOn 1 100");
-    EXPECT_EQ(midiService.getMessage(3), "noteOff 1");
-    EXPECT_EQ(midiService.getMessage(4), "noteOn 1 100");
-    EXPECT_EQ(midiService.getMessage(5), "noteOff 1");
+    h.step();
+    h.assertMidi(std::vector<std::string>{
+        "noteOn 1 100",
+        "noteOff 1",
+        "noteOn 1 100",
+        "noteOff 1",
+        "noteOn 1 100",
+        "noteOff 1",
+    });
 }
