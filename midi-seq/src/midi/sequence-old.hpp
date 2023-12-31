@@ -6,33 +6,12 @@
 #include "beats.hpp"
 #include "midi_queue.hpp"
 
-struct Note {
-    int note = 0;
-    int velocity = 0;
-    int duration = 0;
-};
-
-struct NoteRoll {
-    int note = 0;
-    int velocity = 0;
-    int duration = 0;
-    int numRepeats = 0;
-    int freqRepeats = 0;
-};
-
-using EventType = std::variant<Note, NoteRoll>;
-
 struct Event {
     bool on = false;
-    EventType eventType;
+    int note = 0;
+    int velocity = 0;
+    int duration = 0;
 };
-
-inline Event createNoteEvent(int note, int velocity, int duration) {
-    Event event;
-    event.on = true;
-    event.eventType = Note{note, velocity, duration};
-    return event;
-}
 
 template <typename MidiServiceType>
 class Sequence {
@@ -65,28 +44,21 @@ public:
             return;
         }
 
-        events[idx] = createNoteEvent(note, velocity, duration);
+        events[idx] = Event{true, note, velocity, duration};
     }
 
     void tick(int curTick) {
         if (beats.isBeat(curTick, stepSize)) {
             Event& event = events[playHead];
             if (event.on) {
-                std::visit(
-                    [this, curTick](auto&& arg) { handleEvent(arg, curTick); },
-                    event.eventType
-                );
+                handleEvent(curTick, event);
             }
             playHead = ((playHead + 1) % size);
         }
     }
 
-    void handleEvent(Note& event, int curTick) {
+    void handleEvent(int curTick, Event& event) {
         midiQueue.addNoteOnEvent(event.note, event.velocity, curTick);
         midiQueue.addNoteOffEvent(event.note, curTick + event.duration);
-    }
-
-    void handleEvent(NoteRoll& event, int curTick) {
-        // do nothing
     }
 };
