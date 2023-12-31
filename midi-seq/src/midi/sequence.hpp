@@ -17,7 +17,7 @@ template <typename MidiServiceType>
 class Sequence {
 public:
     Beats& beats;
-    MidiQueue<MidiServiceType>& queue;
+    MidiQueue<MidiServiceType>& midiQueue;
     std::vector<Event> events;
     int size;
     BeatUnit stepSize;
@@ -25,12 +25,12 @@ public:
 
     Sequence(
         Beats& beats,
-        MidiQueue<MidiServiceType>& queue,
+        MidiQueue<MidiServiceType>& midiQueue,
         int size,
         BeatUnit stepSize
     ) :
         beats(beats),
-        queue(queue),
+        midiQueue(midiQueue),
         events(size, Event{}),
         size(size),
         stepSize(stepSize),
@@ -47,18 +47,18 @@ public:
         events[idx] = Event{true, note, velocity, duration};
     }
 
-    void tick(int tick) {
-        if (beats.isBeat(tick, stepSize)) {
-            Event& e = events[playHead];
-            if (e.on) {
-                handleEvent(tick, e);
+    void tick(int curTick) {
+        if (beats.isBeat(curTick, stepSize)) {
+            Event& event = events[playHead];
+            if (event.on) {
+                handleEvent(curTick, event);
             }
             playHead = ((playHead + 1) % size);
         }
     }
 
-    void handleEvent(int tick, Event& e) {
-        queue.addNoteOnEvent(e.note, e.velocity, tick);
-        queue.addNoteOffEvent(e.note, tick + e.duration);
+    void handleEvent(int curTick, Event& event) {
+        midiQueue.addNoteOnEvent(event.note, event.velocity, curTick);
+        midiQueue.addNoteOffEvent(event.note, curTick + event.duration);
     }
 };
