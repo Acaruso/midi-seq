@@ -10,39 +10,35 @@
 #include "midi_queue.hpp"
 
 template <typename MidiServiceType>
-class Sequencer {
+class ChordGenerator {
 public:
     MidiQueue<MidiServiceType>& midiQueue;
     Beats beats{60};
 
     int curTick = 0;
 
-    int bdNote = 60;
-    int sdNote = 61;
-    int hhNote = 62;
-
     std::vector<int> curChord;
     int chordCounter = 0;
 
     // MIDI note 45 == A string on guitar == A1
-    int chordLow = 48;
-    int chordHigh = 54;
+    int lowLimit = 48;
+    int highLimit = 54;
 
-    int curRoot = 0;
-    int prevRoot = 0;
+    int curLowestNote = 0;
+    int prevLowestNote = 0;
 
-    Sequencer(MidiQueue<MidiServiceType>& queue) : midiQueue(queue) {}
+    ChordGenerator(MidiQueue<MidiServiceType>& queue) : midiQueue(queue) {}
 
     void tick() {
         if (beats.isBeat(curTick, B_4)) {
             if ((chordCounter % 8) == 0) {
-                curRoot = getRand(chordLow, chordHigh);
-                while (curRoot == prevRoot) {
-                    curRoot = getRand(chordLow, chordHigh);
+                curLowestNote = getRand(lowLimit, highLimit);
+                while (curLowestNote == prevLowestNote) {
+                    curLowestNote = getRand(lowLimit, highLimit);
                 }
-                prevRoot = curRoot;
+                prevLowestNote = curLowestNote;
                 curChord = createChordByLowestNote(
-                    curRoot,
+                    curLowestNote,
                     getRandChordType(),
                     getRandChordInversion()
                 );

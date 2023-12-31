@@ -9,8 +9,8 @@
 #include <Avrt.h>
 #pragma comment(lib, "Avrt")
 
+#include "chord_generator.hpp"
 #include "midi_service.hpp"
-#include "sequencer.hpp"
 #include "midi_queue.hpp"
 
 void CALLBACK timerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
@@ -24,7 +24,7 @@ inline int midiMain() {
 
     MidiService midiService(1);
     MidiQueue<MidiService> midiQueue(midiService);
-    Sequencer<MidiService> sequencer(midiQueue);
+    ChordGenerator<MidiService> chordGenerator(midiQueue);
 
     DWORD taskIndex = 0;
     HANDLE hTask = AvSetMmThreadCharacteristics(TEXT("Pro Audio"), &taskIndex);
@@ -37,7 +37,7 @@ inline int midiMain() {
         TIMER_INTERVAL_MS,              // trigger the timer at this interval in ms
         0,                              // resolution -- lower values == more accurate but more CPU intensive
         timerCallback,                  // callback fn
-        (DWORD_PTR)(&sequencer),        // pointer to "user data" -- gets passed into `timerCallback` as `dwUser` param
+        (DWORD_PTR)(&chordGenerator),   // pointer to "user data" -- gets passed into `timerCallback` as `dwUser` param
         TIME_PERIODIC
     );
     if (timerId == 0) {
@@ -61,6 +61,6 @@ inline int midiMain() {
 }
 
 inline void CALLBACK timerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2) {
-    Sequencer<MidiService>* sequencer = (Sequencer<MidiService>*)dwUser;
-    sequencer->tick();
+    ChordGenerator<MidiService>* chordGenerator = (ChordGenerator<MidiService>*)dwUser;
+    chordGenerator->tick();
 }
