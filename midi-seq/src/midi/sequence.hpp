@@ -6,13 +6,13 @@
 #include "beats.hpp"
 #include "midi_queue.hpp"
 
-struct Note {
+struct NoteEvent {
     int note = 0;
     int velocity = 0;
     int duration = 0;
 };
 
-struct NoteRoll {
+struct NoteRollEvent {
     int note = 0;
     int velocity = 0;
     int duration = 0;
@@ -20,24 +20,24 @@ struct NoteRoll {
     int freqRepeats = 0;
 };
 
-using EventType = std::variant<Note, NoteRoll>;
+using SubEvent = std::variant<NoteEvent, NoteRollEvent>;
 
 struct Event {
     bool on = false;
-    EventType eventType;
+    SubEvent subEvent;
 };
 
 inline Event createNoteEvent(int note, int velocity, int duration) {
     Event event;
     event.on = true;
-    event.eventType = Note{note, velocity, duration};
+    event.subEvent = NoteEvent{note, velocity, duration};
     return event;
 }
 
 inline Event createNoteRollEvent(int note, int velocity, int duration, int numRepeats, int freqRepeats) {
     Event event;
     event.on = true;
-    event.eventType = NoteRoll{note, velocity, duration, numRepeats, freqRepeats};
+    event.subEvent = NoteRollEvent{note, velocity, duration, numRepeats, freqRepeats};
     return event;
 }
 
@@ -87,20 +87,20 @@ public:
             Event& event = events[playHead];
             if (event.on) {
                 std::visit(
-                    [this, curTick](auto&& arg) { handleEvent(arg, curTick); },
-                    event.eventType
+                    [this, curTick](auto&& subEvent) { handleEvent(subEvent, curTick); },
+                    event.subEvent
                 );
             }
             playHead = ((playHead + 1) % size);
         }
     }
 
-    void handleEvent(Note& event, int curTick) {
+    void handleEvent(NoteEvent& event, int curTick) {
         midiQueue.addNoteOnEvent(event.note, event.velocity, curTick);
         midiQueue.addNoteOffEvent(event.note, curTick + event.duration);
     }
 
-    void handleEvent(NoteRoll& event, int curTick) {
+    void handleEvent(NoteRollEvent& event, int curTick) {
         // do nothing
     }
 };
