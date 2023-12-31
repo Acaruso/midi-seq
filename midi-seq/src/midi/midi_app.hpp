@@ -15,8 +15,8 @@ public:
     int curTick = 0;
 
     MidiApp() :
-        beats(60),                      // ticks per 64 note
-        midiService(1),                 // midi port
+        beats(60),                          // ticks per 64 note
+        midiService(1),                     // midi port
         midiQueue(midiService),
         chordGenerator(beats, midiQueue)
     {}
