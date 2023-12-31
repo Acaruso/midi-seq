@@ -49,10 +49,9 @@ public:
         }
     }
 
-    void addChord(int curTick, std::vector<int>& chord, BeatUnit beat) {
+    void addChord(int curTick, std::vector<int>& chord, BeatUnit duration) {
         for (auto note : chord) {
-            midiQueue.addNoteOnEvent(note, 100, curTick);
-            midiQueue.addNoteOffEvent(note, curTick + beats.ticksPerBeat(beat));
+            midiQueue.noteOnOff(note, 100, curTick, beats.ticksPerBeat(duration));
         }
     }
 };

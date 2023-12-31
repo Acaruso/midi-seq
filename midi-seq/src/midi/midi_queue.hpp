@@ -58,6 +58,23 @@ public:
 
     MidiQueue(MidiServiceType& m) : midiService(m) {}
 
+    void noteOn(int note, int velocity, int tick) {
+        addEvent(createNoteOnEvent(note, velocity, tick));
+    }
+
+    void noteOff(int note, int tick) {
+        addEvent(createNoteOffEvent(note, tick));
+    }
+
+    void noteOnOff(int note, int velocity, int tick, int duration) {
+        noteOn(note, velocity, tick);
+        noteOff(note, tick + duration);
+    }
+
+    void cc(int channel, int controller, int value, int tick) {
+        addEvent(createCCEvent(channel, controller, value, tick));
+    }
+
     void addEvent(MidiEvent event) {
         if (size == capacity) {
             // TODO: handle this better
@@ -66,18 +83,6 @@ public:
         }
         events[size++] = event;
         sortEvents();
-    }
-
-    void addNoteOnEvent(int note, int velocity, int tick) {
-        addEvent(createNoteOnEvent(note, velocity, tick));
-    }
-
-    void addNoteOffEvent(int note, int tick) {
-        addEvent(createNoteOffEvent(note, tick));
-    }
-
-    void addCCEvent(int channel, int controller, int value, int tick) {
-        addEvent(createCCEvent(channel, controller, value, tick));
     }
 
     void handleEvents(int curTick) {

@@ -15,9 +15,9 @@ struct NoteEvent {
 struct NoteRollEvent {
     int note = 0;
     int velocity = 0;
-    int duration = 0;
     int numRepeats = 0;
-    int freqRepeats = 0;
+    int totalDuration = 0;
+    int restDuration = 0;
 };
 
 using SubEvent = std::variant<NoteEvent, NoteRollEvent>;
@@ -34,10 +34,10 @@ inline Event createNoteEvent(int note, int velocity, int duration) {
     return event;
 }
 
-inline Event createNoteRollEvent(int note, int velocity, int duration, int numRepeats, int freqRepeats) {
+inline Event createNoteRollEvent(int note, int velocity, int numRepeats, int totalDuration, int restDuration) {
     Event event;
     event.on = true;
-    event.subEvent = NoteRollEvent{note, velocity, duration, numRepeats, freqRepeats};
+    event.subEvent = NoteRollEvent{note, velocity, numRepeats, totalDuration, restDuration};
     return event;
 }
 
@@ -69,8 +69,8 @@ public:
         addEvent(idx, createNoteEvent(note, velocity, duration));
     }
 
-    void addNoteRollEvent(int idx, int note, int velocity, int duration, int numRepeats, int freqRepeats) {
-        addEvent(idx, createNoteRollEvent(note, velocity, duration, numRepeats, freqRepeats));
+    void addNoteRollEvent(int idx, int note, int velocity, int numRepeats, int totalDuration, int restDuration) {
+        addEvent(idx, createNoteRollEvent(note, velocity, numRepeats, totalDuration, restDuration));
     }
 
     void addEvent(int idx, Event& event) {
@@ -96,11 +96,16 @@ public:
     }
 
     void handleEvent(NoteEvent& event, int curTick) {
-        midiQueue.addNoteOnEvent(event.note, event.velocity, curTick);
-        midiQueue.addNoteOffEvent(event.note, curTick + event.duration);
+        midiQueue.noteOnOff(event.note, event.velocity, curTick, event.duration);
     }
 
     void handleEvent(NoteRollEvent& event, int curTick) {
-        // do nothing
+        int offset = curTick;
+        int duration = event.totalDuration - event.restDuration;
+
+        for (int i = 0; i < event.numRepeats; ++i) {
+            midiQueue.noteOnOff(event.note, event.velocity, offset, duration);
+            offset += event.totalDuration;
+        }
     }
 };
