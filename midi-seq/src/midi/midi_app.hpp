@@ -23,8 +23,7 @@ public:
         chordGenerator(beats, midiQueue),
         sequence(beats, midiQueue, 8, B_16)
     {
-        // sequence.addNoteEvent(0, 50, 100, beats.ticksPerBeat(B_16));
-        sequence.addNoteRollEvent(0, 50, 100, 2, beats.ticksPerBeat(B_16), beats.ticksPerBeat(B_64));
+        sequence.addNoteRollEvent(0, 50, 100, 4, beats.ticksPerBeat(B_64), beats.ticksPerBeat(B_256));
         sequence.addNoteEvent(2, 55, 100, beats.ticksPerBeat(B_16));
         sequence.addNoteEvent(4, 60, 100, beats.ticksPerBeat(B_16));
         sequence.addNoteEvent(6, 65, 100, beats.ticksPerBeat(B_16));
