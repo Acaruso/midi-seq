@@ -15,8 +15,6 @@ public:
     MidiQueue<MidiServiceType>& midiQueue;
     Beats beats{60};
 
-    int curTick = 0;
-
     std::vector<int> curChord;
     int chordCounter = 0;
 
@@ -29,7 +27,7 @@ public:
 
     ChordGenerator(MidiQueue<MidiServiceType>& queue) : midiQueue(queue) {}
 
-    void tick() {
+    void tick(int curTick) {
         if (beats.isBeat(curTick, B_4)) {
             if ((chordCounter % 8) == 0) {
                 curLowestNote = getRand(lowLimit, highLimit);
@@ -43,16 +41,14 @@ public:
                     getRandChordInversion()
                 );
             }
-            addChord(curChord, B_8);
+            addChord(curTick, curChord, B_8);
             ++chordCounter;
         }
 
         midiQueue.handleEvents(curTick);
-
-        ++curTick;
     }
 
-    void addChord(std::vector<int>& chord, BeatUnit beat) {
+    void addChord(int curTick, std::vector<int>& chord, BeatUnit beat) {
         for (auto note : chord) {
             midiQueue.addNoteOnEvent(note, 100, curTick);
             midiQueue.addNoteOffEvent(note, curTick + beats.ticksPerBeat(beat));
