@@ -12,8 +12,8 @@
 template <typename MidiServiceType>
 class ChordGenerator {
 public:
+    Beats& beats;
     MidiQueue<MidiServiceType>& midiQueue;
-    Beats beats{60};
 
     std::vector<int> curChord;
     int chordCounter = 0;
@@ -25,7 +25,10 @@ public:
     int curLowestNote = 0;
     int prevLowestNote = 0;
 
-    ChordGenerator(MidiQueue<MidiServiceType>& queue) : midiQueue(queue) {}
+    ChordGenerator(Beats& beats, MidiQueue<MidiServiceType>& queue) :
+        beats(beats),
+        midiQueue(queue)
+    {}
 
     void tick(int curTick) {
         if (beats.isBeat(curTick, B_4)) {
