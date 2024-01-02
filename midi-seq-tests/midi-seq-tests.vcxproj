@@ -17,10 +17,11 @@
   <ItemGroup>
     <ClInclude Include="stub_midi_service.hpp" />
   </ItemGroup>
-  <!-- use cpp17 -->
+  <!-- use cpp20 -->
   <ItemDefinitionGroup>
     <ClCompile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <!-- <LanguageStandard>stdcpp17</LanguageStandard> -->
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup Label="ProjectConfigurations">

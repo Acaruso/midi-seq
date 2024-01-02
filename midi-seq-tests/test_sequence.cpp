@@ -23,7 +23,7 @@ public:
     {}
 
     void step() {
-        int curTick = beats.ticksPerBeat(B_16) * stepIdx;
+        int curTick = beats.ticksPerBeat(stepInc) * stepIdx;
         sequence.tick(curTick);
         midiQueue.handleEvents(curTick);
         ++stepIdx;
@@ -41,8 +41,29 @@ public:
 TEST(TestSequence, NoteEvent) {
     TestSequenceHelper h(B_16);
 
-    h.sequence.addNoteEvent(0, 1, 100, h.beats.ticksPerBeat(B_16));
-    h.sequence.addNoteEvent(2, 2, 100, h.beats.ticksPerBeat(B_16));
+    h.sequence.addEvent(
+        0,
+        Event{
+            .on = true,
+            .subEvent = NoteEvent{
+                .note = 1,
+                .velocity = 100,
+                .duration = h.beats.ticksPerBeat(B_16)
+            }
+        }
+    );
+
+    h.sequence.addEvent(
+        2,
+        Event{
+            .on = true,
+            .subEvent = NoteEvent{
+                .note = 2,
+                .velocity = 100,
+                .duration = h.beats.ticksPerBeat(B_16)
+            }
+        }
+    );
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
@@ -71,10 +92,22 @@ TEST(TestSequence, NoteEvent) {
     });
 }
 
-TEST(TestSequence, NoteRollEvent1) {
+TEST(TestSequence, RollEvent1) {
     TestSequenceHelper h(B_16);
 
-    h.sequence.addNoteRollEvent(0, 1, 100, 3, h.beats.ticksPerBeat(B_8), h.beats.ticksPerBeat(B_16));
+    h.sequence.addEvent(
+        0,
+        Event{
+            .on = true,
+            .subEvent = RollEvent{
+                .note = 1,
+                .velocity = 100,
+                .numRepeats = 3,
+                .totalDuration = h.beats.ticksPerBeat(B_8),
+                .restDuration = h.beats.ticksPerBeat(B_16)
+            }
+        }
+    );
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
@@ -122,10 +155,22 @@ TEST(TestSequence, NoteRollEvent1) {
     });
 }
 
-TEST(TestSequence, NoteRollEvent2) {
+TEST(TestSequence, RollEvent2) {
     TestSequenceHelper h(B_16);
 
-    h.sequence.addNoteRollEvent(0, 1, 100, 2, h.beats.ticksPerBeat(B_4), h.beats.ticksPerBeat(B_16));
+    h.sequence.addEvent(
+        0,
+        Event{
+            .on = true,
+            .subEvent = RollEvent{
+                .note = 1,
+                .velocity = 100,
+                .numRepeats = 2,
+                .totalDuration = h.beats.ticksPerBeat(B_4),
+                .restDuration = h.beats.ticksPerBeat(B_16)
+            }
+        }
+    );
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{

@@ -8,25 +8,26 @@
 
 class MidiApp {
 public:
+    int ticksPer64Note;
     Beats beats;
     MidiService midiService;
     MidiQueue<MidiService> midiQueue;
     ChordGenerator<MidiService> chordGenerator;
     Sequence<MidiService> sequence;
-
     int curTick = 0;
 
     MidiApp() :
-        beats(24),                          // ticks per 64 note
+        ticksPer64Note(24),
+        beats(ticksPer64Note),
         midiService(1),                     // midi port
         midiQueue(midiService),
         chordGenerator(beats, midiQueue),
         sequence(beats, midiQueue, 8, B_16)
     {
-        sequence.addNoteRollEvent(0, 50, 100, 4, beats.ticksPerBeat(B_64), beats.ticksPerBeat(B_256));
-        sequence.addNoteEvent(2, 55, 100, beats.ticksPerBeat(B_16));
-        sequence.addNoteEvent(4, 60, 100, beats.ticksPerBeat(B_16));
-        sequence.addNoteEvent(6, 65, 100, beats.ticksPerBeat(B_16));
+        addRollEvent(0, 50);
+        addNoteEvent(2, 55);
+        addNoteEvent(4, 60);
+        addNoteEvent(6, 65);
     }
 
     void tick() {
@@ -38,5 +39,35 @@ public:
         midiQueue.handleEvents(curTick);
 
         ++curTick;
+    }
+
+    void addRollEvent(int idx, int note) {
+        sequence.addEvent(
+            idx,
+            Event{
+                .on = true,
+                .subEvent = RollEvent{
+                    .note = note,
+                    .velocity = 100,
+                    .numRepeats = 4,
+                    .totalDuration = beats.ticksPerBeat(B_64),
+                    .restDuration = beats.ticksPerBeat(B_256)
+                }
+            }
+        );
+    }
+
+    void addNoteEvent(int idx, int note) {
+        sequence.addEvent(
+            idx,
+            Event{
+                .on = true,
+                .subEvent = NoteEvent{
+                    .note = note,
+                    .velocity = 100,
+                    .duration = beats.ticksPerBeat(B_16)
+                }
+            }
+        );
     }
 };

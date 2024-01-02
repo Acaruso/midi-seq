@@ -7,7 +7,9 @@
         $(SolutionDir)midi-seq/;%(AdditionalIncludeDirectories)
       </AdditionalIncludeDirectories>
       <!-- use cpp17 -->
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <!-- <LanguageStandard>stdcpp17</LanguageStandard> -->
+      <!-- use cpp20 -->
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <!-- main cpp -->

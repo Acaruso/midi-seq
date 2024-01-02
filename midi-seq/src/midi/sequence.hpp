@@ -12,7 +12,7 @@ struct NoteEvent {
     int duration = 0;
 };
 
-struct NoteRollEvent {
+struct RollEvent {
     int note = 0;
     int velocity = 0;
     int numRepeats = 0;
@@ -20,26 +20,12 @@ struct NoteRollEvent {
     int restDuration = 0;
 };
 
-using SubEvent = std::variant<NoteEvent, NoteRollEvent>;
+using SubEvent = std::variant<NoteEvent, RollEvent>;
 
 struct Event {
     bool on = false;
     SubEvent subEvent;
 };
-
-inline Event createNoteEvent(int note, int velocity, int duration) {
-    Event event;
-    event.on = true;
-    event.subEvent = NoteEvent{note, velocity, duration};
-    return event;
-}
-
-inline Event createNoteRollEvent(int note, int velocity, int numRepeats, int totalDuration, int restDuration) {
-    Event event;
-    event.on = true;
-    event.subEvent = NoteRollEvent{note, velocity, numRepeats, totalDuration, restDuration};
-    return event;
-}
 
 template <typename MidiServiceType>
 class Sequence {
@@ -64,14 +50,6 @@ public:
         stepSize(stepSize),
         playHead(0)
     {}
-
-    void addNoteEvent(int idx, int note, int velocity, int duration) {
-        addEvent(idx, createNoteEvent(note, velocity, duration));
-    }
-
-    void addNoteRollEvent(int idx, int note, int velocity, int numRepeats, int totalDuration, int restDuration) {
-        addEvent(idx, createNoteRollEvent(note, velocity, numRepeats, totalDuration, restDuration));
-    }
 
     void addEvent(int idx, Event event) {
         if (idx >= size) {
@@ -99,7 +77,7 @@ public:
         midiQueue.noteOnOff(event.note, event.velocity, curTick, event.duration);
     }
 
-    void handleEvent(NoteRollEvent& event, int curTick) {
+    void handleEvent(RollEvent& event, int curTick) {
         int offset = curTick;
         int duration = event.totalDuration - event.restDuration;
 
