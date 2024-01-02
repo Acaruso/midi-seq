@@ -24,6 +24,7 @@ using SubEvent = std::variant<NoteEvent, RollEvent>;
 
 struct Event {
     bool on = false;
+    bool oneShot = false;
     SubEvent subEvent;
 };
 
@@ -33,9 +34,9 @@ public:
     Beats& beats;
     MidiQueue<MidiServiceType>& midiQueue;
     std::vector<Event> events;
-    int size;
     BeatUnit stepSize;
-    int playHead;
+    int numSteps;
+    int curStep;
 
     Sequence(
         Beats& beats,
@@ -46,13 +47,13 @@ public:
         beats(beats),
         midiQueue(midiQueue),
         events(size, Event{}),
-        size(size),
         stepSize(stepSize),
-        playHead(0)
+        numSteps(size),
+        curStep(0)
     {}
 
     void addEvent(int idx, Event event) {
-        if (idx >= size) {
+        if (idx >= numSteps) {
             // TODO: handle this better
             std::cerr << "Sequence: idx >= size" << std::endl;
             return;
@@ -60,30 +61,38 @@ public:
         events[idx] = event;
     }
 
+    bool isBeat(int curTick) {
+        return (beats.isBeat(curTick, stepSize));
+    }
+
     void tick(int curTick) {
-        if (beats.isBeat(curTick, stepSize)) {
-            Event& event = events[playHead];
+        // if (beats.isBeat(curTick, stepSize)) {
+        if (isBeat(curTick)) {
+            Event& event = events[curStep];
             if (event.on) {
                 std::visit(
                     [this, curTick](auto&& subEvent) { handleEvent(subEvent, curTick); },
                     event.subEvent
                 );
+                if (event.oneShot) {
+                    event.on = false;
+                }
             }
-            playHead = ((playHead + 1) % size);
+            curStep = ((curStep + 1) % numSteps);
         }
     }
 
-    void handleEvent(NoteEvent& event, int curTick) {
-        midiQueue.noteOnOff(event.note, event.velocity, curTick, event.duration);
+    void handleEvent(NoteEvent& subEvent, int curTick) {
+        midiQueue.noteOnOff(subEvent.note, subEvent.velocity, curTick, subEvent.duration);
     }
 
-    void handleEvent(RollEvent& event, int curTick) {
+    void handleEvent(RollEvent& subEvent, int curTick) {
         int offset = curTick;
-        int duration = event.totalDuration - event.restDuration;
+        int duration = subEvent.totalDuration - subEvent.restDuration;
 
-        for (int i = 0; i < event.numRepeats; ++i) {
-            midiQueue.noteOnOff(event.note, event.velocity, offset, duration);
-            offset += event.totalDuration;
+        for (int i = 0; i < subEvent.numRepeats; ++i) {
+            midiQueue.noteOnOff(subEvent.note, subEvent.velocity, offset, duration);
+            offset += subEvent.totalDuration;
         }
     }
 };
