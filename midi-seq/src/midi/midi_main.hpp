@@ -9,13 +9,15 @@
 #include <Avrt.h>
 #pragma comment(lib, "Avrt")
 
-#include "midi_app.hpp"
+#include "midi_app_sequence.hpp"
+#include "midi_app_chord_generator.hpp"
 
 void CALLBACK timerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
 
 const UINT TIMER_INTERVAL_MS = 1;
 
-static MidiApp midiApp;
+static MidiAppSequence midiApp;
+// static MidiAppChordGenerator midiApp;
 
 inline int midiMain() {
     // seed rand
