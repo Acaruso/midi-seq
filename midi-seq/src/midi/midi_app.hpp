@@ -18,7 +18,8 @@ public:
     int curTick = 0;
 
     MidiApp() :
-        ticksPer64Note(24),
+        // ticksPer64Note(24),
+        ticksPer64Note(60),
         beats(ticksPer64Note),
         midiService(1),                     // midi port
         midiQueue(midiService),
@@ -32,7 +33,12 @@ public:
     }
 
     // void tick() {
-    //     chordGenerator.tick(curTick);
+    //     if (sequence.isBeat(curTick)) {
+    //         if (sequence.curStep == 0) {
+    //         }
+    //     }
+
+    //     sequence.tick(curTick);
 
     //     // TODO: refactor code so that handleEvents can be first
     //     // this will make timing more stable
@@ -42,13 +48,7 @@ public:
     // }
 
     void tick() {
-        if (sequence.isBeat(curTick)) {
-            if (sequence.curStep == 0) {
-                // int r1 = getRand(0, 15);
-            }
-        }
-
-        sequence.tick(curTick);
+        chordGenerator.tick(curTick);
 
         // TODO: refactor code so that handleEvents can be first
         // this will make timing more stable
