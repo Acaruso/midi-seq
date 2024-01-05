@@ -69,3 +69,7 @@ inline void* getInstanceData(HWND window) {
 inline bool getKeyState(UINT keyCode) {
     return (GetKeyState(keyCode) & 0x8000);
 }
+
+inline int getRand(int min, int max) {
+    return min + (rand() % (max - min + 1));
+}

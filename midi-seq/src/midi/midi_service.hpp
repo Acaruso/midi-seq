@@ -5,7 +5,7 @@
 
 #include <windows.h>
 #include <windowsx.h>
-#include <mmsystem.h>               // MIDI stuff
+#include <mmsystem.h>           // MIDI functions
 
 union MidiMessage {
     unsigned long word;
@@ -34,9 +34,12 @@ class MidiService {
 public:
     HMIDIOUT midiDevice;
 
-    MidiService() {}
+    MidiService() {
+        printMidiOutputDevices();
+    }
 
     MidiService(int midiPort) {
+        printMidiOutputDevices();
         openMidiPort(midiPort);
     }
 
@@ -44,8 +47,8 @@ public:
         int rc = midiOutOpen(
             &midiDevice,
             midiPort,
-            0,              // DWORD_PTR to callback
-            0,              // DWORD_PTR to callback data
+            NULL,           // DWORD_PTR to callback
+            NULL,           // DWORD_PTR to callback data
             CALLBACK_NULL   // enum -- CALLBACK_NULL tells windows that there's no callback
         );
 
@@ -69,6 +72,27 @@ public:
         if (rc != MMSYSERR_NOERROR) {
             std::cout << "Warning: MIDI Output is not open" << std::endl;
         }
+    }
+
+    // each midi port contains 16 channels
+    // each channel typically corresponds to an instrument
+    // each channel contains 128 controllers: 0 - 127
+    // each controller corresponds to a parameter on an instrument
+    // some controller numbers have "standard" mappings, for example:
+    // controller 1: mod wheel
+    // controller 7: volume
+    // controller 10: pan
+    // controller 64: sustain pedal
+    // controller 70 - 119: typically safe to use for custom mappings
+    // controller 102 - 119: even more safe for custom mappings
+    // controller 121: reset all controllers
+
+    void cc(int channel, int controller, int value) {
+        unsigned int midiCCMessage = 0xB0 | (channel - 1);
+        midiCCMessage |= (controller << 8);
+        midiCCMessage |= (value << 16);
+
+        midiOutShortMsg(midiDevice, midiCCMessage);
     }
 
     void printMidiOutputDevices() {
