@@ -1,5 +1,8 @@
 #pragma once
 
+#include <iostream>
+#include <string>
+
 #include "../main/util.hpp"
 #include "beats.hpp"
 #include "chord_generator.hpp"
@@ -24,7 +27,11 @@ public:
         chordGenerator(beats, midiQueue)
     {}
 
-    void tick() {
+    void tick(std::string& message) {
+        if (message == "s") {
+            std::cout << "space" << std::endl;
+        }
+
         chordGenerator.tick(curTick);
 
         // TODO: refactor code so that handleEvents can be first

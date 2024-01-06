@@ -79,8 +79,7 @@ public:
                 //     std::cout << "x" << std::endl;
                 // }
                 if (keycode == VK_SPACE) {
-                    std::cout << "space" << std::endl;
-                    midiQueue.enqueue("space");
+                    midiQueue.enqueue("s");
                 }
                 break;
             }

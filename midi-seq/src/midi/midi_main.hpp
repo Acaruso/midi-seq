@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <string>
 
 #include <windows.h>
 #include <mmsystem.h>
@@ -17,12 +18,25 @@ void CALLBACK timerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1
 
 const UINT TIMER_INTERVAL_MS = 1;
 
-inline int midiMain(moodycamel::ReaderWriterQueue<std::string>* queue) {
+static moodycamel::ReaderWriterQueue<std::string>* queue = nullptr;
+static MidiAppSequence* midiAppSequence = nullptr;
+static MidiAppChordGenerator* midiAppChordGenerator = nullptr;
+static std::string messageBuffer;
+static std::string message;
+
+inline int midiMain(moodycamel::ReaderWriterQueue<std::string>* _queue) {
     // seed rand
     srand(static_cast<unsigned int>(time(0)));
 
-    static MidiAppSequence midiApp;
-    // static MidiAppChordGenerator midiApp;
+    // MidiAppSequence _midiAppSequence;
+    // midiAppSequence = &_midiAppSequence;
+
+    MidiAppChordGenerator _midiAppChordGenerator;
+    midiAppChordGenerator = &_midiAppChordGenerator;
+
+    queue = _queue;
+    messageBuffer.reserve(16);    // reserve space to avoid dynamic memory allocations
+    message.reserve(16);
 
     DWORD taskIndex = 0;
     HANDLE hTask = AvSetMmThreadCharacteristics(TEXT("Pro Audio"), &taskIndex);
@@ -32,10 +46,10 @@ inline int midiMain(moodycamel::ReaderWriterQueue<std::string>* queue) {
     }
 
     UINT timerId = timeSetEvent(
-        TIMER_INTERVAL_MS,              // trigger the timer at this interval in ms
-        0,                              // resolution -- lower values == more accurate but more CPU intensive
-        timerCallback,                  // callback fn
-        (DWORD_PTR)(&midiApp),          // pointer to "user data" -- gets passed into `timerCallback` as `dwUser` param
+        TIMER_INTERVAL_MS,                      // trigger the timer at this interval in ms
+        0,                                      // resolution -- lower values == more accurate but more CPU intensive
+        timerCallback,                          // callback
+        NULL,                                   // pointer to pass to callback
         TIME_PERIODIC
     );
     if (timerId == 0) {
@@ -59,6 +73,12 @@ inline int midiMain(moodycamel::ReaderWriterQueue<std::string>* queue) {
 }
 
 inline void CALLBACK timerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2) {
-    MidiAppSequence* midiApp = (MidiAppSequence*)dwUser;
-    midiApp->tick();
+    if (queue->try_dequeue(messageBuffer)) {
+        message = messageBuffer;
+    } else {
+        message = "";
+    }
+
+    // midiAppSequence->tick(message);
+    midiAppChordGenerator->tick(message);
 }

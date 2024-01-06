@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "../main/util.hpp"
 #include "beats.hpp"
 #include "chord_generator.hpp"
@@ -30,7 +32,7 @@ public:
         addNoteEvent(6, 65);
     }
 
-    void tick() {
+    void tick(std::string& message) {
         if (sequence.isBeat(curTick)) {
             if (sequence.curStep == 0) {
             }
