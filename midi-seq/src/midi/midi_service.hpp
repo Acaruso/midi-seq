@@ -53,7 +53,7 @@ public:
         );
 
         if (rc != MMSYSERR_NOERROR) {
-            std::cout << "Error opening MIDI Output" << std::endl;
+            std::cerr << "Error opening MIDI Output" << std::endl;
             // TODO: handle error
         }
     }
@@ -62,7 +62,7 @@ public:
         MidiMessage midiMessage = createMidiMessageOn(note, velocity);
         int rc = midiOutShortMsg(midiDevice, midiMessage.word);
         if (rc != MMSYSERR_NOERROR) {
-            std::cout << "Warning: MIDI Output is not open" << std::endl;
+            std::cerr << "Warning: MIDI Output is not open" << std::endl;
         }
     }
 
@@ -70,7 +70,7 @@ public:
         MidiMessage midiMessage = createMidiMessageOff(note);
         int rc = midiOutShortMsg(midiDevice, midiMessage.word);
         if (rc != MMSYSERR_NOERROR) {
-            std::cout << "Warning: MIDI Output is not open" << std::endl;
+            std::cerr << "Warning: MIDI Output is not open" << std::endl;
         }
     }
 
@@ -105,7 +105,7 @@ public:
             if (result == MMSYSERR_NOERROR) {
                 std::wcout << L"MIDI Output Device " << i << L": " << midiOutCaps.szPname << std::endl;
             } else {
-                std::cout << "Error retrieving device information for device " << i << std::endl;
+                std::cerr << "Error retrieving device information for device " << i << std::endl;
             }
         }
     }
