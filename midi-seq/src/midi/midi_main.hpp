@@ -73,6 +73,7 @@ inline int midiMain(moodycamel::ReaderWriterQueue<std::string>* _queue) {
 }
 
 inline void CALLBACK timerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2) {
+    // TODO: refactor this to be a while loop so that we can handle multiple messages at once
     if (queue->try_dequeue(messageBuffer)) {
         message = messageBuffer;
     } else {

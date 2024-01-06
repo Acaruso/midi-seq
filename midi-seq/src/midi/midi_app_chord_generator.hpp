@@ -29,7 +29,7 @@ public:
 
     void tick(std::string& message) {
         if (message == "s") {
-            std::cout << "space" << std::endl;
+            chordGenerator.generateNextChord();
         }
 
         chordGenerator.tick(curTick);

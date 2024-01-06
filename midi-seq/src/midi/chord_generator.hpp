@@ -25,28 +25,38 @@ public:
     int curLowestNote = 0;
     int prevLowestNote = 0;
 
+    bool autoSwitch = false;         // automatically go to next chord after 8 repeats
+
     ChordGenerator(Beats& beats, MidiQueue<MidiServiceType>& queue) :
         beats(beats),
         midiQueue(queue)
-    {}
+    {
+        generateNextChord();
+    }
 
     void tick(int curTick) {
         if (beats.isBeat(curTick, B_4)) {
-            if ((chordCounter % 8) == 0) {
-                curLowestNote = getRand(lowLimit, highLimit);
-                while (curLowestNote == prevLowestNote) {
-                    curLowestNote = getRand(lowLimit, highLimit);
+            if (autoSwitch) {
+                if ((chordCounter % 8) == 0) {
+                    generateNextChord();
                 }
-                prevLowestNote = curLowestNote;
-                curChord = createChordByLowestNote(
-                    curLowestNote,
-                    getRandChordType(),
-                    getRandChordInversion()
-                );
             }
             addChord(curTick, curChord, B_8);
             ++chordCounter;
         }
+    }
+
+    void generateNextChord() {
+        curLowestNote = getRand(lowLimit, highLimit);
+        while (curLowestNote == prevLowestNote) {
+            curLowestNote = getRand(lowLimit, highLimit);
+        }
+        prevLowestNote = curLowestNote;
+        curChord = createChordByLowestNote(
+            curLowestNote,
+            getRandChordType(),
+            getRandChordInversion()
+        );
     }
 
     void addChord(int curTick, std::vector<int>& chord, BeatUnit duration) {
