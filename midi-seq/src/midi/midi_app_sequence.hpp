@@ -23,7 +23,8 @@ public:
         midiQueue(midiService),
         sequence(beats, midiQueue, 8, B_16)
     {
-        addRollEventOneShot(0, 50);
+        // addRollEventOneShot(0, 50);
+        addRollEvent(0, 50);
         addNoteEvent(2, 55);
         addNoteEvent(4, 60);
         addNoteEvent(6, 65);

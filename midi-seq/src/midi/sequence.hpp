@@ -25,6 +25,7 @@ using SubEvent = std::variant<NoteEvent, RollEvent>;
 struct Event {
     bool on = false;
     bool oneShot = false;
+    int offset = 0;             // TODO: handle offset
     SubEvent subEvent;
 };
 

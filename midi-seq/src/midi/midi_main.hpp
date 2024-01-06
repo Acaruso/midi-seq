@@ -9,6 +9,7 @@
 #include <Avrt.h>
 #pragma comment(lib, "Avrt")
 
+#include "../lib/readerwriterqueue.h"
 #include "midi_app_sequence.hpp"
 #include "midi_app_chord_generator.hpp"
 
@@ -19,7 +20,7 @@ const UINT TIMER_INTERVAL_MS = 1;
 static MidiAppSequence midiApp;
 // static MidiAppChordGenerator midiApp;
 
-inline int midiMain() {
+inline int midiMain(moodycamel::ReaderWriterQueue<std::string>* queue) {
     // seed rand
     srand(static_cast<unsigned int>(time(0)));
 

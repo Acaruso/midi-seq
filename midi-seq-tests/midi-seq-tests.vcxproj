@@ -16,6 +16,7 @@
   <!-- test hpp -->
   <ItemGroup>
     <ClInclude Include="stub_midi_service.hpp" />
+    <ClInclude Include="stub_midi_queue.hpp" />
   </ItemGroup>
   <!-- use cpp20 -->
   <ItemDefinitionGroup>

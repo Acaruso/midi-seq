@@ -3,6 +3,7 @@
 #include <comdef.h>
 #include <string>
 
+#include "../lib/readerwriterqueue.h"
 #include "audio_service.hpp"
 #include "wasapi_client.hpp"
 

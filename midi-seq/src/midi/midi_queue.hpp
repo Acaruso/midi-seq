@@ -5,9 +5,9 @@
 #include <vector>
 
 enum MidiEventType {
-    NOTE_ON  = 0,
-    NOTE_OFF = 1,
-    CC       = 2,
+    NOTE_ON,
+    NOTE_OFF,
+    CC,
 };
 
 struct MidiEvent {

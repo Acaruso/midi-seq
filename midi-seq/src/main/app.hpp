@@ -25,14 +25,17 @@ class App {
 public:
     HWND window;
     GraphicsService gfx;
+    // TODO: rename `queue` to `audioQueue`
     moodycamel::ReaderWriterQueue<std::string> queue;
+    moodycamel::ReaderWriterQueue<std::string> midiQueue;
     std::thread audioThread;
     std::thread midiThread;
 
     std::vector<UINT> messageTypes{
         WM_PAINT,
         WM_LBUTTONDOWN,
-        WM_MOUSEMOVE
+        WM_MOUSEMOVE,
+        WM_KEYDOWN
     };
 
     D2D1_RECT_F rect{100, 100, 150, 150};
@@ -42,7 +45,7 @@ public:
         gfx(window, hr)
     {
         audioThread = std::thread(&audioMain, &queue);
-        midiThread  = std::thread(&midiMain);
+        midiThread  = std::thread(&midiMain,  &midiQueue);
     }
 
     bool shouldHandleMessage(UINT message) {
@@ -57,12 +60,30 @@ public:
     HRESULT handleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
         HRESULT hr = S_OK;
 
-        if (message == WM_PAINT) {
-            hr = onPaint();
-        } else if (message == WM_LBUTTONDOWN) {
-            onLeftClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        } else if (message == WM_MOUSEMOVE) {
-            onMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        switch (message) {
+            case WM_PAINT: {
+                hr = onPaint();
+                break;
+            }
+            case WM_LBUTTONDOWN: {
+                onLeftClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                break;
+            }
+            case WM_MOUSEMOVE: {
+                onMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                break;
+            }
+            case WM_KEYDOWN: {
+                int keycode = wParam;
+                // if (keycode == (int('X'))) {
+                //     std::cout << "x" << std::endl;
+                // }
+                if (keycode == VK_SPACE) {
+                    std::cout << "space" << std::endl;
+                    midiQueue.enqueue("space");
+                }
+                break;
+            }
         }
 
         return hr;
