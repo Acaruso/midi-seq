@@ -11,6 +11,7 @@
 
 class MidiAppSequence {
 public:
+    int channel;
     int ticksPer64Note;
     Beats beats;
     MidiService midiService;
@@ -19,11 +20,18 @@ public:
     int curTick = 0;
 
     MidiAppSequence() :
+        channel(2),
         ticksPer64Note(24),
         beats(ticksPer64Note),
-        midiService(1),                         // midi port
+        midiService(1),             // midi port
         midiQueue(midiService),
-        sequence(beats, midiQueue, 8, B_16)
+        sequence(
+            beats,
+            midiQueue,
+            channel,
+            8,                      // numSteps
+            B_16                    // step size
+        )
     {
         // addRollEventOneShot(0, 50);
         addRollEvent(0, 50);
@@ -52,6 +60,7 @@ public:
             idx,
             Event{
                 .on = true,
+                .channel = channel,
                 .subEvent = RollEvent{
                     .note = note,
                     .velocity = 100,
@@ -69,6 +78,7 @@ public:
             Event{
                 .on = true,
                 .oneShot = true,
+                .channel = channel,
                 .subEvent = RollEvent{
                     .note = note,
                     .velocity = 100,
@@ -85,6 +95,7 @@ public:
             idx,
             Event{
                 .on = true,
+                .channel = channel,
                 .subEvent = NoteEvent{
                     .note = note,
                     .velocity = 100,

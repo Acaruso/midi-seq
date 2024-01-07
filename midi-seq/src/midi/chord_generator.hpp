@@ -14,6 +14,7 @@ class ChordGenerator {
 public:
     Beats& beats;
     MidiQueue<MidiServiceType>& midiQueue;
+    int channel;
 
     std::vector<int> curChord;
     int chordCounter = 0;
@@ -27,9 +28,14 @@ public:
 
     bool autoSwitch = false;         // automatically go to next chord after 8 repeats
 
-    ChordGenerator(Beats& beats, MidiQueue<MidiServiceType>& queue) :
+    ChordGenerator(
+        Beats& beats,
+        MidiQueue<MidiServiceType>& queue,
+        int channel
+    ) :
         beats(beats),
-        midiQueue(queue)
+        midiQueue(queue),
+        channel(channel)
     {
         generateNextChord();
     }
@@ -61,7 +67,7 @@ public:
 
     void addChord(int curTick, std::vector<int>& chord, BeatUnit duration) {
         for (auto note : chord) {
-            midiQueue.noteOnOff(note, 100, curTick, beats.ticksPerBeat(duration));
+            midiQueue.noteOnOff(channel, note, 100, curTick, beats.ticksPerBeat(duration));
         }
     }
 };

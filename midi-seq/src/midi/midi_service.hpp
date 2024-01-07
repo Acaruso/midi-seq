@@ -12,18 +12,20 @@ union MidiMessage {
     unsigned char data[4];
 };
 
-inline MidiMessage createMidiMessageOn(int note, int velocity) {
+// pass in channel as an int in range [1, 16] inclusive
+// however, internally, channel is represented as an int in range [0, 15] inclusive
+inline MidiMessage createMidiMessageOn(int channel, int note, int velocity) {
     MidiMessage midiMessage;
-    midiMessage.data[0] = 0x90;
+    midiMessage.data[0] = 0x90 | (channel - 1);
     midiMessage.data[1] = note;
     midiMessage.data[2] = velocity;
     midiMessage.data[3] = 0;
     return midiMessage;
 }
 
-inline MidiMessage createMidiMessageOff(int note) {
+inline MidiMessage createMidiMessageOff(int channel, int note) {
     MidiMessage midiMessage;
-    midiMessage.data[0] = 0x90;
+    midiMessage.data[0] = 0x80 | (channel - 1);
     midiMessage.data[1] = note;
     midiMessage.data[2] = 0;
     midiMessage.data[3] = 0;
@@ -58,16 +60,18 @@ public:
         }
     }
 
-    void noteOn(int note, int velocity) {
-        MidiMessage midiMessage = createMidiMessageOn(note, velocity);
+    void noteOn(int channel, int note, int velocity) {
+        MidiMessage midiMessage = createMidiMessageOn(channel, note, velocity);
+
         int rc = midiOutShortMsg(midiDevice, midiMessage.word);
         if (rc != MMSYSERR_NOERROR) {
             std::cerr << "Warning: MIDI Output is not open" << std::endl;
         }
     }
 
-    void noteOff(int note) {
-        MidiMessage midiMessage = createMidiMessageOff(note);
+    void noteOff(int channel, int note) {
+        MidiMessage midiMessage = createMidiMessageOff(channel, note);
+
         int rc = midiOutShortMsg(midiDevice, midiMessage.word);
         if (rc != MMSYSERR_NOERROR) {
             std::cerr << "Warning: MIDI Output is not open" << std::endl;

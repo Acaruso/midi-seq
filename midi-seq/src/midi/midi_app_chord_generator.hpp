@@ -24,7 +24,7 @@ public:
         beats(ticksPer64Note),
         midiService(1),                         // midi port
         midiQueue(midiService),
-        chordGenerator(beats, midiQueue)
+        chordGenerator(beats, midiQueue, 1)
     {}
 
     void tick(std::string& message) {

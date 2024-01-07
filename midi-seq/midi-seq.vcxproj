@@ -44,6 +44,7 @@
   <ItemGroup>
     <ClInclude Include="src/midi/beats.hpp" />
     <ClInclude Include="src/midi/chords.hpp" />
+    <ClInclude Include="src/midi/midi_app_seq_chord.hpp" />
     <ClInclude Include="src/midi/midi_app_sequence.hpp" />
     <ClInclude Include="src/midi/midi_app_chord_generator.hpp" />
     <ClInclude Include="src/midi/midi_main.hpp" />

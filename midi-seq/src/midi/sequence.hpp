@@ -26,6 +26,7 @@ struct Event {
     bool on = false;
     bool oneShot = false;
     int offset = 0;             // TODO: handle offset
+    int channel = 0;
     SubEvent subEvent;
 };
 
@@ -34,6 +35,7 @@ class Sequence {
 public:
     Beats& beats;
     MidiQueue<MidiServiceType>& midiQueue;
+    int channel;
     std::vector<Event> events;
     BeatUnit stepSize;
     int numSteps;
@@ -42,14 +44,16 @@ public:
     Sequence(
         Beats& beats,
         MidiQueue<MidiServiceType>& midiQueue,
-        int size,
+        int channel,
+        int numSteps,
         BeatUnit stepSize
     ) :
         beats(beats),
         midiQueue(midiQueue),
-        events(size, Event{}),
+        channel(channel),
+        events(numSteps, Event{}),
         stepSize(stepSize),
-        numSteps(size),
+        numSteps(numSteps),
         curStep(0)
     {}
 
@@ -72,7 +76,7 @@ public:
             Event& event = events[curStep];
             if (event.on) {
                 std::visit(
-                    [this, curTick](auto&& subEvent) { handleEvent(subEvent, curTick); },
+                    [this, curTick, &event](auto&& subEvent) { handleEvent(subEvent, event, curTick); },
                     event.subEvent
                 );
                 if (event.oneShot) {
@@ -83,16 +87,16 @@ public:
         }
     }
 
-    void handleEvent(NoteEvent& subEvent, int curTick) {
-        midiQueue.noteOnOff(subEvent.note, subEvent.velocity, curTick, subEvent.duration);
+    void handleEvent(NoteEvent& subEvent, Event& event, int curTick) {
+        midiQueue.noteOnOff(event.channel, subEvent.note, subEvent.velocity, curTick, subEvent.duration);
     }
 
-    void handleEvent(RollEvent& subEvent, int curTick) {
+    void handleEvent(RollEvent& subEvent, Event& event, int curTick) {
         int offset = curTick;
         int duration = subEvent.totalDuration - subEvent.restDuration;
 
         for (int i = 0; i < subEvent.numRepeats; ++i) {
-            midiQueue.noteOnOff(subEvent.note, subEvent.velocity, offset, duration);
+            midiQueue.noteOnOff(event.channel, subEvent.note, subEvent.velocity, offset, duration);
             offset += subEvent.totalDuration;
         }
     }
