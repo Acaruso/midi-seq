@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 
 #include <iostream>
 #include <string>
@@ -7,31 +6,38 @@
 #include "../main/util.hpp"
 #include "beats.hpp"
 #include "chord_generator.hpp"
-#include "midi_service.hpp"
 #include "midi_queue.hpp"
+#include "midi_service.hpp"
 #include "sequence.hpp"
 
-class MidiAppSeqChord {
+template <typename MidiServiceType>
+class ModuleChordSeq {
 public:
-    int midiPort;
+    MidiServiceType& midiService;
+    MidiQueue<MidiServiceType>& midiQueue;
+
     int chordChannel;
     int seqChannel;
+
     int ticksPer64Note;
     Beats beats;
-    MidiService midiService;
-    MidiQueue<MidiService> midiQueue;
-    ChordGenerator<MidiService> chordGenerator;
-    Sequence<MidiService> sequence;
-    int curTick = 0;
 
-    MidiAppSeqChord() :
-        midiPort(1),
+    ChordGenerator<MidiServiceType> chordGenerator;
+    Sequence<MidiServiceType> sequence;
+
+    ModuleChordSeq(
+        MidiServiceType& midiService,
+        MidiQueue<MidiServiceType>& midiQueue
+    ) :
+        midiService(midiService),
+        midiQueue(midiQueue),
+
         chordChannel(1),
         seqChannel(2),
+
         ticksPer64Note(60),
         beats(ticksPer64Note),
-        midiService(midiPort),
-        midiQueue(midiService),
+
         chordGenerator(beats, midiQueue, chordChannel),
         sequence(
             beats,
@@ -45,6 +51,7 @@ public:
         int snare = 37;
         int ch    = 38;
         int oh    = 39;
+
         // addRollEventOneShot(0, 50);
         addNoteEvent(0, kick);
         addNoteEvent(1, ch);
@@ -56,19 +63,13 @@ public:
         addNoteEvent(7, ch);
     }
 
-    void tick(std::string& message) {
+    void tick(std::string& message, int curTick) {
         if (message == "s") {
             chordGenerator.generateNextChord();
         }
 
         chordGenerator.tick(curTick);
         sequence.tick(curTick);
-
-        // TODO: refactor code so that handleEvents can be first
-        // this will make timing more stable
-        midiQueue.handleEvents(curTick);
-
-        ++curTick;
     }
 
     // seq methods

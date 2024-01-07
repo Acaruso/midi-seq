@@ -11,19 +11,13 @@
 #pragma comment(lib, "Avrt")
 
 #include "../lib/readerwriterqueue.h"
-#include "midi_app_seq_chord.hpp"
-#include "midi_app_sequence.hpp"
-#include "midi_app_chord_generator.hpp"
+#include "midi_app.hpp"
 
 void CALLBACK timerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
 
 static moodycamel::ReaderWriterQueue<std::string>* queue = nullptr;
-
-static MidiAppSequence* midiAppSequence = nullptr;
-static MidiAppChordGenerator* midiAppChordGenerator = nullptr;
-static MidiAppSeqChord* midiAppSeqChord = nullptr;
-
 static std::string message;
+static MidiApp* midiApp = nullptr;
 
 inline int midiMain(moodycamel::ReaderWriterQueue<std::string>* _queue) {
     // seed rand
@@ -31,14 +25,8 @@ inline int midiMain(moodycamel::ReaderWriterQueue<std::string>* _queue) {
 
     queue = _queue;
 
-    // MidiAppSequence _midiAppSequence;
-    // midiAppSequence = &_midiAppSequence;
-
-    // MidiAppChordGenerator _midiAppChordGenerator;
-    // midiAppChordGenerator = &_midiAppChordGenerator;
-
-    MidiAppSeqChord _midiAppSeqChord;
-    midiAppSeqChord = &_midiAppSeqChord;
+    MidiApp _midiApp;
+    midiApp = &_midiApp;
 
     message.reserve(16);
 
@@ -82,7 +70,5 @@ inline void CALLBACK timerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_
         message = "";
     }
 
-    // midiAppSequence->tick(message);
-    // midiAppChordGenerator->tick(message);
-    midiAppSeqChord->tick(message);
+    midiApp->tick(message);
 }
