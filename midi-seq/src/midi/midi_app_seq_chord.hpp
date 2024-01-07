@@ -13,6 +13,7 @@
 
 class MidiAppSeqChord {
 public:
+    int midiPort;
     int chordChannel;
     int seqChannel;
     int ticksPer64Note;
@@ -24,11 +25,12 @@ public:
     int curTick = 0;
 
     MidiAppSeqChord() :
+        midiPort(1),
         chordChannel(1),
         seqChannel(2),
         ticksPer64Note(60),
         beats(ticksPer64Note),
-        midiService(1),                         // midi port
+        midiService(midiPort),
         midiQueue(midiService),
         chordGenerator(beats, midiQueue, chordChannel),
         sequence(

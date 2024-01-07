@@ -17,18 +17,19 @@
 
 void CALLBACK timerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
 
-const UINT TIMER_INTERVAL_MS = 1;
-
 static moodycamel::ReaderWriterQueue<std::string>* queue = nullptr;
+
 static MidiAppSequence* midiAppSequence = nullptr;
 static MidiAppChordGenerator* midiAppChordGenerator = nullptr;
 static MidiAppSeqChord* midiAppSeqChord = nullptr;
-static std::string messageBuffer;
+
 static std::string message;
 
 inline int midiMain(moodycamel::ReaderWriterQueue<std::string>* _queue) {
     // seed rand
     srand(static_cast<unsigned int>(time(0)));
+
+    queue = _queue;
 
     // MidiAppSequence _midiAppSequence;
     // midiAppSequence = &_midiAppSequence;
@@ -39,8 +40,6 @@ inline int midiMain(moodycamel::ReaderWriterQueue<std::string>* _queue) {
     MidiAppSeqChord _midiAppSeqChord;
     midiAppSeqChord = &_midiAppSeqChord;
 
-    queue = _queue;
-    messageBuffer.reserve(16);    // reserve space to avoid dynamic memory allocations
     message.reserve(16);
 
     DWORD taskIndex = 0;
@@ -51,7 +50,7 @@ inline int midiMain(moodycamel::ReaderWriterQueue<std::string>* _queue) {
     }
 
     UINT timerId = timeSetEvent(
-        TIMER_INTERVAL_MS,                      // trigger the timer at this interval in ms
+        1,                                      // trigger the timer at this interval in ms
         0,                                      // resolution -- lower values == more accurate but more CPU intensive
         timerCallback,                          // callback
         NULL,                                   // pointer to pass to callback
@@ -79,9 +78,7 @@ inline int midiMain(moodycamel::ReaderWriterQueue<std::string>* _queue) {
 
 inline void CALLBACK timerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2) {
     // TODO: refactor this to be a while loop so that we can handle multiple messages at once
-    if (queue->try_dequeue(messageBuffer)) {
-        message = messageBuffer;
-    } else {
+    if (!queue->try_dequeue(message)) {
         message = "";
     }
 
