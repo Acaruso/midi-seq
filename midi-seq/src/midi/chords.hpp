@@ -42,22 +42,22 @@ inline std::vector<int> createChordByRoot(int root, ChordType type, ChordInversi
     }
 
     switch (inv) {
-        case ROOT:
+        case ROOT:              // R 3 5
             break;
-        case FIRST_INV:         // 3rd 5th root
+        case FIRST_INV:         // 3 5 R
             rotate(chord);
             chord[0] -= 12;
             chord[1] -= 12;
             break;
-        case SECOND_INV:        // 5th root 3rd
+        case SECOND_INV:        // 5 R 3
             rotate(chord);
             rotate(chord);
             chord[0] -= 12;
             break;
     }
 
-    for (auto& elt : chord) {
-        elt += root;
+    for (auto& note : chord) {
+        note += root;
     }
 
     return chord;
