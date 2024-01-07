@@ -26,7 +26,7 @@ struct Event {
     bool on = false;
     bool oneShot = false;
     int offset = 0;             // TODO: handle offset
-    int channel = 0;
+    int channel = 1;
     SubEvent subEvent;
 };
 

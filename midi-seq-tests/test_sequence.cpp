@@ -13,12 +13,13 @@ public:
     Sequence<StubMidiService> sequence;
     BeatUnit stepInc;
     int stepIdx = 0;
+    int channel = 1;
 
     TestSequenceHelper(BeatUnit stepInc) :
         beats(24),
         midiService(0),
         midiQueue(midiService),
-        sequence(beats, midiQueue, 16, B_16),
+        sequence(beats, midiQueue, channel, 16, B_16),
         stepInc(stepInc)
     {}
 
@@ -45,6 +46,7 @@ TEST(TestSequence, NoteEvent) {
         0,
         Event{
             .on = true,
+            .channel = 1,
             .subEvent = NoteEvent{
                 .note = 1,
                 .velocity = 100,
@@ -57,6 +59,7 @@ TEST(TestSequence, NoteEvent) {
         2,
         Event{
             .on = true,
+            .channel = 1,
             .subEvent = NoteEvent{
                 .note = 2,
                 .velocity = 100,
@@ -67,28 +70,28 @@ TEST(TestSequence, NoteEvent) {
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
-        "noteOn 1 100",
+        "noteOn 1 1 100",
     });
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
-        "noteOn 1 100",
-        "noteOff 1",
+        "noteOn 1 1 100",
+        "noteOff 1 1",
     });
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
-        "noteOn 1 100",
-        "noteOff 1",
-        "noteOn 2 100",
+        "noteOn 1 1 100",
+        "noteOff 1 1",
+        "noteOn 1 2 100",
     });
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
-        "noteOn 1 100",
-        "noteOff 1",
-        "noteOn 2 100",
-        "noteOff 2",
+        "noteOn 1 1 100",
+        "noteOff 1 1",
+        "noteOn 1 2 100",
+        "noteOff 1 2",
     });
 }
 
@@ -99,6 +102,7 @@ TEST(TestSequence, RollEvent1) {
         0,
         Event{
             .on = true,
+            .channel = 1,
             .subEvent = RollEvent{
                 .note = 1,
                 .velocity = 100,
@@ -111,47 +115,47 @@ TEST(TestSequence, RollEvent1) {
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
-        "noteOn 1 100",
+        "noteOn 1 1 100",
     });
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
-        "noteOn 1 100",
-        "noteOff 1",
+        "noteOn 1 1 100",
+        "noteOff 1 1",
     });
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
-        "noteOn 1 100",
-        "noteOff 1",
-        "noteOn 1 100",
+        "noteOn 1 1 100",
+        "noteOff 1 1",
+        "noteOn 1 1 100",
     });
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
-        "noteOn 1 100",
-        "noteOff 1",
-        "noteOn 1 100",
-        "noteOff 1",
+        "noteOn 1 1 100",
+        "noteOff 1 1",
+        "noteOn 1 1 100",
+        "noteOff 1 1",
     });
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
-        "noteOn 1 100",
-        "noteOff 1",
-        "noteOn 1 100",
-        "noteOff 1",
-        "noteOn 1 100",
+        "noteOn 1 1 100",
+        "noteOff 1 1",
+        "noteOn 1 1 100",
+        "noteOff 1 1",
+        "noteOn 1 1 100",
     });
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
-        "noteOn 1 100",
-        "noteOff 1",
-        "noteOn 1 100",
-        "noteOff 1",
-        "noteOn 1 100",
-        "noteOff 1",
+        "noteOn 1 1 100",
+        "noteOff 1 1",
+        "noteOn 1 1 100",
+        "noteOff 1 1",
+        "noteOn 1 1 100",
+        "noteOff 1 1",
     });
 }
 
@@ -162,6 +166,7 @@ TEST(TestSequence, RollEvent2) {
         0,
         Event{
             .on = true,
+            .channel = 1,
             .subEvent = RollEvent{
                 .note = 1,
                 .velocity = 100,
@@ -174,51 +179,51 @@ TEST(TestSequence, RollEvent2) {
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
-        "noteOn 1 100",
+        "noteOn 1 1 100",
     });
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
-        "noteOn 1 100",
+        "noteOn 1 1 100",
     });
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
-        "noteOn 1 100",
+        "noteOn 1 1 100",
     });
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
-        "noteOn 1 100",
-        "noteOff 1",
+        "noteOn 1 1 100",
+        "noteOff 1 1",
     });
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
-        "noteOn 1 100",
-        "noteOff 1",
-        "noteOn 1 100",
+        "noteOn 1 1 100",
+        "noteOff 1 1",
+        "noteOn 1 1 100",
     });
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
-        "noteOn 1 100",
-        "noteOff 1",
-        "noteOn 1 100",
+        "noteOn 1 1 100",
+        "noteOff 1 1",
+        "noteOn 1 1 100",
     });
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
-        "noteOn 1 100",
-        "noteOff 1",
-        "noteOn 1 100",
+        "noteOn 1 1 100",
+        "noteOff 1 1",
+        "noteOn 1 1 100",
     });
 
     h.step();
     h.assertMidiEq(std::vector<std::string>{
-        "noteOn 1 100",
-        "noteOff 1",
-        "noteOn 1 100",
-        "noteOff 1",
+        "noteOn 1 1 100",
+        "noteOff 1 1",
+        "noteOn 1 1 100",
+        "noteOff 1 1",
     });
 }
