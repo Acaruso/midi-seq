@@ -11,6 +11,7 @@
 #pragma comment(lib, "Avrt")
 
 #include "../lib/readerwriterqueue.h"
+#include "midi_app_seq_chord.hpp"
 #include "midi_app_sequence.hpp"
 #include "midi_app_chord_generator.hpp"
 
@@ -21,6 +22,7 @@ const UINT TIMER_INTERVAL_MS = 1;
 static moodycamel::ReaderWriterQueue<std::string>* queue = nullptr;
 static MidiAppSequence* midiAppSequence = nullptr;
 static MidiAppChordGenerator* midiAppChordGenerator = nullptr;
+static MidiAppSeqChord* midiAppSeqChord = nullptr;
 static std::string messageBuffer;
 static std::string message;
 
@@ -31,8 +33,11 @@ inline int midiMain(moodycamel::ReaderWriterQueue<std::string>* _queue) {
     // MidiAppSequence _midiAppSequence;
     // midiAppSequence = &_midiAppSequence;
 
-    MidiAppChordGenerator _midiAppChordGenerator;
-    midiAppChordGenerator = &_midiAppChordGenerator;
+    // MidiAppChordGenerator _midiAppChordGenerator;
+    // midiAppChordGenerator = &_midiAppChordGenerator;
+
+    MidiAppSeqChord _midiAppSeqChord;
+    midiAppSeqChord = &_midiAppSeqChord;
 
     queue = _queue;
     messageBuffer.reserve(16);    // reserve space to avoid dynamic memory allocations
@@ -81,5 +86,6 @@ inline void CALLBACK timerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_
     }
 
     // midiAppSequence->tick(message);
-    midiAppChordGenerator->tick(message);
+    // midiAppChordGenerator->tick(message);
+    midiAppSeqChord->tick(message);
 }
