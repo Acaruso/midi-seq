@@ -42,12 +42,10 @@ public:
 
     void tick(int curTick) {
         if (beats.isBeat(curTick, B_4)) {
-            if (autoSwitch) {
-                if ((chordCounter % 8) == 0) {
-                    generateNextChord();
-                }
+            if (autoSwitch && ((chordCounter % 8) == 0)) {
+                generateNextChord();
             }
-            addChord(curTick, curChord, B_8);
+            playChord(curTick, curChord, B_8);
             ++chordCounter;
         }
     }
@@ -65,7 +63,7 @@ public:
         );
     }
 
-    void addChord(int curTick, std::vector<int>& chord, BeatUnit duration) {
+    void playChord(int curTick, std::vector<int>& chord, BeatUnit duration) {
         for (auto note : chord) {
             midiQueue.noteOnOff(channel, note, 100, curTick, beats.ticksPerBeat(duration));
         }

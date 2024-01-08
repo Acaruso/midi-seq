@@ -16,13 +16,15 @@ public:
     MidiServiceType& midiService;
     MidiQueue<MidiServiceType>& midiQueue;
 
-    int chordChannel;
-    int seqChannel;
 
     int ticksPer64Note;
     Beats beats;
 
+    int chordChannel;
+
     ChordGenerator<MidiServiceType> chordGenerator;
+    int seqChannel;
+
     Sequence<MidiServiceType> sequence;
 
     ModuleChordSeq(
@@ -31,14 +33,11 @@ public:
     ) :
         midiService(midiService),
         midiQueue(midiQueue),
-
-        chordChannel(1),
-        seqChannel(2),
-
         ticksPer64Note(60),
         beats(ticksPer64Note),
-
+        chordChannel(1),
         chordGenerator(beats, midiQueue, chordChannel),
+        seqChannel(2),
         sequence(
             beats,
             midiQueue,
