@@ -6,6 +6,7 @@
 #include "midi_service.hpp"
 #include "module_chord.hpp"
 #include "module_chord_seq.hpp"
+#include "module_single_note.hpp"
 
 class MidiApp {
 public:
@@ -16,6 +17,7 @@ public:
 
     ModuleChord<MidiService> moduleChord;
     ModuleChordSeq<MidiService> moduleChordSeq;
+    ModuleSingleNote<MidiService> moduleSingleNote;
 
     MidiApp() :
         midiPort(1),
@@ -23,12 +25,14 @@ public:
         midiQueue(midiService),
         curTick(0),
         moduleChord(midiService, midiQueue),
-        moduleChordSeq(midiService, midiQueue)
+        moduleChordSeq(midiService, midiQueue),
+        moduleSingleNote(midiService, midiQueue)
     {}
 
     void tick(std::string& message) {
         // moduleChord.tick(message, curTick);
-        moduleChordSeq.tick(message, curTick);
+        // moduleChordSeq.tick(message, curTick);
+        moduleSingleNote.tick(message, curTick);
 
         // TODO: refactor code so that handleEvents can be first
         // this will make timing more stable

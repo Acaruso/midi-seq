@@ -16,7 +16,6 @@ public:
     MidiServiceType& midiService;
     MidiQueue<MidiServiceType>& midiQueue;
 
-
     int ticksPer64Note;
     Beats beats;
 
