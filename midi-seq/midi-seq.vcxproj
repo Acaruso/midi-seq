@@ -51,6 +51,7 @@
     <ClInclude Include="src/midi/midi_service.hpp" />
     <ClInclude Include="src/midi/module_chord_seq.hpp" />
     <ClInclude Include="src/midi/module_chord.hpp" />
+    <ClInclude Include="src/midi/multi_sequence.hpp" />
     <ClInclude Include="src/midi/sequence.hpp" />
   </ItemGroup>
   <!-- 3rd party libraries -->

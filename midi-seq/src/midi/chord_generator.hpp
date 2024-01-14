@@ -19,14 +19,24 @@ public:
     std::vector<int> curChord;
     int chordCounter = 0;
 
-    // MIDI note 45 == A string on guitar == A1
-    int lowLimit = 48;
-    int highLimit = 54;
+    // MIDI notes:
+    // 40 == E1
+    // 45 == A1
+    // 50 == D1
+    // 55 == G2
+    // 59 == B2
+    // 64 == E3
+
+    // int lowLimit = 48;
+    // int highLimit = 54;
+
+    int lowLimit = 58;
+    int highLimit = 64;
 
     int curLowestNote = 0;
     int prevLowestNote = 0;
 
-    bool autoSwitch = false;         // automatically go to next chord after 8 repeats
+    bool autoSwitch = true;         // automatically go to next chord after 8 repeats
 
     ChordGenerator(
         Beats& beats,
