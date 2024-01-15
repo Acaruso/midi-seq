@@ -30,9 +30,9 @@ public:
     {}
 
     void tick(std::string& message) {
-        // moduleChord.tick(message, curTick);
         // moduleChordSeq.tick(message, curTick);
-        moduleSingleNote.tick(message, curTick);
+        moduleChord.tick(message, curTick);
+        // moduleSingleNote.tick(message, curTick);
 
         // TODO: refactor code so that handleEvents can be first
         // this will make timing more stable
