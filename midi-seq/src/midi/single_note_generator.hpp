@@ -1,8 +1,12 @@
 #pragma once
 
+#include <cmath>
+#include <vector>
+
 #include "../main/util.hpp"
 #include "beats.hpp"
 #include "midi_queue.hpp"
+#include "util.hpp"
 
 template <typename MidiServiceType>
 class SingleNoteGenerator {
@@ -15,6 +19,7 @@ public:
     int prevNote;
     int lowNote;
     int highNote;
+    std::vector<int> intervalBlacklist;
 
     SingleNoteGenerator(
         Beats& beats,
@@ -27,8 +32,12 @@ public:
         counter(0),
         curNote(0),
         prevNote(0),
-        lowNote(45),
-        highNote(58)
+        // lowNote(45),
+        // highNote(58),
+        lowNote(guitarToMidi(S_A, 0)),
+        highNote(guitarToMidi(S_G, 3)),
+        intervalBlacklist({0, 1, 2, 12})
+        // intervalBlacklist({0, 1, 2, 3, 4, 5, 6, 7, 12})
     {
         generateNextNote();
     }
@@ -52,13 +61,13 @@ public:
     }
 
     bool checkNote(int prevNote, int curNote) {
-        return (
-            prevNote == curNote
-            || prevNote == curNote + 1
-            || prevNote == curNote - 1
-            || prevNote == curNote + 2
-            || prevNote == curNote - 2
-        );
+        int absDiff = abs(prevNote - curNote);
+        for (auto interval : intervalBlacklist) {
+            if (absDiff == interval) {
+                return true;
+            }
+        }
+        return false;
     }
 
     void playNote(int curTick, int note, BeatUnit duration) {

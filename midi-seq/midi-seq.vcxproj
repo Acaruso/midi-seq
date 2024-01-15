@@ -55,6 +55,7 @@
     <ClInclude Include="src/midi/multi_sequence.hpp" />
     <ClInclude Include="src/midi/sequence.hpp" />
     <ClInclude Include="src/midi/single_note_generator.hpp" />
+    <ClInclude Include="src/midi/util.hpp" />
   </ItemGroup>
   <!-- 3rd party libraries -->
   <ItemGroup>
