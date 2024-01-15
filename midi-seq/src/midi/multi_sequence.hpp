@@ -13,8 +13,8 @@ class MultiSequence {
     int channel;
     int numSteps;
     BeatUnit stepSize;
-    int numSequences;
-    std::vector<Sequence<MidiServiceType>> sequences;
+    int numTracks;
+    std::vector<Sequence<MidiServiceType>> tracks;
 
 public:
     MultiSequence(
@@ -23,29 +23,29 @@ public:
         int channel,
         int numSteps,
         BeatUnit stepSize,
-        int numSequences
+        int numTracks
     ) :
         beats(beats),
         midiQueue(midiQueue),
         channel(channel),
         numSteps(numSteps),
         stepSize(stepSize),
-        numSequences(numSequences)
+        numTracks(numTracks)
     {
-        for (int i = 0; i < numSequences; i++) {
-            sequences.push_back(
+        for (int i = 0; i < numTracks; i++) {
+            tracks.push_back(
                 Sequence<MidiServiceType>(beats, midiQueue, channel, numSteps, stepSize)
             );
         }
     }
 
     Sequence<MidiServiceType>& get(int i) {
-        return sequences[i];
+        return tracks[i];
     }
 
     void tick(int curTick) {
-        for (auto& s : sequences) {
-            s.tick(curTick);
+        for (auto& track : tracks) {
+            track.tick(curTick);
         }
     }
 };

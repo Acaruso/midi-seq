@@ -32,7 +32,7 @@ public:
     ) :
         midiService(midiService),
         midiQueue(midiQueue),
-        ticksPer64Note(60),
+        ticksPer64Note(40),
         beats(ticksPer64Note),
         chordChannel(1),
         chordGenerator(beats, midiQueue, chordChannel),
@@ -42,37 +42,36 @@ public:
             midiQueue,
             seqChannel,
             8,                      // numSteps
-            B_16,                   // step size
-            4                       // numSequences
+            B_16,                   // stepSize
+            4                       // numTracks
         )
     {
-        int kickSeq      = 0;
-        int snareSeq     = 1;
-        int closedHatSeq = 2;
-        int openHatSeq   = 3;
+        int kickTrack      = 0;
+        int snareTrack     = 1;
+        int closedHatTrack = 2;
+        int openHatTrack   = 3;
 
         int kickNote      = 36;
         int snareNote     = 37;
         int closedHatNote = 38;
         int openHatNote   = 39;
 
+        int offsetAmnt = 20;
+
         // addRollEventOneShot(0, 50);
-        addNoteEvent(kickSeq,  0, kickNote);
-        addNoteEvent(kickSeq,  2, kickNote);
-        addNoteEvent(kickSeq,  4, kickNote);
-        addNoteEvent(kickSeq,  7, kickNote);
+        addNoteEvent(kickTrack, 0, kickNote);
+        addNoteEvent(kickTrack, 4, kickNote);
 
-        addNoteEvent(snareSeq, 2, snareNote);
-        addNoteEvent(snareSeq, 6, snareNote);
+        addNoteEvent(snareTrack, 4, snareNote);
 
-        addNoteEvent(closedHatSeq, 0, closedHatNote);
-        addNoteEvent(closedHatSeq, 1, closedHatNote);
-        addNoteEvent(closedHatSeq, 2, closedHatNote);
-        addNoteEvent(closedHatSeq, 3, closedHatNote);
-        addNoteEvent(closedHatSeq, 4, closedHatNote);
-        addNoteEvent(closedHatSeq, 5, closedHatNote);
-        addNoteEvent(closedHatSeq, 6, closedHatNote);
-        addNoteEvent(closedHatSeq, 7, closedHatNote);
+        addNoteEvent(closedHatTrack, 0, closedHatNote);
+        addNoteEvent(closedHatTrack, 1, closedHatNote);
+        addNoteEvent(closedHatTrack, 2, closedHatNote);
+        addNoteEvent(closedHatTrack, 3, closedHatNote);
+        addNoteEvent(closedHatTrack, 4, closedHatNote);
+        addNoteEvent(closedHatTrack, 5, closedHatNote);
+        addNoteEvent(closedHatTrack, 6, closedHatNote);
+        addNoteEvent(closedHatTrack, 7, closedHatNote);
     }
 
     void tick(std::string& message, int curTick) {
@@ -129,6 +128,23 @@ public:
             idx,
             Event{
                 .on = true,
+                .channel = seqChannel,
+                .subEvent = NoteEvent{
+                    .note = note,
+                    .velocity = 100,
+                    .duration = beats.ticksPerBeat(B_16)
+                }
+            }
+        );
+    }
+
+    void addNoteEvent(int seqIdx, int idx, int offset, int note) {
+        auto& sequence = multiSequence.get(seqIdx);
+        sequence.addEvent(
+            idx,
+            Event{
+                .on = true,
+                .offset = offset,
                 .channel = seqChannel,
                 .subEvent = NoteEvent{
                     .note = note,

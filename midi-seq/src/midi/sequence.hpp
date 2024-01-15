@@ -25,7 +25,7 @@ using SubEvent = std::variant<NoteEvent, RollEvent>;
 struct Event {
     bool on = false;
     bool oneShot = false;
-    int offset = 0;             // TODO: handle offset
+    int offset = 0;
     int channel = 1;
     SubEvent subEvent;
 };
@@ -86,11 +86,17 @@ public:
     }
 
     void handleEvent(NoteEvent& subEvent, Event& event, int curTick) {
-        midiQueue.noteOnOff(event.channel, subEvent.note, subEvent.velocity, curTick, subEvent.duration);
+        midiQueue.noteOnOff(
+            event.channel,
+            subEvent.note,
+            subEvent.velocity,
+            curTick + event.offset,
+            subEvent.duration
+        );
     }
 
     void handleEvent(RollEvent& subEvent, Event& event, int curTick) {
-        int offset = curTick;
+        int offset = curTick + event.offset;
         int duration = subEvent.totalDuration - subEvent.restDuration;
 
         for (int i = 0; i < subEvent.numRepeats; ++i) {
