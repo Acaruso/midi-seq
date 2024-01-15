@@ -3,6 +3,8 @@
 #include <iostream>
 #include <variant>
 #include <vector>
+
+#include "../main/util.hpp"
 #include "beats.hpp"
 #include "midi_queue.hpp"
 
@@ -26,6 +28,7 @@ struct Event {
     bool on = false;
     bool oneShot = false;
     int offset = 0;
+    int probability = 100;
     int channel = 1;
     SubEvent subEvent;
 };
@@ -68,11 +71,8 @@ public:
     void tick(int curTick) {
         if (isBeat(curTick)) {
             Event& event = events[curStep];
-            if (event.on) {
-                std::visit(
-                    [this, curTick, &event](auto&& subEvent) { handleEvent(subEvent, event, curTick); },
-                    event.subEvent
-                );
+            if (eventShouldTrigger(event)) {
+                handleEvent(event, curTick);
                 if (event.oneShot) {
                     event.on = false;
                 }
@@ -85,7 +85,23 @@ public:
         return (beats.isBeat(curTick, stepSize));
     }
 
-    void handleEvent(NoteEvent& subEvent, Event& event, int curTick) {
+    bool eventShouldTrigger(Event& e) {
+        if (e.probability == 100) {
+            return e.on;
+        } else {
+            int r = getRand(0, 99);
+            return (r < e.probability) && e.on;
+        }
+    }
+
+    void handleEvent(Event& event, int curTick) {
+        std::visit(
+            [this, &event, curTick](auto&& subEvent) { v_handleEvent(subEvent, event, curTick); },
+            event.subEvent
+        );
+    }
+
+    void v_handleEvent(NoteEvent& subEvent, Event& event, int curTick) {
         midiQueue.noteOnOff(
             event.channel,
             subEvent.note,
@@ -95,7 +111,7 @@ public:
         );
     }
 
-    void handleEvent(RollEvent& subEvent, Event& event, int curTick) {
+    void v_handleEvent(RollEvent& subEvent, Event& event, int curTick) {
         int offset = curTick + event.offset;
         int duration = subEvent.totalDuration - subEvent.restDuration;
 

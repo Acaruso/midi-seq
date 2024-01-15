@@ -64,14 +64,23 @@ public:
 
         addNoteEvent(snareTrack, 4, snareNote);
 
+        // addNoteEvent(closedHatTrack, 0, closedHatNote);
+        // addNoteEvent(closedHatTrack, 1, closedHatNote);
+        // addNoteEvent(closedHatTrack, 2, closedHatNote);
+        // addNoteEvent(closedHatTrack, 3, closedHatNote);
+        // addNoteEvent(closedHatTrack, 4, closedHatNote);
+        // addNoteEvent(closedHatTrack, 5, closedHatNote);
+        // addNoteEvent(closedHatTrack, 6, closedHatNote);
+        // addNoteEvent(closedHatTrack, 7, closedHatNote);
+
         addNoteEvent(closedHatTrack, 0, closedHatNote);
-        addNoteEvent(closedHatTrack, 1, closedHatNote);
+        addNoteProbEvent(closedHatTrack, 1, 50, closedHatNote);
         addNoteEvent(closedHatTrack, 2, closedHatNote);
-        addNoteEvent(closedHatTrack, 3, closedHatNote);
+        addNoteProbEvent(closedHatTrack, 3, 30, closedHatNote);
         addNoteEvent(closedHatTrack, 4, closedHatNote);
-        addNoteEvent(closedHatTrack, 5, closedHatNote);
+        addNoteProbEvent(closedHatTrack, 5, 10, closedHatNote);
         addNoteEvent(closedHatTrack, 6, closedHatNote);
-        addNoteEvent(closedHatTrack, 7, closedHatNote);
+        addNoteProbEvent(closedHatTrack, 7, 5, closedHatNote);
     }
 
     void tick(std::string& message, int curTick) {
@@ -138,13 +147,30 @@ public:
         );
     }
 
-    void addNoteEvent(int seqIdx, int idx, int offset, int note) {
+    void addNoteOffsetEvent(int seqIdx, int idx, int offset, int note) {
         auto& sequence = multiSequence.get(seqIdx);
         sequence.addEvent(
             idx,
             Event{
                 .on = true,
                 .offset = offset,
+                .channel = seqChannel,
+                .subEvent = NoteEvent{
+                    .note = note,
+                    .velocity = 100,
+                    .duration = beats.ticksPerBeat(B_16)
+                }
+            }
+        );
+    }
+
+    void addNoteProbEvent(int seqIdx, int idx, int probability, int note) {
+        auto& sequence = multiSequence.get(seqIdx);
+        sequence.addEvent(
+            idx,
+            Event{
+                .on = true,
+                .probability = probability,
                 .channel = seqChannel,
                 .subEvent = NoteEvent{
                     .note = note,
