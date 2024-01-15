@@ -59,19 +59,13 @@ public:
 
     void addEvent(int idx, Event event) {
         if (idx >= numSteps) {
-            // TODO: handle this better
             std::cerr << "Sequence: idx >= size" << std::endl;
             return;
         }
         events[idx] = event;
     }
 
-    bool isBeat(int curTick) {
-        return (beats.isBeat(curTick, stepSize));
-    }
-
     void tick(int curTick) {
-        // if (beats.isBeat(curTick, stepSize)) {
         if (isBeat(curTick)) {
             Event& event = events[curStep];
             if (event.on) {
@@ -83,8 +77,12 @@ public:
                     event.on = false;
                 }
             }
-            curStep = ((curStep + 1) % numSteps);
+            curStep = (curStep + 1) % numSteps;
         }
+    }
+
+    bool isBeat(int curTick) {
+        return (beats.isBeat(curTick, stepSize));
     }
 
     void handleEvent(NoteEvent& subEvent, Event& event, int curTick) {

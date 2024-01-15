@@ -8,7 +8,7 @@
 #include "chord_generator.hpp"
 #include "midi_queue.hpp"
 #include "midi_service.hpp"
-#include "sequence.hpp"
+#include "multi_sequence.hpp"
 
 template <typename MidiServiceType>
 class ModuleChordSeq {
@@ -24,7 +24,7 @@ public:
     ChordGenerator<MidiServiceType> chordGenerator;
     int seqChannel;
 
-    Sequence<MidiServiceType> sequence;
+    MultiSequence<MidiServiceType> multiSequence;
 
     ModuleChordSeq(
         MidiServiceType& midiService,
@@ -37,28 +37,42 @@ public:
         chordChannel(1),
         chordGenerator(beats, midiQueue, chordChannel),
         seqChannel(2),
-        sequence(
+        multiSequence(
             beats,
             midiQueue,
             seqChannel,
             8,                      // numSteps
-            B_16                    // step size
+            B_16,                   // step size
+            4                       // numSequences
         )
     {
-        int kick  = 36;
-        int snare = 37;
-        int ch    = 38;
-        int oh    = 39;
+        int kickSeq      = 0;
+        int snareSeq     = 1;
+        int closedHatSeq = 2;
+        int openHatSeq   = 3;
+
+        int kickNote      = 36;
+        int snareNote     = 37;
+        int closedHatNote = 38;
+        int openHatNote   = 39;
 
         // addRollEventOneShot(0, 50);
-        addNoteEvent(0, kick);
-        addNoteEvent(1, ch);
-        addNoteEvent(2, snare);
-        addNoteEvent(3, ch);
-        addNoteEvent(4, kick);
-        addNoteEvent(5, ch);
-        addNoteEvent(6, snare);
-        addNoteEvent(7, ch);
+        addNoteEvent(kickSeq,  0, kickNote);
+        addNoteEvent(kickSeq,  2, kickNote);
+        addNoteEvent(kickSeq,  4, kickNote);
+        addNoteEvent(kickSeq,  7, kickNote);
+
+        addNoteEvent(snareSeq, 2, snareNote);
+        addNoteEvent(snareSeq, 6, snareNote);
+
+        addNoteEvent(closedHatSeq, 0, closedHatNote);
+        addNoteEvent(closedHatSeq, 1, closedHatNote);
+        addNoteEvent(closedHatSeq, 2, closedHatNote);
+        addNoteEvent(closedHatSeq, 3, closedHatNote);
+        addNoteEvent(closedHatSeq, 4, closedHatNote);
+        addNoteEvent(closedHatSeq, 5, closedHatNote);
+        addNoteEvent(closedHatSeq, 6, closedHatNote);
+        addNoteEvent(closedHatSeq, 7, closedHatNote);
     }
 
     void tick(std::string& message, int curTick) {
@@ -67,12 +81,13 @@ public:
         }
 
         chordGenerator.tick(curTick);
-        sequence.tick(curTick);
+        multiSequence.tick(curTick);
     }
 
-    // seq methods
+    // seq methods ////////////////////////////////////////////////////////////////////////////////
 
-    void addRollEvent(int idx, int note) {
+    void addRollEvent(int seqIdx, int idx, int note) {
+        auto& sequence = multiSequence.get(seqIdx);
         sequence.addEvent(
             idx,
             Event{
@@ -89,7 +104,8 @@ public:
         );
     }
 
-    void addRollEventOneShot(int idx, int note) {
+    void addRollEventOneShot(int seqIdx, int idx, int note) {
+        auto& sequence = multiSequence.get(seqIdx);
         sequence.addEvent(
             idx,
             Event{
@@ -107,7 +123,8 @@ public:
         );
     }
 
-    void addNoteEvent(int idx, int note) {
+    void addNoteEvent(int seqIdx, int idx, int note) {
+        auto& sequence = multiSequence.get(seqIdx);
         sequence.addEvent(
             idx,
             Event{
