@@ -43,6 +43,7 @@
   <!-- midi hpp -->
   <ItemGroup>
     <ClInclude Include="src/midi/beats.hpp" />
+    <ClInclude Include="src/midi/chord_gen_voice_leading.hpp" />
     <ClInclude Include="src/midi/chord_generator.hpp" />
     <ClInclude Include="src/midi/chords.hpp" />
     <ClInclude Include="src/midi/midi_app.hpp" />

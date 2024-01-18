@@ -20,7 +20,7 @@ public:
     ) :
         midiService(midiService),
         midiQueue(midiQueue),
-        ticksPer64Note(40),
+        ticksPer64Note(48),
         beats(ticksPer64Note),
         channel(1),
         singleNoteGenerator(beats, midiQueue, channel)

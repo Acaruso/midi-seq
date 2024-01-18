@@ -57,7 +57,21 @@
       - `for seq in seqVector: seq.onTick(curTick)`
     - similar to video game development
 
-
+- chord voice leading ear training idea:
+  - pick a key -- ie a root note
+    - assume always major key
+  - pick a range of notes
+  - pick a starting triad in that key and range
+  - to transition to next chord:
+    - randomly pick another chord in the key
+    - generate all three possible inversions of that chord
+    - find which inversion has the closest voice leading to the current chord
+      - to do this, take the following measurements:
+        - low_diff = abs(curChord.lowest - nextChord.lowest)
+        - mid_diff = abs(curChord.mid - nextChord.mid)
+        - hi_diff = abs(curChord.hi - nextChord.hi)
+        - total = low_diff + mid_diff + hi_diff
+  - this will not only help with ear training, it will help with learning all the various chord shapes of a key
 
 
 
