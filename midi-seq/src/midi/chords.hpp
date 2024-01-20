@@ -33,12 +33,8 @@ inline std::vector<int> createChordByRoot(int root, ChordType type, ChordInversi
     std::vector<int> chord;
 
     switch (type) {
-        case MAJOR:
-            chord = {0, 4, 7};
-            break;
-        case MINOR:
-            chord = {0, 3, 7};
-            break;
+        case MAJOR: chord = {0, 4, 7}; break;
+        case MINOR: chord = {0, 3, 7}; break;
     }
 
     switch (inv) {

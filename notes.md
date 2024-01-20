@@ -73,6 +73,37 @@
         - total = low_diff + mid_diff + hi_diff
   - this will not only help with ear training, it will help with learning all the various chord shapes of a key
 
+- guitar strings to MIDI note numbers:
+  - 40 == E1
+  - 45 == A1
+  - 50 == D1
+  - 55 == G2
+  - 59 == B2
+  - 64 == E3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

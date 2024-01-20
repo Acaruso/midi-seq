@@ -22,7 +22,7 @@ public:
     ) :
         midiService(midiService),
         midiQueue(midiQueue),
-        ticksPer64Note(44),
+        ticksPer64Note(50),
         beats(ticksPer64Note),
         channel(1),
         chordGenerator(beats, midiQueue, channel),
