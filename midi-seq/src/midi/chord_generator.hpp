@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <string>
 #include <vector>
 
 #include "../main/util.hpp"
@@ -69,6 +70,8 @@ public:
     int voiceLeadingIdx;
     int voiceLeadingLowLimit = 57;              // key is A. G string == 55. A == 57 == 55 + 2
 
+    bool playing;
+
     ChordGenerator(
         Beats& beats,
         MidiQueue<MidiServiceType>& queue,
@@ -78,12 +81,20 @@ public:
         midiQueue(queue),
         channel(channel),
         voiceLeadingTarget(0),
-        voiceLeadingIdx(0)
+        voiceLeadingIdx(0),
+        playing(false)
     {
         generateNextChord();
     }
 
-    void tick(int curTick) {
+    void tick(std::string& message, int curTick) {
+        if (message == "s") {
+            playing = !playing;
+        }
+        if (!playing) {
+            return;
+        }
+
         if (beats.isBeat(curTick, B_4)) {
             if (autoSwitch && ((chordCounter % numRepeats) == 0)) {
                 generateNextChord();

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <string>
 #include <vector>
 
 #include "../main/util.hpp"
@@ -20,6 +21,7 @@ public:
     int lowNote;
     int highNote;
     std::vector<int> intervalBlacklist;
+    bool playing;
 
     SingleNoteGenerator(
         Beats& beats,
@@ -36,13 +38,21 @@ public:
         // highNote(58),
         lowNote(guitarToMidi(S_A, 0)),
         highNote(guitarToMidi(S_G, 3)),
-        intervalBlacklist({0, 1, 2, 12})
-        // intervalBlacklist({0, 1, 2, 3, 4, 5, 6, 7, 12})
+        intervalBlacklist({0, 1, 2, 12}),
+        // intervalBlacklist({0, 1, 2, 3, 4, 5, 6, 7, 12}),
+        playing(false)
     {
         generateNextNote();
     }
 
-    void tick(int curTick) {
+    void tick(std::string& message, int curTick) {
+        if (message == "s") {
+            playing = !playing;
+        }
+        if (!playing) {
+            return;
+        }
+
         if (beats.isBeat(curTick, B_4)) {
             if (((counter % 4) == 0)) {
                 generateNextNote();

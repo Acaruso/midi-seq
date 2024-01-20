@@ -80,6 +80,8 @@ public:
                 // }
                 if (keycode == VK_SPACE) {
                     midiQueue.enqueue("s");
+                } else if (keycode == (int('M'))) {
+                    midiQueue.enqueue("m");
                 }
                 break;
             }

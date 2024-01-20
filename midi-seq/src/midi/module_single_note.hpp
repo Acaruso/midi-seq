@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "beats.hpp"
 #include "midi_queue.hpp"
 #include "single_note_generator.hpp"
@@ -27,6 +29,6 @@ public:
     {}
 
     void tick(std::string& message, int curTick) {
-        singleNoteGenerator.tick(curTick);
+        singleNoteGenerator.tick(message, curTick);
     }
 };

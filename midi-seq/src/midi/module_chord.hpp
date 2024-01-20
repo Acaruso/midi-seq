@@ -30,10 +30,6 @@ public:
     {}
 
     void tick(std::string& message, int curTick) {
-        if (message == "s") {
-            chordGenerator.generateNextChord();
-        }
-
-        chordGenerator.tick(curTick);
+        chordGenerator.tick(message, curTick);
     }
 };
