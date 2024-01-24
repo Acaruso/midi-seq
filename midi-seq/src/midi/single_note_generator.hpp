@@ -34,10 +34,13 @@ public:
         counter(0),
         curNote(0),
         prevNote(0),
-        // lowNote(45),
-        // highNote(58),
+
         lowNote(guitarToMidi(S_A, 0)),
         highNote(guitarToMidi(S_G, 3)),
+
+        // lowNote(guitarToMidi(S_G, 0)),
+        // highNote(guitarToMidi(S_HIGH_E, 4)),
+
         intervalBlacklist({0, 1, 2, 12}),
         // intervalBlacklist({0, 1, 2, 3, 4, 5, 6, 7, 12}),
         playing(false)

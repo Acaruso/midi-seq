@@ -18,22 +18,22 @@ struct MChord {
 };
 
 static std::vector<MChord> voiceLeadingChords = {
-    MChord{1, 0, MAJOR, ROOT},          // 0
-    MChord{6, 0, MINOR, ROOT},          // 1
-    MChord{4, 0, MAJOR, SECOND_INV},    // 2
-    MChord{2, 2, MINOR, ROOT},          // 3
-    MChord{5, 2, MAJOR, SECOND_INV},    // 4
-    MChord{3, 4, MINOR, ROOT},          // 5
-    MChord{1, 4, MAJOR, FIRST_INV},     // 6
-    MChord{6, 4, MINOR, SECOND_INV},    // 7
-    MChord{4, 5, MAJOR, ROOT},          // 8
-    MChord{2, 5, MINOR, FIRST_INV},     // 9
-    MChord{5, 7, MAJOR, ROOT},          // 10
-    MChord{3, 7, MINOR, FIRST_INV},     // 11
-    MChord{1, 7, MAJOR, SECOND_INV},    // 12
-    MChord{6, 9, MINOR, ROOT},          // 13
-    MChord{4, 9, MAJOR, FIRST_INV},     // 14
-    MChord{2, 9, MINOR, SECOND_INV},    // 15
+    MChord{1, 0, MAJOR, ROOT},           // 0
+    MChord{6, 0, MINOR, FIRST_INV},      // 1
+    MChord{4, 0, MAJOR, SECOND_INV},     // 2
+    MChord{2, 2, MINOR, ROOT},           // 3
+    MChord{5, 2, MAJOR, SECOND_INV},     // 4
+    MChord{3, 4, MINOR, ROOT},           // 5
+    MChord{1, 4, MAJOR, FIRST_INV},      // 6
+    MChord{6, 4, MINOR, SECOND_INV},     // 7
+    MChord{4, 5, MAJOR, ROOT},           // 8
+    MChord{2, 5, MINOR, FIRST_INV},      // 9
+    MChord{5, 7, MAJOR, ROOT},           // 10
+    MChord{3, 7, MINOR, FIRST_INV},      // 11
+    MChord{1, 7, MAJOR, SECOND_INV},     // 12
+    MChord{6, 9, MINOR, ROOT},           // 13
+    MChord{4, 9, MAJOR, FIRST_INV},      // 14
+    MChord{2, 9, MINOR, SECOND_INV},     // 15
     MChord{5, 11, MAJOR, FIRST_INV},     // 16
     MChord{3, 11, MINOR, SECOND_INV},    // 17
 };
@@ -63,8 +63,8 @@ public:
     int prevLowestNote = 0;
 
     bool autoSwitch = true;                     // automatically go to next chord
-    int numRepeats = 4;
-    ChordGeneratorMode mode = VOICE_LEADING;
+    int numRepeats;
+    ChordGeneratorMode mode = RANDOM;
 
     int voiceLeadingTarget;
     int voiceLeadingIdx;
@@ -93,6 +93,12 @@ public:
         }
         if (!playing) {
             return;
+        }
+
+        if (mode == RANDOM) {
+            numRepeats = 8;
+        } else if (mode == VOICE_LEADING) {
+            numRepeats = 4;
         }
 
         if (beats.isBeat(curTick, B_4)) {
