@@ -5,7 +5,7 @@
 #include "midi_queue.hpp"
 
 template <typename MidiServiceType>
-class ModuleIntervals {
+class ModuleInterval {
 public:
     MidiServiceType& midiService;
     MidiQueue<MidiServiceType>& midiQueue;
@@ -14,7 +14,7 @@ public:
     int channel;
     IntervalGenerator<MidiServiceType> intervalGenerator;
 
-    ModuleIntervals(
+    ModuleInterval(
         MidiServiceType& midiService,
         MidiQueue<MidiServiceType>& midiQueue
     ) :
@@ -27,6 +27,6 @@ public:
     {}
 
     void tick(std::string& message, int curTick) {
-        // singleNoteGenerator.tick(message, curTick);
+        intervalGenerator.tick(message, curTick);
     }
 };

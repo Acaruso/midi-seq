@@ -5,6 +5,7 @@
 #include "../main/util.hpp"
 #include "beats.hpp"
 #include "midi_queue.hpp"
+#include "util.hpp"
 
 enum Intervals {
     MINOR_3,
@@ -37,12 +38,15 @@ public:
     MidiQueue<MidiServiceType>& midiQueue;
     int channel;
 
-    int lowLimit = 50;
-    int highLimit = 60;
+    int lowLimit = guitarToMidi(S_D, 0);
+    int highLimit = guitarToMidi(S_D, 5);
 
     int curIntervalLow = 0;
     int prevIntervalLow = 0;
     int curIntervalHigh = 0;
+    bool playing;
+    int numRepeats;
+    int counter;
 
     IntervalGenerator(
         Beats& beats,
@@ -51,12 +55,29 @@ public:
     ) :
         beats(beats),
         midiQueue(midiQueue),
-        channel(channel)
+        channel(channel),
+        playing(false),
+        numRepeats(2),
+        counter(0)
     {
         generateNextInterval();
     }
 
     void tick(std::string& message, int curTick) {
+        if (message == "s") {
+            playing = !playing;
+        }
+        if (!playing) {
+            return;
+        }
+
+        if (beats.isBeat(curTick, B_4)) {
+            if ((counter % numRepeats) == 0) {
+                generateNextInterval();
+            }
+            play(curTick);
+            ++counter;
+        }
     }
 
     void generateNextInterval() {
@@ -67,5 +88,10 @@ public:
         prevIntervalLow = curIntervalLow;
         int offsetIdx = getRand(0, intervalOffsets.size() - 1);
         curIntervalHigh = curIntervalLow + intervalOffsets[offsetIdx];
+    }
+
+    void play(int curTick) {
+        midiQueue.noteOnOff(channel, curIntervalLow,  100, curTick, beats.ticksPerBeat(B_8));
+        midiQueue.noteOnOff(channel, curIntervalHigh, 100, curTick, beats.ticksPerBeat(B_8));
     }
 };

@@ -6,11 +6,14 @@
 #include "midi_service.hpp"
 #include "module_chord.hpp"
 #include "module_chord_seq.hpp"
+#include "module_interval.hpp"
 #include "module_single_note.hpp"
 
 enum MidiAppMode {
     CHORD,
+    INTERVAL,
     SINGLE_NOTE,
+    NUM_MODES,
 };
 
 class MidiApp {
@@ -23,6 +26,7 @@ public:
     ModuleChord<MidiService> moduleChord;
     ModuleChordSeq<MidiService> moduleChordSeq;
     ModuleSingleNote<MidiService> moduleSingleNote;
+    ModuleInterval<MidiService> moduleInterval;
 
     MidiAppMode mode;
 
@@ -34,6 +38,7 @@ public:
         moduleChord(midiService, midiQueue),
         moduleChordSeq(midiService, midiQueue),
         moduleSingleNote(midiService, midiQueue),
+        moduleInterval(midiService, midiQueue),
         mode(CHORD)
     {}
 
@@ -46,6 +51,8 @@ public:
 
         if (mode == CHORD) {
             moduleChord.tick(message, curTick);
+        } else if (mode == INTERVAL) {
+            moduleInterval.tick(message, curTick);
         } else if (mode == SINGLE_NOTE) {
             moduleSingleNote.tick(message, curTick);
         }
@@ -58,12 +65,13 @@ public:
     }
 
     MidiAppMode getNextMode(MidiAppMode curMode) {
-        if (curMode == CHORD) {
-            return SINGLE_NOTE;
-        } else if (curMode == SINGLE_NOTE) {
-            return CHORD;
-        } else {
-            return CHORD;
-        }
+        // if (curMode == CHORD) {
+        //     return SINGLE_NOTE;
+        // } else if (curMode == SINGLE_NOTE) {
+        //     return CHORD;
+        // } else {
+        //     return CHORD;
+        // }
+        return static_cast<MidiAppMode>((curMode + 1) % NUM_MODES);
     }
 };
