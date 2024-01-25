@@ -60,17 +60,17 @@ public:
 
     MidiQueue(MidiServiceType& m) : midiService(m) {}
 
+    void noteOnOff(int channel, int note, int velocity, int tick, int duration) {
+        noteOn(channel, note, velocity, tick);
+        noteOff(channel, note, tick + duration);
+    }
+
     void noteOn(int channel, int note, int velocity, int tick) {
         addEvent(createNoteOnEvent(channel, note, velocity, tick));
     }
 
     void noteOff(int channel, int note, int tick) {
         addEvent(createNoteOffEvent(channel, note, tick));
-    }
-
-    void noteOnOff(int channel, int note, int velocity, int tick, int duration) {
-        noteOn(channel, note, velocity, tick);
-        noteOff(channel, note, tick + duration);
     }
 
     void cc(int channel, int controller, int value, int tick) {

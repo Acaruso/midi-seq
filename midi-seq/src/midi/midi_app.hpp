@@ -65,13 +65,6 @@ public:
     }
 
     MidiAppMode getNextMode(MidiAppMode curMode) {
-        // if (curMode == CHORD) {
-        //     return SINGLE_NOTE;
-        // } else if (curMode == SINGLE_NOTE) {
-        //     return CHORD;
-        // } else {
-        //     return CHORD;
-        // }
         return static_cast<MidiAppMode>((curMode + 1) % NUM_MODES);
     }
 };
