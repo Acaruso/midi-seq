@@ -43,11 +43,23 @@ public:
     {}
 
     void tick(std::string& message) {
-        // moduleChordSeq.tick(message, curTick);
+        // handle events one tick in the past
+        // on first iteration, (curTick - 1) == -1, but this is fine
+        midiQueue.handleEvents(curTick - 1);
 
         if (message == "m") {
             mode = getNextMode(mode);
         }
+
+        // generate events for current tick
+
+        // generating events does a lot of modulus stuff, so it's good to do something like:
+        // handleEvents(curTick - 1)
+        // generateEvents(curTick)
+
+        // rather than:
+        // handleEvents(curTick)
+        // generateEvents(curTick + 1)
 
         if (mode == CHORD) {
             moduleChord.tick(message, curTick);
@@ -57,9 +69,7 @@ public:
             moduleSingleNote.tick(message, curTick);
         }
 
-        // TODO: refactor code so that handleEvents can be first
-        // this will make timing more stable
-        midiQueue.handleEvents(curTick);
+        // midiQueue.handleEvents(curTick);
 
         ++curTick;
     }

@@ -26,7 +26,7 @@ public:
     HWND window;
     GraphicsService gfx;
     // TODO: rename `queue` to `audioQueue`
-    moodycamel::ReaderWriterQueue<std::string> queue;
+    // moodycamel::ReaderWriterQueue<std::string> queue;
     moodycamel::ReaderWriterQueue<std::string> midiQueue;
     std::thread audioThread;
     std::thread midiThread;
@@ -44,8 +44,8 @@ public:
         window(window),
         gfx(window, hr)
     {
-        audioThread = std::thread(&audioMain, &queue);
-        midiThread  = std::thread(&midiMain,  &midiQueue);
+        // audioThread = std::thread(&audioMain, &queue);
+        midiThread = std::thread(&midiMain, &midiQueue);
     }
 
     bool shouldHandleMessage(UINT message) {
@@ -134,7 +134,7 @@ public:
 
     void onLeftClick(int x, int y) {
         rect = moveRect(rect, x, y);
-        queue.enqueue("trig");
+        // queue.enqueue("trig");
     }
 
     void onMouseMove(int x, int y) {
@@ -142,7 +142,10 @@ public:
 
     void destroy() {
         gfx.destroy();
-        queue.enqueue("quit");
-        audioThread.join();
+
+        // queue.enqueue("quit");
+        // audioThread.join();
+
+        // midiThread.join();
     }
 };
