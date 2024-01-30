@@ -146,6 +146,7 @@ public:
         // queue.enqueue("quit");
         // audioThread.join();
 
-        // midiThread.join();
+        midiQueue.enqueue("q");
+        midiThread.join();
     }
 };

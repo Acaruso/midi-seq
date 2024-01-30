@@ -9,6 +9,7 @@
 #include "beats.hpp"
 #include "chords.hpp"
 #include "midi_queue.hpp"
+#include "rng_service.hpp"
 
 struct MChord {
     int degree;
@@ -48,6 +49,8 @@ class ChordGenerator {
 public:
     Beats& beats;
     MidiQueue<MidiServiceType>& midiQueue;
+    RngService& rngService;
+
     int channel;
 
     std::vector<int> curChord;
@@ -75,10 +78,12 @@ public:
     ChordGenerator(
         Beats& beats,
         MidiQueue<MidiServiceType>& queue,
+        RngService& rngService,
         int channel
     ) :
         beats(beats),
         midiQueue(queue),
+        rngService(rngService),
         channel(channel),
         voiceLeadingTarget(0),
         voiceLeadingIdx(0),
@@ -118,9 +123,9 @@ public:
     }
 
     void generateNextChordRandom() {
-        curLowestNote = getRand(lowLimit, highLimit);
+        curLowestNote = rngService.getRand(lowLimit, highLimit);
         while (curLowestNote == prevLowestNote) {
-            curLowestNote = getRand(lowLimit, highLimit);
+            curLowestNote = rngService.getRand(lowLimit, highLimit);
         }
         prevLowestNote = curLowestNote;
         curChord = createChordByLowestNote(
@@ -143,18 +148,18 @@ public:
 
     void generateNextVoiceLeadingIdx() {
         while (voiceLeadingIdx == voiceLeadingTarget) {
-            voiceLeadingTarget = getRand(0, voiceLeadingChords.size() - 1);
+            voiceLeadingTarget = rngService.getRand(0, voiceLeadingChords.size() - 1);
         }
         int direction = voiceLeadingTarget > voiceLeadingIdx ? 1 : (-1);
         voiceLeadingIdx += direction;
     }
 
     // void generateNextVoiceLeadingIdx() {
-    //     int direction = getRand(0, 1);
+    //     int direction = rngService.getRand(0, 1);
     //     voiceLeadingIdx += direction == 0 ? (-1) : 1;
 
     //     while (voiceLeadingIdx < 0 || voiceLeadingIdx >= voiceLeadingChords.size()) {
-    //         direction = getRand(0, 1);
+    //         direction = rngService.getRand(0, 1);
     //         voiceLeadingIdx += direction == 0 ? (-1) : 1;
     //     }
     // }
@@ -163,5 +168,13 @@ public:
         for (auto note : chord) {
             midiQueue.noteOnOff(channel, note, 100, curTick, beats.ticksPerBeat(duration));
         }
+    }
+
+    ChordType getRandChordType() {
+        return (ChordType)(rngService.getRand(0, 1));
+    }
+
+    ChordInversion getRandChordInversion() {
+        return (ChordInversion)(rngService.getRand(0, 2));
     }
 };

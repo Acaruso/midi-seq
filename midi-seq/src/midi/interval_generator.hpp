@@ -5,6 +5,7 @@
 #include "../main/util.hpp"
 #include "beats.hpp"
 #include "midi_queue.hpp"
+#include "rng_service.hpp"
 #include "util.hpp"
 
 enum Intervals {
@@ -36,6 +37,8 @@ class IntervalGenerator {
 public:
     Beats& beats;
     MidiQueue<MidiServiceType>& midiQueue;
+    RngService& rngService;
+
     int channel;
 
     int lowLimit = guitarToMidi(S_D, 0);
@@ -51,10 +54,12 @@ public:
     IntervalGenerator(
         Beats& beats,
         MidiQueue<MidiServiceType>& midiQueue,
+        RngService& rngService,
         int channel
     ) :
         beats(beats),
         midiQueue(midiQueue),
+        rngService(rngService),
         channel(channel),
         playing(false),
         numRepeats(8),
@@ -81,12 +86,12 @@ public:
     }
 
     void generateNextInterval() {
-        curIntervalLow = getRand(lowLimit, highLimit);
+        curIntervalLow = rngService.getRand(lowLimit, highLimit);
         while (curIntervalLow == prevIntervalLow) {
-            curIntervalLow = getRand(lowLimit, highLimit);
+            curIntervalLow = rngService.getRand(lowLimit, highLimit);
         }
         prevIntervalLow = curIntervalLow;
-        int offsetIdx = getRand(0, intervalOffsets.size() - 1);
+        int offsetIdx = rngService.getRand(0, intervalOffsets.size() - 1);
         curIntervalHigh = curIntervalLow + intervalOffsets[offsetIdx];
     }
 

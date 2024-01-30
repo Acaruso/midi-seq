@@ -33,6 +33,7 @@ struct Event {
     SubEvent subEvent;
 };
 
+// TODO: use RngService in Sequence to generate random numbers
 template <typename MidiServiceType>
 class Sequence {
 public:

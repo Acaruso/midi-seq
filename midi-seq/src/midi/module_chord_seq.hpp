@@ -9,12 +9,14 @@
 #include "midi_queue.hpp"
 #include "midi_service.hpp"
 #include "multi_sequence.hpp"
+#include "rng_service.hpp"
 
 template <typename MidiServiceType>
 class ModuleChordSeq {
 public:
     MidiServiceType& midiService;
     MidiQueue<MidiServiceType>& midiQueue;
+    RngService& rngService;
 
     int ticksPer64Note;
     Beats beats;
@@ -28,14 +30,16 @@ public:
 
     ModuleChordSeq(
         MidiServiceType& midiService,
-        MidiQueue<MidiServiceType>& midiQueue
+        MidiQueue<MidiServiceType>& midiQueue,
+        RngService& rngService
     ) :
         midiService(midiService),
         midiQueue(midiQueue),
+        rngService(rngService),
         ticksPer64Note(40),
         beats(ticksPer64Note),
         chordChannel(1),
-        chordGenerator(beats, midiQueue, chordChannel),
+        chordGenerator(beats, midiQueue, rngService, chordChannel),
         seqChannel(2),
         multiSequence(
             beats,

@@ -50,12 +50,16 @@
     <ClInclude Include="src/midi/midi_app.hpp" />
     <ClInclude Include="src/midi/midi_main.hpp" />
     <ClInclude Include="src/midi/midi_queue.hpp" />
+    <ClInclude Include="src/midi/midi_service_utils.hpp" />
     <ClInclude Include="src/midi/midi_service.hpp" />
+    <ClInclude Include="src/midi/midi_stream_service.hpp" />
     <ClInclude Include="src/midi/module_chord_seq.hpp" />
     <ClInclude Include="src/midi/module_chord.hpp" />
     <ClInclude Include="src/midi/module_interval.hpp" />
     <ClInclude Include="src/midi/module_single_note.hpp" />
+    <ClInclude Include="src/midi/module_stress_test.hpp" />
     <ClInclude Include="src/midi/multi_sequence.hpp" />
+    <ClInclude Include="src/midi/rng_service.hpp" />
     <ClInclude Include="src/midi/sequence.hpp" />
     <ClInclude Include="src/midi/single_note_generator.hpp" />
     <ClInclude Include="src/midi/util.hpp" />

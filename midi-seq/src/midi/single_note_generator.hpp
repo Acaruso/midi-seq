@@ -7,6 +7,7 @@
 #include "../main/util.hpp"
 #include "beats.hpp"
 #include "midi_queue.hpp"
+#include "rng_service.hpp"
 #include "util.hpp"
 
 template <typename MidiServiceType>
@@ -14,6 +15,8 @@ class SingleNoteGenerator {
 public:
     Beats& beats;
     MidiQueue<MidiServiceType>& midiQueue;
+    RngService& rngService;
+
     int channel;
     int counter;
     int curNote;
@@ -26,10 +29,12 @@ public:
     SingleNoteGenerator(
         Beats& beats,
         MidiQueue<MidiServiceType>& queue,
+        RngService& rngService,
         int channel
     ) :
         beats(beats),
         midiQueue(queue),
+        rngService(rngService),
         channel(channel),
         counter(0),
         curNote(0),
@@ -38,11 +43,11 @@ public:
         // lowNote(guitarToMidi(S_A, 0)),
         // highNote(guitarToMidi(S_G, 3)),
 
-        lowNote(guitarToMidi(S_D, 0)),
-        highNote(guitarToMidi(S_B, 4)),
+        // lowNote(guitarToMidi(S_D, 0)),
+        // highNote(guitarToMidi(S_B, 4)),
 
-        // lowNote(guitarToMidi(S_G, 0)),
-        // highNote(guitarToMidi(S_HIGH_E, 4)),
+        lowNote(guitarToMidi(S_G, 0)),
+        highNote(guitarToMidi(S_HIGH_E, 4)),
 
         intervalBlacklist({0, 1, 2, 12}),
         // intervalBlacklist({0, 1, 2, 3, 4, 5, 6, 7, 12}),
@@ -69,9 +74,9 @@ public:
     }
 
     void generateNextNote() {
-        curNote = getRand(lowNote, highNote);
+        curNote = rngService.getRand(lowNote, highNote);
         while (checkNote(prevNote, curNote)) {
-            curNote = getRand(lowNote, highNote);
+            curNote = rngService.getRand(lowNote, highNote);
         }
         prevNote = curNote;
     }

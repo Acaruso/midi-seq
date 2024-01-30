@@ -4,12 +4,14 @@
 #include "chord_generator.hpp"
 #include "midi_queue.hpp"
 #include "midi_service.hpp"
+#include "rng_service.hpp"
 
 template <typename MidiServiceType>
 class ModuleChord {
 public:
     MidiServiceType& midiService;
     MidiQueue<MidiServiceType>& midiQueue;
+    RngService& rngService;
     int ticksPer64Note;
     Beats beats;
     int channel;
@@ -18,14 +20,16 @@ public:
 
     ModuleChord(
         MidiServiceType& midiService,
-        MidiQueue<MidiServiceType>& midiQueue
+        MidiQueue<MidiServiceType>& midiQueue,
+        RngService& rngService
     ) :
         midiService(midiService),
         midiQueue(midiQueue),
+        rngService(rngService),
         ticksPer64Note(50),
         beats(ticksPer64Note),
         channel(1),
-        chordGenerator(beats, midiQueue, channel),
+        chordGenerator(beats, midiQueue, rngService, channel),
         curTick(0)
     {}
 
