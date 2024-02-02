@@ -111,7 +111,7 @@ public:
     }
 
     void tick(std::string& message, int curTick) {
-        if (message == "s") {
+        if (message == " ") {
             playing = !playing;
         }
         if (!playing) {
