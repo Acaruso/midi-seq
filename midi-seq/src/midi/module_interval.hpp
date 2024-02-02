@@ -1,7 +1,7 @@
 #pragma once
 
 #include "beats.hpp"
-#include "interval_generator.hpp"
+#include "generator_interval.hpp"
 #include "midi_queue.hpp"
 #include "rng_service.hpp"
 
@@ -15,7 +15,7 @@ public:
     int ticksPer64Note;
     Beats beats;
     int channel;
-    IntervalGenerator<MidiServiceType> intervalGenerator;
+    GeneratorInterval<MidiServiceType> generatorInterval;
 
     ModuleInterval(
         MidiServiceType& midiService,
@@ -28,10 +28,10 @@ public:
         ticksPer64Note(50),
         beats(ticksPer64Note),
         channel(1),
-        intervalGenerator(beats, midiQueue, rngService, channel)
+        generatorInterval(beats, midiQueue, rngService, channel)
     {}
 
     void tick(std::string& message, int curTick) {
-        intervalGenerator.tick(message, curTick);
+        generatorInterval.tick(message, curTick);
     }
 };

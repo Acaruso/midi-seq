@@ -55,14 +55,14 @@ static std::vector<MChord2> chordsInKey = {
     MChord2{11, DIM},
 };
 
-enum ChordGeneratorMode {
+enum GeneratorChordMode {
     RANDOM,
     VOICE_LEADING,
     IN_KEY,
 };
 
 template <typename MidiServiceType>
-class ChordGenerator {
+class GeneratorChord {
 public:
     Beats& beats;
     MidiQueue<MidiServiceType>& midiQueue;
@@ -73,8 +73,11 @@ public:
     std::vector<int> curChord;
     int chordCounter = 0;
 
-    int lowLimit  = guitarToMidi(S_G, 3);
-    int highLimit = guitarToMidi(S_G, 9);
+    // int lowLimit  = guitarToMidi(S_G, 3);
+    // int highLimit = guitarToMidi(S_G, 9);
+
+    int lowLimit  = guitarToMidi(S_A, 5);
+    int highLimit = guitarToMidi(S_G, 7);
 
     int curLowestNote = 0;
     int prevLowestNote = 0;
@@ -82,7 +85,7 @@ public:
     bool autoSwitch = true;                     // automatically go to next chord
     int numRepeats;
 
-    ChordGeneratorMode mode = RANDOM;
+    GeneratorChordMode mode = IN_KEY;
 
     int voiceLeadingTarget;
     int voiceLeadingIdx;
@@ -90,7 +93,7 @@ public:
 
     bool playing;
 
-    ChordGenerator(
+    GeneratorChord(
         Beats& beats,
         MidiQueue<MidiServiceType>& queue,
         RngService& rngService,

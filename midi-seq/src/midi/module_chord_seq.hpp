@@ -5,7 +5,7 @@
 
 #include "../main/util.hpp"
 #include "beats.hpp"
-#include "chord_generator.hpp"
+#include "generator_chord.hpp"
 #include "midi_queue.hpp"
 #include "midi_service.hpp"
 #include "multi_sequence.hpp"
@@ -23,7 +23,7 @@ public:
 
     int chordChannel;
 
-    ChordGenerator<MidiServiceType> chordGenerator;
+    GeneratorChord<MidiServiceType> generatorChord;
     int seqChannel;
 
     MultiSequence<MidiServiceType> multiSequence;
@@ -39,7 +39,7 @@ public:
         ticksPer64Note(40),
         beats(ticksPer64Note),
         chordChannel(1),
-        chordGenerator(beats, midiQueue, rngService, chordChannel),
+        generatorChord(beats, midiQueue, rngService, chordChannel),
         seqChannel(2),
         multiSequence(
             beats,
@@ -89,10 +89,10 @@ public:
 
     void tick(std::string& message, int curTick) {
         if (message == "s") {
-            chordGenerator.generateNextChord();
+            generatorChord.generateNextChord();
         }
 
-        chordGenerator.tick(curTick);
+        generatorChord.tick(curTick);
         multiSequence.tick(curTick);
     }
 

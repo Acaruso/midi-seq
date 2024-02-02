@@ -11,7 +11,7 @@
 #include "util.hpp"
 
 template <typename MidiServiceType>
-class SingleNoteGenerator {
+class GeneratorSingleNote {
 public:
     Beats& beats;
     MidiQueue<MidiServiceType>& midiQueue;
@@ -26,7 +26,7 @@ public:
     std::vector<int> intervalBlacklist;
     bool playing;
 
-    SingleNoteGenerator(
+    GeneratorSingleNote(
         Beats& beats,
         MidiQueue<MidiServiceType>& queue,
         RngService& rngService,

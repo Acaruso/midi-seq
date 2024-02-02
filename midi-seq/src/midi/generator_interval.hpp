@@ -33,7 +33,7 @@ static std::vector<int> intervalOffsets = {
 };
 
 template <typename MidiServiceType>
-class IntervalGenerator {
+class GeneratorInterval {
 public:
     Beats& beats;
     MidiQueue<MidiServiceType>& midiQueue;
@@ -51,7 +51,7 @@ public:
     int numRepeats;
     int counter;
 
-    IntervalGenerator(
+    GeneratorInterval(
         Beats& beats,
         MidiQueue<MidiServiceType>& midiQueue,
         RngService& rngService,

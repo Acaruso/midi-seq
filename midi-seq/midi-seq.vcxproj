@@ -43,10 +43,9 @@
   <!-- midi hpp -->
   <ItemGroup>
     <ClInclude Include="src/midi/beats.hpp" />
-    <ClInclude Include="src/midi/chord_gen_voice_leading.hpp" />
-    <ClInclude Include="src/midi/chord_generator.hpp" />
+    <ClInclude Include="src/midi/generator_chord.hpp" />
     <ClInclude Include="src/midi/chords.hpp" />
-    <ClInclude Include="src/midi/interval_generator.hpp" />
+    <ClInclude Include="src/midi/generator_interval.hpp" />
     <ClInclude Include="src/midi/midi_app.hpp" />
     <ClInclude Include="src/midi/midi_main.hpp" />
     <ClInclude Include="src/midi/midi_queue.hpp" />
@@ -61,7 +60,7 @@
     <ClInclude Include="src/midi/multi_sequence.hpp" />
     <ClInclude Include="src/midi/rng_service.hpp" />
     <ClInclude Include="src/midi/sequence.hpp" />
-    <ClInclude Include="src/midi/single_note_generator.hpp" />
+    <ClInclude Include="src/midi/generator_single_note.hpp" />
     <ClInclude Include="src/midi/util.hpp" />
   </ItemGroup>
   <!-- 3rd party libraries -->

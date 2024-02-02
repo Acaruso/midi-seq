@@ -5,7 +5,7 @@
 #include "beats.hpp"
 #include "midi_queue.hpp"
 #include "rng_service.hpp"
-#include "single_note_generator.hpp"
+#include "generator_single_note.hpp"
 
 template <typename MidiServiceType>
 class ModuleSingleNote {
@@ -16,7 +16,7 @@ public:
     int ticksPer64Note;
     Beats beats;
     int channel;
-    SingleNoteGenerator<MidiServiceType> singleNoteGenerator;
+    GeneratorSingleNote<MidiServiceType> generatorSingleNote;
 
     ModuleSingleNote(
         MidiServiceType& midiService,
@@ -29,10 +29,10 @@ public:
         ticksPer64Note(48),
         beats(ticksPer64Note),
         channel(1),
-        singleNoteGenerator(beats, midiQueue, rngService, channel)
+        generatorSingleNote(beats, midiQueue, rngService, channel)
     {}
 
     void tick(std::string& message, int curTick) {
-        singleNoteGenerator.tick(message, curTick);
+        generatorSingleNote.tick(message, curTick);
     }
 };
