@@ -8,6 +8,7 @@
 enum ChordType {
     MAJOR,
     MINOR,
+    DIM,
 };
 
 enum ChordInversion {
@@ -27,6 +28,7 @@ inline std::vector<int> createChordByRoot(int root, ChordType type, ChordInversi
     switch (type) {
         case MAJOR: chord = {0, 4, 7}; break;
         case MINOR: chord = {0, 3, 7}; break;
+        case DIM:   chord = {0, 3, 6}; break;
     }
 
     switch (inv) {
@@ -79,6 +81,20 @@ inline std::vector<int> createChordByLowestNote(int lowestNote, ChordType type, 
                     break;
                 case SECOND_INV:
                     chord = {0, 5, 8};
+                    break;
+            }
+            break;
+        }
+        case DIM: {
+            switch (inv) {
+                case ROOT:
+                    chord = {0, 3, 6};
+                    break;
+                case FIRST_INV:
+                    chord = {0, 3, 9};
+                    break;
+                case SECOND_INV:
+                    chord = {0, 6, 9};
                     break;
             }
             break;

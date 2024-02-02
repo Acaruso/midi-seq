@@ -10,6 +10,7 @@
 #include "chords.hpp"
 #include "midi_queue.hpp"
 #include "rng_service.hpp"
+#include "util.hpp"
 
 struct MChord {
     int degree;
@@ -18,7 +19,7 @@ struct MChord {
     ChordInversion chordInversion;
 };
 
-static std::vector<MChord> voiceLeadingChords = {
+static std::vector<MChord> chordsVoiceLeading = {
     MChord{1, 0, MAJOR, ROOT},           // 0
     MChord{6, 0, MINOR, FIRST_INV},      // 1
     MChord{4, 0, MAJOR, SECOND_INV},     // 2
@@ -39,9 +40,25 @@ static std::vector<MChord> voiceLeadingChords = {
     MChord{3, 11, MINOR, SECOND_INV},    // 17
 };
 
+struct MChord2 {
+    int root;
+    ChordType chordType;
+};
+
+static std::vector<MChord2> chordsInKey = {
+    MChord2{0,  MAJOR},
+    MChord2{2,  MINOR},
+    MChord2{4,  MINOR},
+    MChord2{5,  MAJOR},
+    MChord2{7,  MAJOR},
+    MChord2{9,  MINOR},
+    MChord2{11, DIM},
+};
+
 enum ChordGeneratorMode {
     RANDOM,
     VOICE_LEADING,
+    IN_KEY,
 };
 
 template <typename MidiServiceType>
@@ -56,22 +73,20 @@ public:
     std::vector<int> curChord;
     int chordCounter = 0;
 
-    // int lowLimit = 48;
-    // int highLimit = 54;
-
-    int lowLimit = 58;
-    int highLimit = 64;
+    int lowLimit  = guitarToMidi(S_G, 3);
+    int highLimit = guitarToMidi(S_G, 9);
 
     int curLowestNote = 0;
     int prevLowestNote = 0;
 
     bool autoSwitch = true;                     // automatically go to next chord
     int numRepeats;
+
     ChordGeneratorMode mode = RANDOM;
 
     int voiceLeadingTarget;
     int voiceLeadingIdx;
-    int voiceLeadingLowLimit = 57;              // key is A. G string == 55. A == 57 == 55 + 2
+    int voiceLeadingLowLimit = guitarToMidi(S_G, 2);
 
     bool playing;
 
@@ -100,10 +115,10 @@ public:
             return;
         }
 
-        if (mode == RANDOM) {
-            numRepeats = 8;
-        } else if (mode == VOICE_LEADING) {
+        if (mode == VOICE_LEADING) {
             numRepeats = 4;
+        } else {
+            numRepeats = 8;
         }
 
         if (beats.isBeat(curTick, B_4)) {
@@ -117,8 +132,15 @@ public:
 
     void generateNextChord() {
         switch (mode) {
-            case RANDOM: generateNextChordRandom(); break;
-            case VOICE_LEADING: generateNextChordVoiceLeading(); break;
+            case RANDOM:
+                generateNextChordRandom();
+                break;
+            case VOICE_LEADING:
+                generateNextChordVoiceLeading();
+                break;
+            case IN_KEY:
+                generateNextChordInKey();
+                break;
         }
     }
 
@@ -137,8 +159,7 @@ public:
 
     void generateNextChordVoiceLeading() {
         generateNextVoiceLeadingIdx();
-        std::cout << "idx: " << voiceLeadingIdx << std::endl;
-        MChord& c = voiceLeadingChords[voiceLeadingIdx];
+        MChord& c = chordsVoiceLeading[voiceLeadingIdx];
         curChord = createChordByLowestNote(
             c.lowestNote + voiceLeadingLowLimit,
             c.chordType,
@@ -148,21 +169,27 @@ public:
 
     void generateNextVoiceLeadingIdx() {
         while (voiceLeadingIdx == voiceLeadingTarget) {
-            voiceLeadingTarget = rngService.getRand(0, voiceLeadingChords.size() - 1);
+            voiceLeadingTarget = rngService.getRand(0, chordsVoiceLeading.size() - 1);
         }
         int direction = voiceLeadingTarget > voiceLeadingIdx ? 1 : (-1);
         voiceLeadingIdx += direction;
     }
 
-    // void generateNextVoiceLeadingIdx() {
-    //     int direction = rngService.getRand(0, 1);
-    //     voiceLeadingIdx += direction == 0 ? (-1) : 1;
+    void generateNextChordInKey() {
+        curLowestNote = rngService.getRand(0, chordsInKey.size() - 1);
+        while (curLowestNote == prevLowestNote) {
+            curLowestNote = rngService.getRand(0, chordsInKey.size() - 1);
+        }
+        prevLowestNote = curLowestNote;
 
-    //     while (voiceLeadingIdx < 0 || voiceLeadingIdx >= voiceLeadingChords.size()) {
-    //         direction = rngService.getRand(0, 1);
-    //         voiceLeadingIdx += direction == 0 ? (-1) : 1;
-    //     }
-    // }
+        MChord2& chord = chordsInKey[curLowestNote];
+
+        curChord = createChordByRoot(
+            lowLimit + chord.root,
+            chord.chordType,
+            ROOT
+        );
+    }
 
     void playChord(int curTick, std::vector<int>& chord, BeatUnit duration) {
         for (auto note : chord) {

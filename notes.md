@@ -81,7 +81,13 @@
   - 59 == B2
   - 64 == E3
 
-
+- idea:
+  - pick a key
+  - pick a chord to play from that key, for example I
+  - generate a random simple melody, play that melody 1 or 2 octaves up from the chord
+  - can push some key on the keyboard to generate a new random melody
+  - can use arrow keys to go up and down the chords in the key while keeping the melody the same
+    - ie, I -> ii -> iii etc.
 
 
 

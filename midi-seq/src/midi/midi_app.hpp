@@ -35,8 +35,8 @@ public:
     MidiAppMode mode;
 
     MidiApp() :
-        // midiPort(1),
-        midiPort(4),
+        midiPort(1),
+        // midiPort(4),
         midiService(midiPort),
         midiQueue(midiService),
         curTick(0),
