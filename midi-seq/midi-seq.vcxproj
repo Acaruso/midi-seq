@@ -53,6 +53,7 @@
     <ClInclude Include="src/midi/midi_service.hpp" />
     <ClInclude Include="src/midi/midi_stream_service.hpp" />
     <ClInclude Include="src/midi/module_chord_seq.hpp" />
+    <ClInclude Include="src/midi/module_chord_single_note.hpp" />
     <ClInclude Include="src/midi/module_chord.hpp" />
     <ClInclude Include="src/midi/module_interval.hpp" />
     <ClInclude Include="src/midi/module_single_note.hpp" />

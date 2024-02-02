@@ -8,7 +8,6 @@
 template <typename MidiServiceType>
 class ModuleStressTest {
 public:
-    MidiServiceType& midiService;
     MidiQueue<MidiServiceType>& midiQueue;
     RngService& rngService;
 
@@ -17,11 +16,9 @@ public:
     int channel;
 
     ModuleStressTest(
-        MidiServiceType& midiService,
         MidiQueue<MidiServiceType>& midiQueue,
         RngService& rngService
     ) :
-        midiService(midiService),
         midiQueue(midiQueue),
         rngService(rngService),
         ticksPer64Note(50),

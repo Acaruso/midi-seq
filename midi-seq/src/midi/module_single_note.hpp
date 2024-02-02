@@ -10,7 +10,6 @@
 template <typename MidiServiceType>
 class ModuleSingleNote {
 public:
-    MidiServiceType& midiService;
     MidiQueue<MidiServiceType>& midiQueue;
     RngService& rngService;
     int ticksPer64Note;
@@ -19,11 +18,9 @@ public:
     GeneratorSingleNote<MidiServiceType> generatorSingleNote;
 
     ModuleSingleNote(
-        MidiServiceType& midiService,
         MidiQueue<MidiServiceType>& midiQueue,
         RngService& rngService
     ) :
-        midiService(midiService),
         midiQueue(midiQueue),
         rngService(rngService),
         ticksPer64Note(48),

@@ -21,10 +21,12 @@ enum MidiAppMode {
 class MidiApp {
 public:
     int midiPort;
+    int curTick;
+    MidiAppMode mode;
+
     MidiService midiService;
     MidiQueue<MidiService> midiQueue;
     RngService rngService;
-    int curTick;
 
     ModuleChord<MidiService> moduleChord;
     ModuleChordSeq<MidiService> moduleChordSeq;
@@ -32,20 +34,18 @@ public:
     ModuleInterval<MidiService> moduleInterval;
     ModuleStressTest<MidiService> moduleStressTest;
 
-    MidiAppMode mode;
 
     MidiApp() :
         midiPort(1),
-        // midiPort(4),
+        curTick(0),
+        mode(CHORD),
         midiService(midiPort),
         midiQueue(midiService),
-        curTick(0),
-        moduleChord(midiService, midiQueue, rngService),
-        moduleChordSeq(midiService, midiQueue, rngService),
-        moduleSingleNote(midiService, midiQueue, rngService),
-        moduleInterval(midiService, midiQueue, rngService),
-        moduleStressTest(midiService, midiQueue, rngService),
-        mode(CHORD)
+        moduleChord(midiQueue, rngService),
+        moduleChordSeq(midiQueue, rngService),
+        moduleSingleNote(midiQueue, rngService),
+        moduleInterval(midiQueue, rngService),
+        moduleStressTest(midiQueue, rngService)
     {}
 
     void tick(std::string& message) {
