@@ -17,6 +17,16 @@ enum ChordInversion {
     SECOND_INV,
 };
 
+static std::vector<ChordType> chordTypes = {
+    MAJOR,      // 0
+    MINOR,      // 1
+    MINOR,      // 2
+    MAJOR,      // 3
+    MAJOR,      // 4
+    MINOR,      // 5
+    DIM,        // 6
+};
+
 template<typename T>
 inline void rotate(std::vector<T>& vec) {
     std::rotate(vec.begin(), vec.begin() + 1, vec.end());

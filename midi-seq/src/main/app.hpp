@@ -82,6 +82,12 @@ public:
                     midiQueue.enqueue(" ");
                 } else if (keycode == (int('M'))) {
                     midiQueue.enqueue("m");
+                } else if (keycode == (int('N'))) {
+                    midiQueue.enqueue("n");
+                } else if (keycode == (int('A'))) {
+                    midiQueue.enqueue("a");
+                } else if (keycode == (int('H'))) {
+                    midiQueue.enqueue("h");
                 }
                 break;
             }
