@@ -11,6 +11,7 @@
 #include "chords.hpp"
 #include "midi_queue.hpp"
 #include "rng_service.hpp"
+#include "scale.hpp"
 #include "util.hpp"
 
 struct MChord {
@@ -41,44 +42,26 @@ static std::vector<MChord> chordsVoiceLeading = {
     MChord{3, 11, MINOR, SECOND_INV},    // 17
 };
 
-struct MChord2 {
-    int root;
-    ChordType chordType;
-};
-
-static std::vector<MChord2> chordsInKey = {
-    MChord2{0,  MAJOR},
-    MChord2{2,  MINOR},
-    MChord2{4,  MINOR},
-    MChord2{5,  MAJOR},
-    MChord2{7,  MAJOR},
-    MChord2{9,  MINOR},
-    // MChord2{11, DIM},
-};
-
-static std::vector<int> majorScale = {
-    0,      // 0
-    2,      // 1
-    4,      // 2
-    5,      // 3
-    7,      // 4
-    9,      // 5
-    11,     // 6
-};
-
 class RandomChordService {
 public:
     RngService& rngService;
+
     int scaleRoot;
+    int modalOffset;
+    Scale scale;
+
     int curChordRootDegree;
     int prevChordRootDegree;
 
     RandomChordService(
         RngService& rngService,
-        int scaleRoot
+        int scaleRoot,
+        int modalOffset
     ) :
         rngService(rngService),
         scaleRoot(scaleRoot),
+        modalOffset(modalOffset),
+        scale(scaleRoot, modalOffset),
         curChordRootDegree(0),
         prevChordRootDegree(0)
     {}
@@ -86,23 +69,24 @@ public:
     // generate a random (potentially inverted) chord in range [root, root + 13]
     // where root is the root note of a major scale
     std::vector<int> getChord() {
-        curChordRootDegree = rngService.getRand(0, 6);
+        curChordRootDegree = rngService.getRand(0, 9);
         while (curChordRootDegree == prevChordRootDegree) {
-            curChordRootDegree = rngService.getRand(0, 6);
+            curChordRootDegree = rngService.getRand(0, 9);
         }
         prevChordRootDegree = curChordRootDegree;
 
         int inv;
-
-        if (curChordRootDegree == 6 || curChordRootDegree == 5) {
+        if (curChordRootDegree > 6) {
+            inv = 0;
+        } else if (curChordRootDegree == 5 || curChordRootDegree == 6) {
             inv = rngService.getRand(0, 1);
         } else {
             inv = rngService.getRand(0, 2);
         }
 
         std::vector<int> chord = createChordByRoot(
-            majorScale[curChordRootDegree],
-            chordTypes[curChordRootDegree],
+            scale.getNote(curChordRootDegree),
+            scale.getChordType(curChordRootDegree),
             ROOT
         );
 
@@ -116,10 +100,6 @@ public:
                 chord[0] += 12;
                 chord[1] += 12;
                 break;
-        }
-
-        for (auto& note : chord) {
-            note += scaleRoot;
         }
 
         std::sort(chord.begin(), chord.end());
@@ -175,20 +155,16 @@ public:
         beats(beats),
         midiQueue(queue),
         rngService(rngService),
-        randomChordService(rngService, guitarToMidi(S_LOW_E, 5)),
+        randomChordService(
+            rngService,
+            guitarToMidi(S_LOW_E, 5),
+            1
+        ),
         channel(channel),
         chordCounter(0),
 
-        // RANDOM
         lowLimit(guitarToMidi(S_G, 3)),
         highLimit(guitarToMidi(S_G, 9)),
-
-        // lowLimit(guitarToMidi(S_A, 5)),
-        // highLimit(guitarToMidi(S_G, 7)),
-
-        // IN_KEY
-        // lowLimit(guitarToMidi(S_D, 7)),
-        // highLimit(guitarToMidi(S_B, 8)),
 
         curLowestNote(0),
         prevLowestNote(0),
@@ -280,23 +256,6 @@ public:
         int direction = voiceLeadingTarget > voiceLeadingIdx ? 1 : (-1);
         voiceLeadingIdx += direction;
     }
-
-    // void generateNextChordInKey() {
-    //     curLowestNote = rngService.getRand(0, chordsInKey.size() - 1);
-    //     while (curLowestNote == prevLowestNote) {
-    //         curLowestNote = rngService.getRand(0, chordsInKey.size() - 1);
-    //     }
-    //     prevLowestNote = curLowestNote;
-
-    //     MChord2& chord = chordsInKey[curLowestNote];
-
-    //     curChord = createChordByRoot(
-    //         lowLimit + chord.root,
-    //         chord.chordType,
-    //         // ROOT,
-    //         getRandChordInversion()
-    //     );
-    // }
 
     void generateNextChordInKey() {
         curChord = randomChordService.getChord();
