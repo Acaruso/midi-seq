@@ -30,29 +30,29 @@ static std::vector<ChordType> s_chordTypes = {
 class Scale {
 public:
     int root;
-    int modalOffset;
+    int mode;
 
     std::vector<int> scale;
     std::vector<ChordType> chordTypes;
 
     Scale(
         int root,
-        int modalOffset
+        int mode
     ) :
         root(root),
-        modalOffset(modalOffset)
+        mode(mode)
     {
-        if (modalOffset > 6 || modalOffset < 0) {
+        if (mode > 6 || mode < 0) {
             std::cerr << "Scale.modalOffset out of range" << std::endl;
             return;
         }
 
-        scale = s_modes[modalOffset];
+        scale = s_modes[mode];
 
         chordTypes = s_chordTypes;
         std::rotate(
             chordTypes.begin(),
-            chordTypes.begin() + modalOffset,
+            chordTypes.begin() + mode,
             chordTypes.end()
         );
     }

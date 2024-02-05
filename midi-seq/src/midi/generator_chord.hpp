@@ -46,65 +46,132 @@ class RandomChordService {
 public:
     RngService& rngService;
 
-    int scaleRoot;
-    int modalOffset;
+    int root;
+    int mode;
     Scale scale;
 
-    int curChordRootDegree;
-    int prevChordRootDegree;
+    int curLowDegree;
+    int prevLowDegree;
+
+    // how many notes are in the mode above the 2nd octave
+    std::vector<int> modeUpperNotes;
 
     RandomChordService(
         RngService& rngService,
-        int scaleRoot,
-        int modalOffset
+        int root,
+        int mode
     ) :
         rngService(rngService),
-        scaleRoot(scaleRoot),
-        modalOffset(modalOffset),
-        scale(scaleRoot, modalOffset),
-        curChordRootDegree(0),
-        prevChordRootDegree(0)
+        root(root),
+        mode(mode),
+        scale(root, mode),
+        curLowDegree(0),
+        prevLowDegree(0),
+        modeUpperNotes({
+            1,
+            2,
+            2,
+            1,
+            1,
+            2,
+            2,
+        })
     {}
+
+    // // generate a random (potentially inverted) chord in range [root, root + 13]
+    // // where root is the root note of a major scale
+    // std::vector<int> getChord() {
+    //     curChordRootDegree = rngService.getRand(0, 9);
+    //     while (curChordRootDegree == prevChordRootDegree) {
+    //         curChordRootDegree = rngService.getRand(0, 9);
+    //     }
+    //     prevChordRootDegree = curChordRootDegree;
+
+    //     int inv;
+    //     if (curChordRootDegree > 6) {
+    //         inv = 0;
+    //     } else if (curChordRootDegree == 5 || curChordRootDegree == 6) {
+    //         inv = rngService.getRand(0, 1);
+    //     } else {
+    //         inv = rngService.getRand(0, 2);
+    //     }
+
+    //     std::vector<int> chord = createChordByRoot(
+    //         scale.getNote(curChordRootDegree),
+    //         scale.getChordType(curChordRootDegree),
+    //         ROOT
+    //     );
+
+    //     switch (inv) {
+    //         case 0:
+    //             break;
+    //         case 1:
+    //             chord[0] += 12;
+    //             break;
+    //         case 2:
+    //             chord[0] += 12;
+    //             chord[1] += 12;
+    //             break;
+    //     }
+
+    //     std::sort(chord.begin(), chord.end());
+
+    //     return chord;
+    // }
 
     // generate a random (potentially inverted) chord in range [root, root + 13]
     // where root is the root note of a major scale
     std::vector<int> getChord() {
-        curChordRootDegree = rngService.getRand(0, 9);
-        while (curChordRootDegree == prevChordRootDegree) {
-            curChordRootDegree = rngService.getRand(0, 9);
-        }
-        prevChordRootDegree = curChordRootDegree;
+        ChordInversion inv = (ChordInversion)rngService.getRand(0, 2);
 
-        int inv;
-        if (curChordRootDegree > 6) {
-            inv = 0;
-        } else if (curChordRootDegree == 5 || curChordRootDegree == 6) {
-            inv = rngService.getRand(0, 1);
+        int topNote = 13 + modeUpperNotes[mode];
+
+        int lowDegreeLimit = 0;
+        if (inv == ROOT) {
+            lowDegreeLimit = topNote - 4;
         } else {
-            inv = rngService.getRand(0, 2);
+            lowDegreeLimit = topNote - 5;
         }
 
-        std::vector<int> chord = createChordByRoot(
-            scale.getNote(curChordRootDegree),
-            scale.getChordType(curChordRootDegree),
-            ROOT
-        );
+        getCurLowDegree(lowDegreeLimit);
+
+        std::vector<int> chord(3, 0);
 
         switch (inv) {
-            case 0:
+            case ROOT:
+                chord[0] = scale.getNote(curLowDegree);
+                chord[1] = scale.getNote(curLowDegree + 2);
+                chord[2] = scale.getNote(curLowDegree + 4);
                 break;
-            case 1:
-                chord[0] += 12;
+            case FIRST_INV:
+                chord[0] = scale.getNote(curLowDegree);
+                chord[1] = scale.getNote(curLowDegree + 2);
+                chord[2] = scale.getNote(curLowDegree + 5);
                 break;
-            case 2:
-                chord[0] += 12;
-                chord[1] += 12;
+            case SECOND_INV:
+                chord[0] = scale.getNote(curLowDegree);
+                chord[1] = scale.getNote(curLowDegree + 3);
+                chord[2] = scale.getNote(curLowDegree + 5);
                 break;
         }
 
-        std::sort(chord.begin(), chord.end());
-
         return chord;
+    }
+
+    void getCurLowDegree(int lowDegreeLimit) {
+        getRandIntNonRepeating(
+            curLowDegree,
+            prevLowDegree,
+            lowDegreeLimit
+        );
+    }
+
+    void getRandIntNonRepeating(int& cur, int& prev, int highLimitInclusive) {
+        cur = rngService.getRand(0, highLimitInclusive);
+        while (cur == prev) {
+            cur = rngService.getRand(0, highLimitInclusive);
+        }
+        prev = cur;
     }
 };
 
@@ -158,7 +225,7 @@ public:
         randomChordService(
             rngService,
             guitarToMidi(S_LOW_E, 5),
-            1
+            0
         ),
         channel(channel),
         chordCounter(0),
