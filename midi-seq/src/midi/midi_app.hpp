@@ -6,6 +6,7 @@
 #include "midi_service.hpp"
 #include "module_chord.hpp"
 #include "module_chord_seq.hpp"
+#include "module_chord_single_note.hpp"
 #include "module_interval.hpp"
 #include "module_single_note.hpp"
 #include "module_stress_test.hpp"
@@ -15,6 +16,7 @@ enum MidiAppMode {
     CHORD,
     INTERVAL,
     SINGLE_NOTE,
+    CHORD_SINGLE_NOTE,
     NUM_MODES,
 };
 
@@ -33,7 +35,7 @@ public:
     ModuleSingleNote<MidiService> moduleSingleNote;
     ModuleInterval<MidiService> moduleInterval;
     ModuleStressTest<MidiService> moduleStressTest;
-
+    ModuleChordSingleNote<MidiService> moduleChordSingleNote;
 
     MidiApp() :
         midiPort(1),
@@ -45,7 +47,8 @@ public:
         moduleChordSeq(midiQueue, rngService),
         moduleSingleNote(midiQueue, rngService),
         moduleInterval(midiQueue, rngService),
-        moduleStressTest(midiQueue, rngService)
+        moduleStressTest(midiQueue, rngService),
+        moduleChordSingleNote(midiQueue, rngService)
     {}
 
     void tick(std::string& message) {
@@ -76,6 +79,8 @@ public:
             moduleInterval.tick(message, curTick);
         } else if (mode == SINGLE_NOTE) {
             moduleSingleNote.tick(message, curTick);
+        } else if (mode == CHORD_SINGLE_NOTE) {
+            moduleChordSingleNote.tick(message, curTick);
         }
 
         ++curTick;
