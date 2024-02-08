@@ -23,6 +23,7 @@ public:
     int prevNote;
     int lowNote;
     int highNote;
+    int numRepeats;
     std::vector<int> intervalBlacklist;
     bool playing;
 
@@ -49,8 +50,9 @@ public:
         // lowNote(guitarToMidi(S_G, 0)),
         // highNote(guitarToMidi(S_HIGH_E, 4)),
 
+        numRepeats(2),
+
         intervalBlacklist({0, 1, 2, 12}),
-        // intervalBlacklist({0, 1, 2, 3, 4, 5, 6, 7, 12}),
         playing(false)
     {
         generateNextNote();
@@ -65,7 +67,7 @@ public:
         }
 
         if (beats.isBeat(curTick, B_4)) {
-            if (((counter % 4) == 0)) {
+            if (((counter % numRepeats) == 0)) {
                 generateNextNote();
             }
             playNote(curTick, curNote, B_8);
