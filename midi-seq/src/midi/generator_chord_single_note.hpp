@@ -43,7 +43,7 @@ public:
         counter(0),
         scale(root, mode),
         singleNoteLineLength(8),
-        singleNoteLineOffset(12),
+        singleNoteLineOffset(0),
         singleNoteLine(singleNoteLineLength, 0),
         singleNoteLineOnOff(singleNoteLineLength, false)
     {
@@ -73,8 +73,12 @@ public:
     }
 
     void generateRandSingleNoteLine() {
+        int r = rngService.getRand(0, 14);
+
         for (int i = 0; i < singleNoteLineLength; ++i) {
-            int r = rngService.getRand(0, 14);
+            int inc = rngService.getRand(0, 4);
+
+            r += inc + getSingleNoteRandOffset(r);
 
             int note = scale.getNote(r);
 
@@ -88,9 +92,19 @@ public:
         }
     }
 
+    int getSingleNoteRandOffset(int r) {
+        switch (r) {
+            case 14: return -4;
+            case 13: return -3;
+            case 12: return -2;
+            case 11: return -1;
+            default: return 0;
+        }
+    }
+
     void playChord(int curTick, std::vector<int>& chord, BeatUnit duration) {
         for (auto note : chord) {
-            midiQueue.noteOnOff(channel, note, 60, curTick, beats.ticksPerBeat(duration));
+            midiQueue.noteOnOff(channel, note, 70, curTick, beats.ticksPerBeat(duration));
         }
     }
 

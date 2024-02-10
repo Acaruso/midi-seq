@@ -144,7 +144,11 @@ private:
             events.begin(),
             events.begin() + size,
             [](const MidiEvent &a, const MidiEvent &b) {
-                return a.tick > b.tick;
+                if (a.tick != b.tick) {
+                    return a.tick > b.tick;
+                } else {
+                    return a.type == NOTE_ON;
+                }
             }
         );
     }
