@@ -77,8 +77,6 @@ public:
     int voiceLeadingIdx;
     int voiceLeadingLowLimit;
 
-    bool playing;
-
     bool highNoteOnly;
 
     GeneratorChord(
@@ -90,11 +88,19 @@ public:
         beats(beats),
         midiQueue(queue),
         rngService(rngService),
+
+        // randomChordService(
+        //     rngService,
+        //     guitarToMidi(S_LOW_E, 5),   // root
+        //     0                           // mode
+        // ),
+
         randomChordService(
             rngService,
-            guitarToMidi(S_LOW_E, 5),
-            0
+            guitarToMidi(S_LOW_E, 7),   // root
+            1                           // mode
         ),
+
         channel(channel),
         chordCounter(0),
 
@@ -106,30 +112,23 @@ public:
         autoSwitch(true),
         numRepeats(8),
 
-        mode(IN_KEY),
+        mode(RANDOM),
 
         voiceLeadingTarget(0),
         voiceLeadingIdx(0),
         voiceLeadingLowLimit(guitarToMidi(S_G, 2)),
-        playing(false),
         highNoteOnly(false)
     {
         generateNextChord();
     }
 
     void tick(std::string& message, int curTick) {
-        if (message == " ") {
-            playing = !playing;
-        } else if (message == "n") {
+        if (message == "n") {
             generateNextChord();
         } else if (message == "a") {
             autoSwitch = !autoSwitch;
         } else if (message == "h") {
             highNoteOnly = !highNoteOnly;
-        }
-
-        if (!playing) {
-            return;
         }
 
         if (mode == VOICE_LEADING) {

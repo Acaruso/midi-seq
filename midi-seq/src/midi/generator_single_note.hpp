@@ -25,7 +25,6 @@ public:
     int highNote;
     int numRepeats;
     std::vector<int> intervalBlacklist;
-    bool playing;
 
     GeneratorSingleNote(
         Beats& beats,
@@ -50,22 +49,14 @@ public:
         // lowNote(guitarToMidi(S_G, 0)),
         // highNote(guitarToMidi(S_HIGH_E, 4)),
 
-        numRepeats(2),
+        numRepeats(4),
 
-        intervalBlacklist({0, 1, 2, 12}),
-        playing(false)
+        intervalBlacklist({0, 1, 2, 12})
     {
         generateNextNote();
     }
 
     void tick(std::string& message, int curTick) {
-        if (message == " ") {
-            playing = !playing;
-        }
-        if (!playing) {
-            return;
-        }
-
         if (beats.isBeat(curTick, B_4)) {
             if (((counter % numRepeats) == 0)) {
                 generateNextNote();

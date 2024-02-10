@@ -16,7 +16,6 @@ public:
     int mode;
     RandomChordService randomChordService;
     int channel;
-    bool playing;
     int counter;
     Scale scale;
 
@@ -41,11 +40,10 @@ public:
         mode(0),
         randomChordService(rngService, root, mode),
         channel(channel),
-        playing(false),
         counter(0),
         scale(root, mode),
         singleNoteLineLength(8),
-        singleNoteLineOffset(24),
+        singleNoteLineOffset(12),
         singleNoteLine(singleNoteLineLength, 0),
         singleNoteLineOnOff(singleNoteLineLength, false)
     {
@@ -54,25 +52,19 @@ public:
     }
 
     void tick(std::string& message, int curTick) {
-        if (message == " ") {
-            playing = !playing;
-        } else if (message == "n") {
+        if (message == "n") {
             generateRandChord();
         } else if (message == "s") {
             generateRandSingleNoteLine();
         }
 
-        if (!playing) {
-            return;
+        if (beats.isBeat(curTick, B_8)) {
+            playSingleNote(curTick);
+            counter = (counter + 1) % singleNoteLineLength;
         }
 
         if (beats.isBeat(curTick, B_4)) {
             playChord(curTick, curChord, B_8);
-        }
-
-        if (beats.isBeat(curTick, B_8)) {
-            playSingleNote(curTick);
-            counter = (counter + 1) % singleNoteLineLength;
         }
     }
 
@@ -98,7 +90,7 @@ public:
 
     void playChord(int curTick, std::vector<int>& chord, BeatUnit duration) {
         for (auto note : chord) {
-            midiQueue.noteOnOff(channel, note, 50, curTick, beats.ticksPerBeat(duration));
+            midiQueue.noteOnOff(channel, note, 60, curTick, beats.ticksPerBeat(duration));
         }
     }
 

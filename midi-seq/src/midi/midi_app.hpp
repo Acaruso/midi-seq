@@ -24,6 +24,7 @@ class MidiApp {
 public:
     int midiPort;
     int curTick;
+    bool playing;
     MidiAppMode mode;
 
     MidiService midiService;
@@ -40,6 +41,7 @@ public:
     MidiApp() :
         midiPort(1),
         curTick(0),
+        playing(false),
         mode(CHORD),
         midiService(midiPort),
         midiQueue(midiService),
@@ -59,6 +61,12 @@ public:
 
         if (message == "m") {
             mode = getNextMode(mode);
+        } else if (message == " ") {
+            playing = !playing;
+        }
+
+        if (!playing) {
+            return;
         }
 
         // generate events for current tick

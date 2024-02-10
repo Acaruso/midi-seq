@@ -47,7 +47,6 @@ public:
     int curIntervalLow = 0;
     int prevIntervalLow = 0;
     int curIntervalHigh = 0;
-    bool playing;
     int numRepeats;
     int counter;
 
@@ -61,7 +60,6 @@ public:
         midiQueue(midiQueue),
         rngService(rngService),
         channel(channel),
-        playing(false),
         numRepeats(8),
         counter(0)
     {
@@ -69,13 +67,6 @@ public:
     }
 
     void tick(std::string& message, int curTick) {
-        if (message == " ") {
-            playing = !playing;
-        }
-        if (!playing) {
-            return;
-        }
-
         if (beats.isBeat(curTick, B_4)) {
             if ((counter % numRepeats) == 0) {
                 generateNextInterval();

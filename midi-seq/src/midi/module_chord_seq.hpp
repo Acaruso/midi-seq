@@ -84,7 +84,7 @@ public:
     }
 
     void tick(std::string& message, int curTick) {
-        if (message == " ") {
+        if (message == "n") {
             generatorChord.generateNextChord();
         }
 

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <string>
 #include <vector>
 
 enum MidiEventType {
@@ -9,6 +10,14 @@ enum MidiEventType {
     NOTE_OFF,
     CC,
 };
+
+inline std::string midiEventTypeToString(MidiEventType m) {
+    switch (m) {
+        case NOTE_ON:  return "NOTE_ON";
+        case NOTE_OFF: return "NOTE_OFF";
+        case CC:       return "CC";
+    }
+}
 
 struct MidiEvent {
     MidiEventType type;
@@ -18,6 +27,14 @@ struct MidiEvent {
     int channel;
     int controller;
     int value;          // for midi cc
+
+    void print() {
+        std::cout
+            << "type: " << midiEventTypeToString(type)
+            << " note: " << note
+            << " tick: " << tick
+            << std::endl;
+    }
 };
 
 inline MidiEvent createNoteOnEvent(int channel, int note, int velocity, int tick) {
