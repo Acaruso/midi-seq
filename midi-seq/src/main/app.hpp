@@ -90,6 +90,8 @@ public:
                     midiQueue.enqueue("h");
                 } else if (keycode == (int('S'))) {
                     midiQueue.enqueue("s");
+                } else if (keycode == (int('U'))) {
+                    midiQueue.enqueue("u");
                 }
                 break;
             }

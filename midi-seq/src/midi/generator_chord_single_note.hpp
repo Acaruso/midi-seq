@@ -18,6 +18,7 @@ public:
     int root;
     int mode;
     bool autoSwitch;
+    bool muteSingleNoteLine;
     RandomChordService randomChordService;
     int channel;
     int counter;
@@ -40,9 +41,10 @@ public:
         beats(beats),
         midiQueue(midiQueue),
         rngService(rngService),
-        root(guitarToMidi(S_LOW_E, 5)),
+        root(guitarToMidi(S_LOW_E, 8)),
         mode(0),
         autoSwitch(true),
+        muteSingleNoteLine(false),
         randomChordService(rngService, root, mode),
         channel(channel),
         counter(0),
@@ -59,8 +61,13 @@ public:
     void tick(std::string& message, int curTick) {
         if (message == "n") {
             generateRandChord();
+            generateRandSingleNoteLine();
         } else if (message == "s") {
             generateRandSingleNoteLine();
+        } else if (message == "a") {
+            autoSwitch = !autoSwitch;
+        } else if (message == "u") {
+            muteSingleNoteLine = !muteSingleNoteLine;
         }
 
         if (beats.isBeat(curTick, B_8)) {
@@ -69,7 +76,10 @@ public:
                 generateRandSingleNoteLine();
             }
 
-            playSingleNote(curTick);
+            if (!muteSingleNoteLine) {
+                playSingleNote(curTick);
+            }
+
             ++counter;
         }
 
@@ -81,6 +91,8 @@ public:
     void generateRandChord() {
         curChord = randomChordService.getChord();
     }
+
+    // 1 /////////////////////////
 
     // void generateRandSingleNoteLine() {
     //     int r = rngService.getRand(0, 14);
@@ -108,28 +120,56 @@ public:
     //     }
     // }
 
+    // 2 ///////////////////////////
+
+    // void generateRandSingleNoteLine() {
+    //     int r = rngService.getRand(0, 14);
+    //     int inc = 0;
+
+    //     for (int i = 0; i < singleNoteLineLength; ++i) {
+    //         if (r == 0) {
+    //             inc = 1;
+    //         } else if (r == 14) {
+    //             inc = -1;
+    //         } else {
+    //             int r2 = rngService.getRand(0, 1);
+    //             inc = (r2 == 0) ? -1 : 1;
+    //         }
+
+    //         r += inc;
+
+    //         int note = scale.getNote(r);
+
+    //         singleNoteLine[i] = singleNoteLineOffset + note;
+
+    //         shuffle(singleNoteLineOnOff);
+    //     }
+    // }
+
+    // 3 /////////////////////////
+
     void generateRandSingleNoteLine() {
-        int r = rngService.getRand(0, 14);
-        int inc = 0;
+        shuffle(singleNoteLineOnOff);
+        int direction = (rngService.getRand(0, 1) == 0) ? -1 : 1;
+        int note = rngService.getRand(0, 13);
 
         for (int i = 0; i < singleNoteLineLength; ++i) {
-            if (r == 0) {
-                inc = 1;
-            } else if (r == 14) {
-                inc = -1;
-            } else {
-                int r2 = rngService.getRand(0, 1);
-                inc = (r2 == 0) ? -1 : 1;
+            if (singleNoteLineOnOff[i]) {
+                singleNoteLine[i] = scale.getNote(note) + singleNoteLineOffset;
+                getNextNote(note, direction);
             }
-
-            r += inc;
-
-            int note = scale.getNote(r);
-
-            singleNoteLine[i] = singleNoteLineOffset + note;
-
-            shuffle(singleNoteLineOnOff);
         }
+    }
+
+    void getNextNote(int& note, int& direction) {
+        int newNote = note + (direction * rngService.getRand(1, 2));
+
+        if (newNote < 0 || newNote > 13) {
+            direction = direction * -1;
+            newNote = note + (direction * rngService.getRand(1, 2));
+        }
+
+        note = newNote;
     }
 
     void playChord(int curTick, std::vector<int>& chord, BeatUnit duration) {
