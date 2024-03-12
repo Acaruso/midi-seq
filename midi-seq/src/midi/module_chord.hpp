@@ -21,7 +21,7 @@ public:
     ) :
         midiQueue(midiQueue),
         rngService(rngService),
-        ticksPer64Note(50),
+        ticksPer64Note(60),
         beats(ticksPer64Note),
         channel(1),
         generatorChord(beats, midiQueue, rngService, channel)

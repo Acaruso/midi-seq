@@ -49,6 +49,12 @@ enum GeneratorChordMode {
     IN_KEY,
 };
 
+enum GeneratorChordMajMinMode {
+    MAJOR_MODE,
+    MINOR_MODE,
+    MAJOR_MINOR_MODE,
+};
+
 template <typename MidiServiceType>
 class GeneratorChord {
 public:
@@ -72,6 +78,7 @@ public:
     int numRepeats;
 
     GeneratorChordMode mode;
+    GeneratorChordMajMinMode majMinMode;
 
     int voiceLeadingTarget;
     int voiceLeadingIdx;
@@ -98,7 +105,7 @@ public:
         randomChordService(
             rngService,
             guitarToMidi(S_LOW_E, 7),   // root
-            1                           // mode
+            5                           // mode
         ),
 
         channel(channel),
@@ -110,9 +117,13 @@ public:
         curLowestNote(0),
         prevLowestNote(0),
         autoSwitch(true),
-        numRepeats(8),
+        // numRepeats(8),
+        numRepeats(4),
 
         mode(RANDOM),
+        // mode(IN_KEY),
+
+        majMinMode(MAJOR_MODE),
 
         voiceLeadingTarget(0),
         voiceLeadingIdx(0),
@@ -129,12 +140,6 @@ public:
             autoSwitch = !autoSwitch;
         } else if (message == "h") {
             highNoteOnly = !highNoteOnly;
-        }
-
-        if (mode == VOICE_LEADING) {
-            numRepeats = 4;
-        } else {
-            numRepeats = 8;
         }
 
         if (beats.isBeat(curTick, B_4)) {
@@ -207,10 +212,18 @@ public:
     }
 
     ChordType getRandChordType() {
-        return (ChordType)(rngService.getRand(0, 1));
+        switch (majMinMode) {
+            case MAJOR_MODE:
+                return MAJOR;
+            case MINOR_MODE:
+                return MINOR;
+            case MAJOR_MINOR_MODE:
+                return (ChordType)(rngService.getRand(0, 1));
+        }
     }
 
     ChordInversion getRandChordInversion() {
-        return (ChordInversion)(rngService.getRand(0, 2));
+        // return (ChordInversion)(rngService.getRand(0, 2));
+        return (ChordInversion)(rngService.getRand(0, 1));
     }
 };

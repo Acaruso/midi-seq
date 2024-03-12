@@ -40,14 +40,14 @@ public:
         curNote(0),
         prevNote(0),
 
-        lowNote(guitarToMidi(S_A, 0)),
-        highNote(guitarToMidi(S_G, 3)),
+        // lowNote(guitarToMidi(S_A, 0)),
+        // highNote(guitarToMidi(S_G, 3)),
 
         // lowNote(guitarToMidi(S_D, 0)),
         // highNote(guitarToMidi(S_B, 4)),
 
-        // lowNote(guitarToMidi(S_G, 0)),
-        // highNote(guitarToMidi(S_HIGH_E, 4)),
+        lowNote(guitarToMidi(S_G, 0)),
+        highNote(guitarToMidi(S_HIGH_E, 4)),
 
         numRepeats(4),
 

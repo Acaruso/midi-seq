@@ -28,6 +28,7 @@ public:
 
     int singleNoteLineLength;
     int singleNoteLineOffset;
+    int singleNoteLineNumNotes;
 
     std::vector<int> singleNoteLine;
     std::vector<bool> singleNoteLineOnOff;
@@ -43,19 +44,29 @@ public:
         rngService(rngService),
         root(guitarToMidi(S_LOW_E, 8)),
         mode(0),
-        autoSwitch(true),
+        autoSwitch(false),
         muteSingleNoteLine(false),
         randomChordService(rngService, root, mode),
         channel(channel),
         counter(0),
         scale(root, mode),
-        singleNoteLineLength(8),
+
+        // singleNoteLineLength(8),
+        // singleNoteLineNumNotes(5),
+
+        singleNoteLineLength(16),
+        singleNoteLineNumNotes(7),
+
         singleNoteLineOffset(0),
         singleNoteLine(singleNoteLineLength, 0),
-        singleNoteLineOnOff({true, true, true, true, true, false, false, false})
+        singleNoteLineOnOff(singleNoteLineLength, false)
     {
         generateRandChord();
         generateRandSingleNoteLine();
+
+        for (int i = 0; i <= singleNoteLineNumNotes; ++i) {
+            singleNoteLineOnOff[i] = true;
+        }
     }
 
     void tick(std::string& message, int curTick) {
@@ -91,62 +102,6 @@ public:
     void generateRandChord() {
         curChord = randomChordService.getChord();
     }
-
-    // 1 /////////////////////////
-
-    // void generateRandSingleNoteLine() {
-    //     int r = rngService.getRand(0, 14);
-
-    //     for (int i = 0; i < singleNoteLineLength; ++i) {
-    //         int inc = rngService.getRand(0, 4);
-
-    //         r += inc + getSingleNoteRandOffset(r);
-
-    //         int note = scale.getNote(r);
-
-    //         singleNoteLine[i] = singleNoteLineOffset + note;
-
-    //         shuffle(singleNoteLineOnOff);
-    //     }
-    // }
-
-    // int getSingleNoteRandOffset(int r) {
-    //     switch (r) {
-    //         case 14: return -4;
-    //         case 13: return -3;
-    //         case 12: return -2;
-    //         case 11: return -1;
-    //         default: return 0;
-    //     }
-    // }
-
-    // 2 ///////////////////////////
-
-    // void generateRandSingleNoteLine() {
-    //     int r = rngService.getRand(0, 14);
-    //     int inc = 0;
-
-    //     for (int i = 0; i < singleNoteLineLength; ++i) {
-    //         if (r == 0) {
-    //             inc = 1;
-    //         } else if (r == 14) {
-    //             inc = -1;
-    //         } else {
-    //             int r2 = rngService.getRand(0, 1);
-    //             inc = (r2 == 0) ? -1 : 1;
-    //         }
-
-    //         r += inc;
-
-    //         int note = scale.getNote(r);
-
-    //         singleNoteLine[i] = singleNoteLineOffset + note;
-
-    //         shuffle(singleNoteLineOnOff);
-    //     }
-    // }
-
-    // 3 /////////////////////////
 
     void generateRandSingleNoteLine() {
         shuffle(singleNoteLineOnOff);
