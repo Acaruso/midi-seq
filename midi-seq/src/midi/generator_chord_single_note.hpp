@@ -9,15 +9,26 @@
 #include "rng_service.hpp"
 #include "util.hpp"
 
+enum GeneratorChordSingleNoteMode {
+    NORMAL,
+
+};
+
 template <typename MidiServiceType>
 class GeneratorChordSingleNote {
 public:
+    enum Mode {
+        NORMAL,
+        DEGREE,
+    };
+
     Beats& beats;
     MidiQueue<MidiServiceType>& midiQueue;
     RngService& rngService;
     int root;
-    int mode;
+    int scaleMode;
     bool autoSwitch;
+    Mode mode;
     bool muteSingleNoteLine;
     RandomChordService randomChordService;
     int channel;
@@ -43,13 +54,14 @@ public:
         midiQueue(midiQueue),
         rngService(rngService),
         root(guitarToMidi(S_LOW_E, 8)),
-        mode(0),
+        scaleMode(0),
         autoSwitch(false),
+        mode(DEGREE),
         muteSingleNoteLine(false),
-        randomChordService(rngService, root, mode),
+        randomChordService(rngService, root, scaleMode),
         channel(channel),
         counter(0),
-        scale(root, mode),
+        scale(root, scaleMode),
 
         // singleNoteLineLength(8),
         // singleNoteLineNumNotes(5),
@@ -61,12 +73,22 @@ public:
         singleNoteLine(singleNoteLineLength, 0),
         singleNoteLineOnOff(singleNoteLineLength, false)
     {
+        if (mode == NORMAL) {
+            for (int i = 0; i <= singleNoteLineNumNotes; ++i) {
+                singleNoteLineOnOff[i] = true;
+            }
+        } else if (mode == DEGREE) {
+            int counter = 0;
+            for (int i = 0; i <= singleNoteLineLength; ++i) {
+                if (counter != 2 && counter != 3) {
+                    singleNoteLineOnOff[i] = true;
+                }
+                counter = (counter == 3) ? 0 : (counter + 1);
+            }
+        }
+
         generateRandChord();
         generateRandSingleNoteLine();
-
-        for (int i = 0; i <= singleNoteLineNumNotes; ++i) {
-            singleNoteLineOnOff[i] = true;
-        }
     }
 
     void tick(std::string& message, int curTick) {
@@ -104,14 +126,21 @@ public:
     }
 
     void generateRandSingleNoteLine() {
-        shuffle(singleNoteLineOnOff);
-        int direction = (rngService.getRand(0, 1) == 0) ? -1 : 1;
-        int note = rngService.getRand(0, 13);
+        if (mode == NORMAL) {
+            shuffle(singleNoteLineOnOff);
+            int direction = (rngService.getRand(0, 1) == 0) ? -1 : 1;
+            int note = rngService.getRand(0, 13);
 
-        for (int i = 0; i < singleNoteLineLength; ++i) {
-            if (singleNoteLineOnOff[i]) {
+            for (int i = 0; i < singleNoteLineLength; ++i) {
+                if (singleNoteLineOnOff[i]) {
+                    singleNoteLine[i] = scale.getNote(note) + singleNoteLineOffset;
+                    getNextNote(note, direction);
+                }
+            }
+        } else if (mode == DEGREE) {
+            int note = rngService.getRand(0, 13);
+            for (int i = 0; i < singleNoteLineLength; ++i) {
                 singleNoteLine[i] = scale.getNote(note) + singleNoteLineOffset;
-                getNextNote(note, direction);
             }
         }
     }
