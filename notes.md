@@ -57,6 +57,57 @@
       - `for seq in seqVector: seq.onTick(curTick)`
     - similar to video game development
 
+- chord voice leading ear training idea:
+  - pick a key -- ie a root note
+    - assume always major key
+  - pick a range of notes
+  - pick a starting triad in that key and range
+  - to transition to next chord:
+    - randomly pick another chord in the key
+    - generate all three possible inversions of that chord
+    - find which inversion has the closest voice leading to the current chord
+      - to do this, take the following measurements:
+        - low_diff = abs(curChord.lowest - nextChord.lowest)
+        - mid_diff = abs(curChord.mid - nextChord.mid)
+        - hi_diff = abs(curChord.hi - nextChord.hi)
+        - total = low_diff + mid_diff + hi_diff
+  - this will not only help with ear training, it will help with learning all the various chord shapes of a key
+
+- guitar strings to MIDI note numbers:
+  - 40 == E1
+  - 45 == A1
+  - 50 == D1
+  - 55 == G2
+  - 59 == B2
+  - 64 == E3
+
+- idea:
+  - pick a key
+  - pick a chord to play from that key, for example I
+  - generate a random simple melody, play that melody 1 or 2 octaves up from the chord
+  - can push some key on the keyboard to generate a new random melody
+  - can use arrow keys to go up and down the chords in the key while keeping the melody the same
+    - ie, I -> ii -> iii etc.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -25,14 +25,17 @@ class App {
 public:
     HWND window;
     GraphicsService gfx;
-    moodycamel::ReaderWriterQueue<std::string> queue;
+    // TODO: rename `queue` to `audioQueue`
+    // moodycamel::ReaderWriterQueue<std::string> queue;
+    moodycamel::ReaderWriterQueue<std::string> midiQueue;
     std::thread audioThread;
     std::thread midiThread;
 
     std::vector<UINT> messageTypes{
         WM_PAINT,
         WM_LBUTTONDOWN,
-        WM_MOUSEMOVE
+        WM_MOUSEMOVE,
+        WM_KEYDOWN
     };
 
     D2D1_RECT_F rect{100, 100, 150, 150};
@@ -41,8 +44,8 @@ public:
         window(window),
         gfx(window, hr)
     {
-        audioThread = std::thread(&audioMain, &queue);
-        midiThread  = std::thread(&midiMain);
+        // audioThread = std::thread(&audioMain, &queue);
+        midiThread = std::thread(&midiMain, &midiQueue);
     }
 
     bool shouldHandleMessage(UINT message) {
@@ -57,12 +60,41 @@ public:
     HRESULT handleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
         HRESULT hr = S_OK;
 
-        if (message == WM_PAINT) {
-            hr = onPaint();
-        } else if (message == WM_LBUTTONDOWN) {
-            onLeftClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        } else if (message == WM_MOUSEMOVE) {
-            onMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        switch (message) {
+            case WM_PAINT: {
+                hr = onPaint();
+                break;
+            }
+            case WM_LBUTTONDOWN: {
+                onLeftClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                break;
+            }
+            case WM_MOUSEMOVE: {
+                onMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                break;
+            }
+            case WM_KEYDOWN: {
+                int keycode = wParam;
+                // if (keycode == (int('X'))) {
+                //     std::cout << "x" << std::endl;
+                // }
+                if (keycode == VK_SPACE) {
+                    midiQueue.enqueue(" ");
+                } else if (keycode == (int('M'))) {
+                    midiQueue.enqueue("m");
+                } else if (keycode == (int('N'))) {
+                    midiQueue.enqueue("n");
+                } else if (keycode == (int('A'))) {
+                    midiQueue.enqueue("a");
+                } else if (keycode == (int('H'))) {
+                    midiQueue.enqueue("h");
+                } else if (keycode == (int('S'))) {
+                    midiQueue.enqueue("s");
+                } else if (keycode == (int('U'))) {
+                    midiQueue.enqueue("u");
+                }
+                break;
+            }
         }
 
         return hr;
@@ -112,7 +144,7 @@ public:
 
     void onLeftClick(int x, int y) {
         rect = moveRect(rect, x, y);
-        queue.enqueue("trig");
+        // queue.enqueue("trig");
     }
 
     void onMouseMove(int x, int y) {
@@ -120,7 +152,11 @@ public:
 
     void destroy() {
         gfx.destroy();
-        queue.enqueue("quit");
-        audioThread.join();
+
+        // queue.enqueue("quit");
+        // audioThread.join();
+
+        midiQueue.enqueue("q");
+        midiThread.join();
     }
 };

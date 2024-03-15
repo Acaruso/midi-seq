@@ -44,12 +44,28 @@
   <ItemGroup>
     <ClInclude Include="src/midi/beats.hpp" />
     <ClInclude Include="src/midi/chords.hpp" />
+    <ClInclude Include="src/midi/generator_chord_single_note.hpp" />
+    <ClInclude Include="src/midi/generator_chord.hpp" />
+    <ClInclude Include="src/midi/generator_interval.hpp" />
+    <ClInclude Include="src/midi/generator_single_note.hpp" />
     <ClInclude Include="src/midi/midi_app.hpp" />
     <ClInclude Include="src/midi/midi_main.hpp" />
-    <ClInclude Include="src/midi/midi_service.hpp" />
-    <ClInclude Include="src/midi/sequence.hpp" />
-    <ClInclude Include="src/midi/chord_generator.hpp" />
     <ClInclude Include="src/midi/midi_queue.hpp" />
+    <ClInclude Include="src/midi/midi_service_utils.hpp" />
+    <ClInclude Include="src/midi/midi_service.hpp" />
+    <ClInclude Include="src/midi/midi_stream_service.hpp" />
+    <ClInclude Include="src/midi/module_chord_seq.hpp" />
+    <ClInclude Include="src/midi/module_chord_single_note.hpp" />
+    <ClInclude Include="src/midi/module_chord.hpp" />
+    <ClInclude Include="src/midi/module_interval.hpp" />
+    <ClInclude Include="src/midi/module_single_note.hpp" />
+    <ClInclude Include="src/midi/module_stress_test.hpp" />
+    <ClInclude Include="src/midi/multi_sequence.hpp" />
+    <ClInclude Include="src/midi/random_chord_service.hpp" />
+    <ClInclude Include="src/midi/rng_service.hpp" />
+    <ClInclude Include="src/midi/scale.hpp" />
+    <ClInclude Include="src/midi/sequence.hpp" />
+    <ClInclude Include="src/midi/util.hpp" />
   </ItemGroup>
   <!-- 3rd party libraries -->
   <ItemGroup>
@@ -78,7 +94,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{cdbbef35-d012-4a22-bf10-8dfe9ae4b71d}</ProjectGuid>
-    <RootNamespace>win32direct2dwasapi</RootNamespace>
+    <RootNamespace>midi-seq</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

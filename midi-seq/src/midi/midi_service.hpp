@@ -7,28 +7,7 @@
 #include <windowsx.h>
 #include <mmsystem.h>           // MIDI functions
 
-union MidiMessage {
-    unsigned long word;
-    unsigned char data[4];
-};
-
-inline MidiMessage createMidiMessageOn(int note, int velocity) {
-    MidiMessage midiMessage;
-    midiMessage.data[0] = 0x90;
-    midiMessage.data[1] = note;
-    midiMessage.data[2] = velocity;
-    midiMessage.data[3] = 0;
-    return midiMessage;
-}
-
-inline MidiMessage createMidiMessageOff(int note) {
-    MidiMessage midiMessage;
-    midiMessage.data[0] = 0x90;
-    midiMessage.data[1] = note;
-    midiMessage.data[2] = 0;
-    midiMessage.data[3] = 0;
-    return midiMessage;
-}
+#include "midi_service_utils.hpp"
 
 class MidiService {
 public:
@@ -53,24 +32,26 @@ public:
         );
 
         if (rc != MMSYSERR_NOERROR) {
-            std::cout << "Error opening MIDI Output" << std::endl;
+            std::cerr << "Error opening MIDI Output" << std::endl;
             // TODO: handle error
         }
     }
 
-    void noteOn(int note, int velocity) {
-        MidiMessage midiMessage = createMidiMessageOn(note, velocity);
+    void noteOn(int channel, int note, int velocity) {
+        MidiMessage midiMessage = createMidiMessageOn(channel, note, velocity);
+
         int rc = midiOutShortMsg(midiDevice, midiMessage.word);
         if (rc != MMSYSERR_NOERROR) {
-            std::cout << "Warning: MIDI Output is not open" << std::endl;
+            std::cerr << "Warning: MIDI Output is not open" << std::endl;
         }
     }
 
-    void noteOff(int note) {
-        MidiMessage midiMessage = createMidiMessageOff(note);
+    void noteOff(int channel, int note) {
+        MidiMessage midiMessage = createMidiMessageOff(channel, note);
+
         int rc = midiOutShortMsg(midiDevice, midiMessage.word);
         if (rc != MMSYSERR_NOERROR) {
-            std::cout << "Warning: MIDI Output is not open" << std::endl;
+            std::cerr << "Warning: MIDI Output is not open" << std::endl;
         }
     }
 
@@ -93,20 +74,5 @@ public:
         midiCCMessage |= (value << 16);
 
         midiOutShortMsg(midiDevice, midiCCMessage);
-    }
-
-    void printMidiOutputDevices() {
-        UINT numMidiOutDevices = midiOutGetNumDevs();
-
-        for (UINT i = 0; i < numMidiOutDevices; i++) {
-            MIDIOUTCAPS midiOutCaps;
-            MMRESULT result = midiOutGetDevCaps(i, &midiOutCaps, sizeof(MIDIOUTCAPS));
-
-            if (result == MMSYSERR_NOERROR) {
-                std::wcout << L"MIDI Output Device " << i << L": " << midiOutCaps.szPname << std::endl;
-            } else {
-                std::cout << "Error retrieving device information for device " << i << std::endl;
-            }
-        }
     }
 };

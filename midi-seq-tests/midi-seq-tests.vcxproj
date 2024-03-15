@@ -5,6 +5,7 @@
     <ClCompile Include="test_beats.cpp" />
     <ClCompile Include="test_chords.cpp" />
     <ClCompile Include="test_midi_queue.cpp" />
+    <ClCompile Include="test_scale.cpp" />
     <ClCompile Include="test_sequence.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -16,6 +17,7 @@
   <!-- test hpp -->
   <ItemGroup>
     <ClInclude Include="stub_midi_service.hpp" />
+    <ClInclude Include="stub_midi_queue.hpp" />
   </ItemGroup>
   <!-- use cpp20 -->
   <ItemDefinitionGroup>

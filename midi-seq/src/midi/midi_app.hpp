@@ -1,106 +1,100 @@
 #pragma once
 
-#include "../main/util.hpp"
-#include "beats.hpp"
-#include "chord_generator.hpp"
-#include "midi_service.hpp"
+#include <string>
+
 #include "midi_queue.hpp"
-#include "sequence.hpp"
+#include "midi_service.hpp"
+#include "module_chord.hpp"
+#include "module_chord_seq.hpp"
+#include "module_chord_single_note.hpp"
+#include "module_interval.hpp"
+#include "module_single_note.hpp"
+#include "module_stress_test.hpp"
+#include "rng_service.hpp"
+
+enum MidiAppMode {
+    CHORD,
+    INTERVAL,
+    SINGLE_NOTE,
+    CHORD_SINGLE_NOTE,
+    NUM_MODES,
+};
 
 class MidiApp {
 public:
-    int ticksPer64Note;
-    Beats beats;
+    int midiPort;
+    int curTick;
+    bool playing;
+    MidiAppMode mode;
+
     MidiService midiService;
     MidiQueue<MidiService> midiQueue;
-    ChordGenerator<MidiService> chordGenerator;
-    Sequence<MidiService> sequence;
-    int curTick = 0;
+    RngService rngService;
+
+    ModuleChord<MidiService> moduleChord;
+    ModuleChordSeq<MidiService> moduleChordSeq;
+    ModuleSingleNote<MidiService> moduleSingleNote;
+    ModuleInterval<MidiService> moduleInterval;
+    ModuleStressTest<MidiService> moduleStressTest;
+    ModuleChordSingleNote<MidiService> moduleChordSingleNote;
 
     MidiApp() :
-        // ticksPer64Note(24),
-        ticksPer64Note(60),
-        beats(ticksPer64Note),
-        midiService(1),                     // midi port
+        midiPort(1),
+        curTick(0),
+        playing(false),
+        mode(CHORD),
+        midiService(midiPort),
         midiQueue(midiService),
-        chordGenerator(beats, midiQueue),
-        sequence(beats, midiQueue, 8, B_16)
-    {
-        addRollEventOneShot(0, 50);
-        addNoteEvent(2, 55);
-        addNoteEvent(4, 60);
-        addNoteEvent(6, 65);
-    }
+        moduleChord(midiQueue, rngService),
+        moduleChordSeq(midiQueue, rngService),
+        moduleSingleNote(midiQueue, rngService),
+        moduleInterval(midiQueue, rngService),
+        moduleStressTest(midiQueue, rngService),
+        moduleChordSingleNote(midiQueue, rngService)
+    {}
 
-    // void tick() {
-    //     if (sequence.isBeat(curTick)) {
-    //         if (sequence.curStep == 0) {
-    //         }
-    //     }
+    void tick(std::string& message) {
+        // handle events one tick in the past
+        // on first iteration, (curTick - 1) == -1, but this is fine
 
-    //     sequence.tick(curTick);
+        midiQueue.handleEvents(curTick - 1);
 
-    //     // TODO: refactor code so that handleEvents can be first
-    //     // this will make timing more stable
-    //     midiQueue.handleEvents(curTick);
+        if (message == "m") {
+            mode = getNextMode(mode);
+        } else if (message == " ") {
+            playing = !playing;
+        }
 
-    //     ++curTick;
-    // }
+        if (!playing) {
+            return;
+        }
 
-    void tick() {
-        chordGenerator.tick(curTick);
+        // generate events for current tick
 
-        // TODO: refactor code so that handleEvents can be first
-        // this will make timing more stable
-        midiQueue.handleEvents(curTick);
+        // generating events does a lot of modulus stuff, so it's good to do something like:
+        // handleEvents(curTick - 1)
+        // generateEvents(curTick)
+
+        // rather than:
+        // handleEvents(curTick)
+        // generateEvents(curTick + 1)
+
+        // moduleStressTest.tick(message, curTick);
+
+        if (mode == CHORD) {
+            moduleChord.tick(message, curTick);
+        } else if (mode == INTERVAL) {
+            moduleInterval.tick(message, curTick);
+        } else if (mode == SINGLE_NOTE) {
+            moduleSingleNote.tick(message, curTick);
+        } else if (mode == CHORD_SINGLE_NOTE) {
+            moduleChordSingleNote.tick(message, curTick);
+        }
 
         ++curTick;
     }
 
-    void addRollEvent(int idx, int note) {
-        sequence.addEvent(
-            idx,
-            Event{
-                .on = true,
-                .subEvent = RollEvent{
-                    .note = note,
-                    .velocity = 100,
-                    .numRepeats = 4,
-                    .totalDuration = beats.ticksPerBeat(B_64),
-                    .restDuration = beats.ticksPerBeat(B_256)
-                }
-            }
-        );
-    }
-
-    void addRollEventOneShot(int idx, int note) {
-        sequence.addEvent(
-            idx,
-            Event{
-                .on = true,
-                .oneShot = true,
-                .subEvent = RollEvent{
-                    .note = note,
-                    .velocity = 100,
-                    .numRepeats = 4,
-                    .totalDuration = beats.ticksPerBeat(B_64),
-                    .restDuration = beats.ticksPerBeat(B_256)
-                }
-            }
-        );
-    }
-
-    void addNoteEvent(int idx, int note) {
-        sequence.addEvent(
-            idx,
-            Event{
-                .on = true,
-                .subEvent = NoteEvent{
-                    .note = note,
-                    .velocity = 100,
-                    .duration = beats.ticksPerBeat(B_16)
-                }
-            }
-        );
+    MidiAppMode getNextMode(MidiAppMode curMode) {
+        return static_cast<MidiAppMode>((curMode + 1) % NUM_MODES);
     }
 };

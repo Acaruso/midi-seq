@@ -8,6 +8,7 @@
 enum ChordType {
     MAJOR,
     MINOR,
+    DIM,
 };
 
 enum ChordInversion {
@@ -16,13 +17,15 @@ enum ChordInversion {
     SECOND_INV,
 };
 
-inline ChordType getRandChordType() {
-    return (ChordType)(getRand(0, 1));
-}
-
-inline ChordInversion getRandChordInversion() {
-    return (ChordInversion)(getRand(0, 2));
-}
+static std::vector<ChordType> chordTypes = {
+    MAJOR,      // 0
+    MINOR,      // 1
+    MINOR,      // 2
+    MAJOR,      // 3
+    MAJOR,      // 4
+    MINOR,      // 5
+    DIM,        // 6
+};
 
 template<typename T>
 inline void rotate(std::vector<T>& vec) {
@@ -33,31 +36,28 @@ inline std::vector<int> createChordByRoot(int root, ChordType type, ChordInversi
     std::vector<int> chord;
 
     switch (type) {
-        case MAJOR:
-            chord = {0, 4, 7};
-            break;
-        case MINOR:
-            chord = {0, 3, 7};
-            break;
+        case MAJOR: chord = {0, 4, 7}; break;
+        case MINOR: chord = {0, 3, 7}; break;
+        case DIM:   chord = {0, 3, 6}; break;
     }
 
     switch (inv) {
-        case ROOT:
+        case ROOT:              // R 3 5
             break;
-        case FIRST_INV:         // 3rd 5th root
+        case FIRST_INV:         // 3 5 R
             rotate(chord);
             chord[0] -= 12;
             chord[1] -= 12;
             break;
-        case SECOND_INV:        // 5th root 3rd
+        case SECOND_INV:        // 5 R 3
             rotate(chord);
             rotate(chord);
             chord[0] -= 12;
             break;
     }
 
-    for (auto& elt : chord) {
-        elt += root;
+    for (auto& note : chord) {
+        note += root;
     }
 
     return chord;
@@ -91,6 +91,20 @@ inline std::vector<int> createChordByLowestNote(int lowestNote, ChordType type, 
                     break;
                 case SECOND_INV:
                     chord = {0, 5, 8};
+                    break;
+            }
+            break;
+        }
+        case DIM: {
+            switch (inv) {
+                case ROOT:
+                    chord = {0, 3, 6};
+                    break;
+                case FIRST_INV:
+                    chord = {0, 3, 9};
+                    break;
+                case SECOND_INV:
+                    chord = {0, 6, 9};
                     break;
             }
             break;

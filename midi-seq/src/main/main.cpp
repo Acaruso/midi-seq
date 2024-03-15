@@ -1,4 +1,3 @@
-#include "src/main/constants.hpp"
 #include <cstdio>
 #include <d2d1.h>
 #include <iostream>
@@ -9,6 +8,7 @@
 #pragma comment(lib, "d2d1")
 
 #include "app.hpp"
+#include "constants.hpp"
 #include "util.hpp"
 
 LRESULT CALLBACK windowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
