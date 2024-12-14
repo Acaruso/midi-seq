@@ -112,7 +112,8 @@ public:
         chordCounter(0),
 
         lowLimit(guitarToMidi(S_G, 3)),
-        highLimit(guitarToMidi(S_G, 9)),
+        // highLimit(guitarToMidi(S_G, 9)),
+        highLimit(guitarToMidi(S_G, 6)),
 
         curLowestNote(0),
         prevLowestNote(0),
@@ -223,7 +224,7 @@ public:
     }
 
     ChordInversion getRandChordInversion() {
-        // return (ChordInversion)(rngService.getRand(0, 2));
-        return (ChordInversion)(rngService.getRand(0, 1));
+        return (ChordInversion)(rngService.getRand(0, 2));
+        // return (ChordInversion)(rngService.getRand(0, 1));
     }
 };

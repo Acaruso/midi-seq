@@ -46,12 +46,19 @@ public:
         // lowNote(guitarToMidi(S_D, 0)),
         // highNote(guitarToMidi(S_B, 4)),
 
-        lowNote(guitarToMidi(S_G, 0)),
-        highNote(guitarToMidi(S_HIGH_E, 4)),
+        // lowNote(guitarToMidi(S_G, 0)),
+        // highNote(guitarToMidi(S_HIGH_E, 4)),
+
+        // lowNote(guitarToMidi(S_G, 5)),
+        // highNote(guitarToMidi(S_HIGH_E, 9)),
+
+        lowNote(guitarToMidi(S_LOW_E, 5)),
+        highNote(guitarToMidi(S_D, 9)),
 
         numRepeats(4),
 
         intervalBlacklist({0, 1, 2, 12})
+        // intervalBlacklist({0, 1, 2, 5, 6, 7, 12})
     {
         generateNextNote();
     }

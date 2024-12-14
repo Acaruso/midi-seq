@@ -1,7 +1,6 @@
 #pragma once
 
-#include <cstdio>
-#include <stdio.h>                  // printf()
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -15,11 +14,10 @@
 
 #include "../lib/readerwriterqueue.h"
 
-#include "../audio/audio_main.hpp"
 #include "../midi/midi_main.hpp"
+#include "../midi/midi_modes.hpp"
 #include "constants.hpp"
 #include "graphics_service.hpp"
-#include "util.hpp"
 
 class App {
 public:
@@ -27,9 +25,15 @@ public:
     GraphicsService gfx;
     // TODO: rename `queue` to `audioQueue`
     // moodycamel::ReaderWriterQueue<std::string> queue;
-    moodycamel::ReaderWriterQueue<std::string> midiQueue;
+    moodycamel::ReaderWriterQueue<std::string> mainToMidiQueue;
+    moodycamel::ReaderWriterQueue<std::string> midiToMainQueue;
     std::thread audioThread;
     std::thread midiThread;
+    MidiAppMode mode;
+    std::wstring modeStr;
+    std::string midiToMainStr;
+    std::wstring midiToMainWStr;
+    bool showMidiToMainWStr;
 
     std::vector<UINT> messageTypes{
         WM_PAINT,
@@ -38,14 +42,15 @@ public:
         WM_KEYDOWN
     };
 
-    D2D1_RECT_F rect{100, 100, 150, 150};
-
-    App(HWND window, HRESULT& hr) :
+    App(HWND window, HRESULT& hr):
         window(window),
-        gfx(window, hr)
+        gfx(window, hr),
+        mode(CHORD),
+        modeStr(L"Mode: " + modeToString(mode)),
+        showMidiToMainWStr(false)
     {
         // audioThread = std::thread(&audioMain, &queue);
-        midiThread = std::thread(&midiMain, &midiQueue);
+        midiThread = std::thread(&midiMain, &mainToMidiQueue, &midiToMainQueue);
     }
 
     bool shouldHandleMessage(UINT message) {
@@ -75,23 +80,23 @@ public:
             }
             case WM_KEYDOWN: {
                 int keycode = wParam;
-                // if (keycode == (int('X'))) {
-                //     std::cout << "x" << std::endl;
-                // }
                 if (keycode == VK_SPACE) {
-                    midiQueue.enqueue(" ");
+                    mainToMidiQueue.enqueue(" ");
                 } else if (keycode == (int('M'))) {
-                    midiQueue.enqueue("m");
+                    mainToMidiQueue.enqueue("m");
+                    changeMode();
                 } else if (keycode == (int('N'))) {
-                    midiQueue.enqueue("n");
+                    mainToMidiQueue.enqueue("n");
                 } else if (keycode == (int('A'))) {
-                    midiQueue.enqueue("a");
+                    mainToMidiQueue.enqueue("a");
                 } else if (keycode == (int('H'))) {
-                    midiQueue.enqueue("h");
+                    mainToMidiQueue.enqueue("h");
                 } else if (keycode == (int('S'))) {
-                    midiQueue.enqueue("s");
+                    mainToMidiQueue.enqueue("s");
                 } else if (keycode == (int('U'))) {
-                    midiQueue.enqueue("u");
+                    mainToMidiQueue.enqueue("u");
+                } else if (keycode == (int('X'))) {
+                    showMidiToMainWStr = !showMidiToMainWStr;
                 }
                 break;
             }
@@ -101,50 +106,33 @@ public:
     }
 
     void tick() {
-        if (getKeyState(VK_LEFT)) {
-            rect = moveRect(rect, rect.left - 5, rect.top);
-        }
-
-        if (getKeyState(VK_RIGHT)) {
-            rect = moveRect(rect, rect.left + 5, rect.top);
-        }
-
-        if (getKeyState(VK_UP)) {
-            rect = moveRect(rect, rect.left, rect.top - 5);
-        }
-
-        if (getKeyState(VK_DOWN)) {
-            rect = moveRect(rect, rect.left, rect.top + 5);
-        }
-
         gfx.invalidateWindow();
+        if (midiToMainQueue.try_dequeue(midiToMainStr)) {
+            midiToMainWStr = stringToWString(midiToMainStr);
+        }
     }
 
     HRESULT onPaint() {
         HRESULT hr = S_OK;
-
         gfx.beginDraw();
-
         gfx.clear();
 
-        gfx.drawRect(rect, black);
+        D2D1_RECT_F rect1 = D2D1_RECT_F{0, 0, 400, 50};
+        gfx.drawText(modeStr.c_str(), rect1, 1);
+        gfx.drawRect(rect1, blue);
 
-        D2D1_RECT_F layoutRect = D2D1_RECT_F{0, 0, 100, 100};
-
-        const wchar_t* text = L"Hello World test 123456 sdfsfdsdfsdfsdfsdf";
-        gfx.drawText(text, layoutRect, 1);
-        gfx.drawRect(layoutRect, blue);
+        if (showMidiToMainWStr) {
+            D2D1_RECT_F rect2 = D2D1_RECT_F{0, 100, 400, 50};
+            gfx.drawText(midiToMainWStr.c_str(), rect2, 1);
+            gfx.drawRect(rect2, blue);
+        }
 
         gfx.render();
-
         hr = gfx.endDraw();
-
         return hr;
     }
 
     void onLeftClick(int x, int y) {
-        rect = moveRect(rect, x, y);
-        // queue.enqueue("trig");
     }
 
     void onMouseMove(int x, int y) {
@@ -156,7 +144,12 @@ public:
         // queue.enqueue("quit");
         // audioThread.join();
 
-        midiQueue.enqueue("q");
+        mainToMidiQueue.enqueue("q");
         midiThread.join();
+    }
+
+    void changeMode() {
+        mode = getNextMode(mode);
+        modeStr = L"Mode: " + modeToString(mode);
     }
 };

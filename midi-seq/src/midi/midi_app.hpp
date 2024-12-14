@@ -2,26 +2,24 @@
 
 #include <string>
 
+#include "../lib/readerwriterqueue.h"
+
+#include "midi_modes.hpp"
 #include "midi_queue.hpp"
 #include "midi_service.hpp"
-#include "module_chord.hpp"
 #include "module_chord_seq.hpp"
 #include "module_chord_single_note.hpp"
+#include "module_chord.hpp"
+#include "module_ear_training.hpp"
 #include "module_interval.hpp"
 #include "module_single_note.hpp"
 #include "module_stress_test.hpp"
 #include "rng_service.hpp"
 
-enum MidiAppMode {
-    CHORD,
-    INTERVAL,
-    SINGLE_NOTE,
-    CHORD_SINGLE_NOTE,
-    NUM_MODES,
-};
-
 class MidiApp {
 public:
+    moodycamel::ReaderWriterQueue<std::string>* midiToMainQueue;
+
     int midiPort;
     int curTick;
     bool playing;
@@ -37,8 +35,10 @@ public:
     ModuleInterval<MidiService> moduleInterval;
     ModuleStressTest<MidiService> moduleStressTest;
     ModuleChordSingleNote<MidiService> moduleChordSingleNote;
+    ModuleEarTraining<MidiService> moduleEarTraining;
 
-    MidiApp() :
+    MidiApp(moodycamel::ReaderWriterQueue<std::string>* midiToMainQueue):
+        midiToMainQueue(midiToMainQueue),
         midiPort(1),
         curTick(0),
         playing(false),
@@ -50,7 +50,8 @@ public:
         moduleSingleNote(midiQueue, rngService),
         moduleInterval(midiQueue, rngService),
         moduleStressTest(midiQueue, rngService),
-        moduleChordSingleNote(midiQueue, rngService)
+        moduleChordSingleNote(midiQueue, rngService),
+        moduleEarTraining(midiToMainQueue, midiQueue, rngService)
     {}
 
     void tick(std::string& message) {
@@ -81,20 +82,26 @@ public:
 
         // moduleStressTest.tick(message, curTick);
 
-        if (mode == CHORD) {
-            moduleChord.tick(message, curTick);
-        } else if (mode == INTERVAL) {
-            moduleInterval.tick(message, curTick);
-        } else if (mode == SINGLE_NOTE) {
-            moduleSingleNote.tick(message, curTick);
-        } else if (mode == CHORD_SINGLE_NOTE) {
-            moduleChordSingleNote.tick(message, curTick);
+        switch (mode) {
+            case CHORD:
+                moduleChord.tick(message, curTick);
+                break;
+            case INTERVAL:
+                moduleInterval.tick(message, curTick);
+                break;
+            case SINGLE_NOTE:
+                moduleSingleNote.tick(message, curTick);
+                break;
+            case CHORD_SINGLE_NOTE:
+                moduleChordSingleNote.tick(message, curTick);
+                break;
+            case EAR_TRAINING:
+                moduleEarTraining.tick(message, curTick);
+                break;
+            case NUM_MODES:
+                break;
         }
 
         ++curTick;
-    }
-
-    MidiAppMode getNextMode(MidiAppMode curMode) {
-        return static_cast<MidiAppMode>((curMode + 1) % NUM_MODES);
     }
 };
