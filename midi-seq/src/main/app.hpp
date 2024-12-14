@@ -33,6 +33,7 @@ public:
     std::wstring modeStr;
     std::string midiToMainStr;
     std::wstring midiToMainWStr;
+    bool showMidiToMainWStr;
 
     std::vector<UINT> messageTypes{
         WM_PAINT,
@@ -45,7 +46,8 @@ public:
         window(window),
         gfx(window, hr),
         mode(CHORD),
-        modeStr(L"Mode: " + modeToString(mode))
+        modeStr(L"Mode: " + modeToString(mode)),
+        showMidiToMainWStr(false)
     {
         // audioThread = std::thread(&audioMain, &queue);
         midiThread = std::thread(&midiMain, &mainToMidiQueue, &midiToMainQueue);
@@ -93,6 +95,8 @@ public:
                     mainToMidiQueue.enqueue("s");
                 } else if (keycode == (int('U'))) {
                     mainToMidiQueue.enqueue("u");
+                } else if (keycode == (int('X'))) {
+                    showMidiToMainWStr = !showMidiToMainWStr;
                 }
                 break;
             }
@@ -117,9 +121,11 @@ public:
         gfx.drawText(modeStr.c_str(), rect1, 1);
         gfx.drawRect(rect1, blue);
 
-        D2D1_RECT_F rect2 = D2D1_RECT_F{0, 100, 400, 50};
-        gfx.drawText(midiToMainWStr.c_str(), rect2, 1);
-        gfx.drawRect(rect2, blue);
+        if (showMidiToMainWStr) {
+            D2D1_RECT_F rect2 = D2D1_RECT_F{0, 100, 400, 50};
+            gfx.drawText(midiToMainWStr.c_str(), rect2, 1);
+            gfx.drawRect(rect2, blue);
+        }
 
         gfx.render();
         hr = gfx.endDraw();
