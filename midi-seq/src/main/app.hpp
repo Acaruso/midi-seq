@@ -1,7 +1,6 @@
 #pragma once
 
-#include <cstdio>
-#include <stdio.h>                  // printf()
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -15,8 +14,8 @@
 
 #include "../lib/readerwriterqueue.h"
 
-#include "../audio/audio_main.hpp"
 #include "../midi/midi_main.hpp"
+#include "../midi/midi_modes.hpp"
 #include "constants.hpp"
 #include "graphics_service.hpp"
 #include "util.hpp"
@@ -30,6 +29,8 @@ public:
     moodycamel::ReaderWriterQueue<std::string> midiQueue;
     std::thread audioThread;
     std::thread midiThread;
+    MidiAppMode mode;
+    std::wstring modeStr;
 
     std::vector<UINT> messageTypes{
         WM_PAINT,
@@ -38,11 +39,11 @@ public:
         WM_KEYDOWN
     };
 
-    D2D1_RECT_F rect{100, 100, 150, 150};
-
-    App(HWND window, HRESULT& hr) :
+    App(HWND window, HRESULT& hr):
         window(window),
-        gfx(window, hr)
+        gfx(window, hr),
+        mode(CHORD),
+        modeStr(L"Mode: " + modeToString(mode))
     {
         // audioThread = std::thread(&audioMain, &queue);
         midiThread = std::thread(&midiMain, &midiQueue);
@@ -75,13 +76,11 @@ public:
             }
             case WM_KEYDOWN: {
                 int keycode = wParam;
-                // if (keycode == (int('X'))) {
-                //     std::cout << "x" << std::endl;
-                // }
                 if (keycode == VK_SPACE) {
                     midiQueue.enqueue(" ");
                 } else if (keycode == (int('M'))) {
                     midiQueue.enqueue("m");
+                    changeMode();
                 } else if (keycode == (int('N'))) {
                     midiQueue.enqueue("n");
                 } else if (keycode == (int('A'))) {
@@ -101,50 +100,24 @@ public:
     }
 
     void tick() {
-        if (getKeyState(VK_LEFT)) {
-            rect = moveRect(rect, rect.left - 5, rect.top);
-        }
-
-        if (getKeyState(VK_RIGHT)) {
-            rect = moveRect(rect, rect.left + 5, rect.top);
-        }
-
-        if (getKeyState(VK_UP)) {
-            rect = moveRect(rect, rect.left, rect.top - 5);
-        }
-
-        if (getKeyState(VK_DOWN)) {
-            rect = moveRect(rect, rect.left, rect.top + 5);
-        }
-
         gfx.invalidateWindow();
     }
 
     HRESULT onPaint() {
         HRESULT hr = S_OK;
-
         gfx.beginDraw();
-
         gfx.clear();
 
-        gfx.drawRect(rect, black);
-
-        D2D1_RECT_F layoutRect = D2D1_RECT_F{0, 0, 100, 100};
-
-        const wchar_t* text = L"Hello World test 123456 sdfsfdsdfsdfsdfsdf";
-        gfx.drawText(text, layoutRect, 1);
+        D2D1_RECT_F layoutRect = D2D1_RECT_F{0, 0, 400, 50};
+        gfx.drawText(modeStr.c_str(), layoutRect, 1);
         gfx.drawRect(layoutRect, blue);
 
         gfx.render();
-
         hr = gfx.endDraw();
-
         return hr;
     }
 
     void onLeftClick(int x, int y) {
-        rect = moveRect(rect, x, y);
-        // queue.enqueue("trig");
     }
 
     void onMouseMove(int x, int y) {
@@ -158,5 +131,10 @@ public:
 
         midiQueue.enqueue("q");
         midiThread.join();
+    }
+
+    void changeMode() {
+        mode = getNextMode(mode);
+        modeStr = L"Mode: " + modeToString(mode);
     }
 };

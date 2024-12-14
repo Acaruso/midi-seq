@@ -2,25 +2,17 @@
 
 #include <string>
 
+#include "midi_modes.hpp"
 #include "midi_queue.hpp"
 #include "midi_service.hpp"
-#include "module_chord.hpp"
 #include "module_chord_seq.hpp"
 #include "module_chord_single_note.hpp"
+#include "module_chord.hpp"
 #include "module_ear_training.hpp"
 #include "module_interval.hpp"
 #include "module_single_note.hpp"
 #include "module_stress_test.hpp"
 #include "rng_service.hpp"
-
-enum MidiAppMode {
-    CHORD,
-    INTERVAL,
-    SINGLE_NOTE,
-    CHORD_SINGLE_NOTE,
-    EAR_TRAINING,
-    NUM_MODES,
-};
 
 class MidiApp {
 public:
@@ -106,9 +98,5 @@ public:
         }
 
         ++curTick;
-    }
-
-    MidiAppMode getNextMode(MidiAppMode curMode) {
-        return static_cast<MidiAppMode>((curMode + 1) % NUM_MODES);
     }
 };

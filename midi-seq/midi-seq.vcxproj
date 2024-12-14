@@ -51,6 +51,7 @@
     <ClInclude Include="src/midi/generator_single_note.hpp" />
     <ClInclude Include="src/midi/midi_app.hpp" />
     <ClInclude Include="src/midi/midi_main.hpp" />
+    <ClInclude Include="src/midi/midi_modes.hpp" />
     <ClInclude Include="src/midi/midi_queue.hpp" />
     <ClInclude Include="src/midi/midi_service_utils.hpp" />
     <ClInclude Include="src/midi/midi_service.hpp" />
