@@ -7,6 +7,7 @@
 #include "module_chord.hpp"
 #include "module_chord_seq.hpp"
 #include "module_chord_single_note.hpp"
+#include "module_ear_training.hpp"
 #include "module_interval.hpp"
 #include "module_single_note.hpp"
 #include "module_stress_test.hpp"
@@ -17,6 +18,7 @@ enum MidiAppMode {
     INTERVAL,
     SINGLE_NOTE,
     CHORD_SINGLE_NOTE,
+    EAR_TRAINING,
     NUM_MODES,
 };
 
@@ -37,6 +39,7 @@ public:
     ModuleInterval<MidiService> moduleInterval;
     ModuleStressTest<MidiService> moduleStressTest;
     ModuleChordSingleNote<MidiService> moduleChordSingleNote;
+    ModuleEarTraining<MidiService> moduleEarTraining;
 
     MidiApp() :
         midiPort(1),
@@ -50,7 +53,8 @@ public:
         moduleSingleNote(midiQueue, rngService),
         moduleInterval(midiQueue, rngService),
         moduleStressTest(midiQueue, rngService),
-        moduleChordSingleNote(midiQueue, rngService)
+        moduleChordSingleNote(midiQueue, rngService),
+        moduleEarTraining(midiQueue, rngService)
     {}
 
     void tick(std::string& message) {
@@ -81,14 +85,24 @@ public:
 
         // moduleStressTest.tick(message, curTick);
 
-        if (mode == CHORD) {
-            moduleChord.tick(message, curTick);
-        } else if (mode == INTERVAL) {
-            moduleInterval.tick(message, curTick);
-        } else if (mode == SINGLE_NOTE) {
-            moduleSingleNote.tick(message, curTick);
-        } else if (mode == CHORD_SINGLE_NOTE) {
-            moduleChordSingleNote.tick(message, curTick);
+        switch (mode) {
+            case CHORD:
+                moduleChord.tick(message, curTick);
+                break;
+            case INTERVAL:
+                moduleInterval.tick(message, curTick);
+                break;
+            case SINGLE_NOTE:
+                moduleSingleNote.tick(message, curTick);
+                break;
+            case CHORD_SINGLE_NOTE:
+                moduleChordSingleNote.tick(message, curTick);
+                break;
+            case EAR_TRAINING:
+                moduleEarTraining.tick(message, curTick);
+                break;
+            case NUM_MODES:
+                break;
         }
 
         ++curTick;

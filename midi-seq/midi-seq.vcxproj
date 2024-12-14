@@ -46,6 +46,7 @@
     <ClInclude Include="src/midi/chords.hpp" />
     <ClInclude Include="src/midi/generator_chord_single_note.hpp" />
     <ClInclude Include="src/midi/generator_chord.hpp" />
+    <ClInclude Include="src/midi/generator_ear_training.hpp" />
     <ClInclude Include="src/midi/generator_interval.hpp" />
     <ClInclude Include="src/midi/generator_single_note.hpp" />
     <ClInclude Include="src/midi/midi_app.hpp" />
@@ -57,6 +58,7 @@
     <ClInclude Include="src/midi/module_chord_seq.hpp" />
     <ClInclude Include="src/midi/module_chord_single_note.hpp" />
     <ClInclude Include="src/midi/module_chord.hpp" />
+    <ClInclude Include="src/midi/module_ear_training.hpp" />
     <ClInclude Include="src/midi/module_interval.hpp" />
     <ClInclude Include="src/midi/module_single_note.hpp" />
     <ClInclude Include="src/midi/module_stress_test.hpp" />
