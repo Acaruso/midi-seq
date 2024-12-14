@@ -56,7 +56,7 @@ public:
         root(guitarToMidi(S_LOW_E, 8)),
         scaleMode(0),
         autoSwitch(false),
-        mode(DEGREE),
+        mode(NORMAL),
         muteSingleNoteLine(false),
         randomChordService(rngService, root, scaleMode),
         channel(channel),
@@ -185,4 +185,3 @@ public:
         }
     }
 };
-
