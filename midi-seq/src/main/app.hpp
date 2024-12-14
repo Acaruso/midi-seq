@@ -31,6 +31,8 @@ public:
     std::thread midiThread;
     MidiAppMode mode;
     std::wstring modeStr;
+    std::string midiToMainStr;
+    std::wstring midiToMainWStr;
 
     std::vector<UINT> messageTypes{
         WM_PAINT,
@@ -101,6 +103,9 @@ public:
 
     void tick() {
         gfx.invalidateWindow();
+        if (midiToMainQueue.try_dequeue(midiToMainStr)) {
+            midiToMainWStr = stringToWString(midiToMainStr);
+        }
     }
 
     HRESULT onPaint() {
@@ -108,9 +113,13 @@ public:
         gfx.beginDraw();
         gfx.clear();
 
-        D2D1_RECT_F layoutRect = D2D1_RECT_F{0, 0, 400, 50};
-        gfx.drawText(modeStr.c_str(), layoutRect, 1);
-        gfx.drawRect(layoutRect, blue);
+        D2D1_RECT_F rect1 = D2D1_RECT_F{0, 0, 400, 50};
+        gfx.drawText(modeStr.c_str(), rect1, 1);
+        gfx.drawRect(rect1, blue);
+
+        D2D1_RECT_F rect2 = D2D1_RECT_F{0, 100, 400, 50};
+        gfx.drawText(midiToMainWStr.c_str(), rect2, 1);
+        gfx.drawRect(rect2, blue);
 
         gfx.render();
         hr = gfx.endDraw();

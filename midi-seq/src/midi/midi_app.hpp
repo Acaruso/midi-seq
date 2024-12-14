@@ -51,7 +51,7 @@ public:
         moduleInterval(midiQueue, rngService),
         moduleStressTest(midiQueue, rngService),
         moduleChordSingleNote(midiQueue, rngService),
-        moduleEarTraining(midiQueue, rngService)
+        moduleEarTraining(midiToMainQueue, midiQueue, rngService)
     {}
 
     void tick(std::string& message) {

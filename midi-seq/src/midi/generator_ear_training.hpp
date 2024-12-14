@@ -1,6 +1,9 @@
 #pragma once
 
+#include <string>
 #include <vector>
+
+#include "../lib/readerwriterqueue.h"
 
 #include "beats.hpp"
 #include "midi_queue.hpp"
@@ -10,6 +13,7 @@
 template <typename MidiServiceType>
 class GeneratorEarTraining {
 public:
+    moodycamel::ReaderWriterQueue<std::string>* midiToMainQueue;
     Beats& beats;
     MidiQueue<MidiServiceType>& midiQueue;
     RngService& rngService;
@@ -20,14 +24,16 @@ public:
     int curNote;
     int prevNote;
     bool autoSwitch;
-    std::vector<int> choices;
+    std::vector<int> intervals;
 
     GeneratorEarTraining(
+        moodycamel::ReaderWriterQueue<std::string>* midiToMainQueue,
         Beats& beats,
         MidiQueue<MidiServiceType>& midiQueue,
         RngService& rngService,
         int channel
     ):
+        midiToMainQueue(midiToMainQueue),
         beats(beats),
         midiQueue(midiQueue),
         rngService(rngService),
@@ -37,7 +43,7 @@ public:
         curNote(0),
         prevNote(0),
         autoSwitch(false),
-        choices({2, 4, 5, 7, 9, 11})
+        intervals({2, 4, 5, 7, 9, 11})
     {
         generateNextInterval();
     }
@@ -57,11 +63,15 @@ public:
     }
 
     void generateNextInterval() {
-        curNote = droneNote + choices[rngService.getRand(0, choices.size() - 1)];
+        int interval = intervals[rngService.getRand(0, intervals.size() - 1)];
+        curNote = droneNote + interval;
         while (curNote == prevNote) {
-            curNote = droneNote + choices[rngService.getRand(0, choices.size() - 1)];
+            interval = intervals[rngService.getRand(0, intervals.size() - 1)];
+            curNote = droneNote + interval;
         }
         prevNote = curNote;
+
+        midiToMainQueue->enqueue(std::to_string(interval));
     }
 
     void play(int curTick) {

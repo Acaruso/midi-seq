@@ -74,3 +74,8 @@ inline bool getKeyState(UINT keyCode) {
 inline int getRand(int min, int max) {
     return min + (rand() % (max - min + 1));
 }
+
+std::wstring stringToWString(const std::string& str) {
+    std::wstring wstr(str.begin(), str.end());
+    return wstr;
+}
