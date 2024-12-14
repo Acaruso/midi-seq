@@ -13,15 +13,18 @@
 
 void CALLBACK timerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
 
-static moodycamel::ReaderWriterQueue<std::string>* queue = nullptr;
+static moodycamel::ReaderWriterQueue<std::string>* mainToMidiQueue = nullptr;
 static std::string message;
 static MidiApp* midiApp = nullptr;
 static bool running = true;
 
-inline int midiMain(moodycamel::ReaderWriterQueue<std::string>* _queue) {
-    queue = _queue;
+inline int midiMain(
+    moodycamel::ReaderWriterQueue<std::string>* _mainToMidiQueue,
+    moodycamel::ReaderWriterQueue<std::string>* _midiToMainQueue
+) {
+    mainToMidiQueue = _mainToMidiQueue;
 
-    MidiApp _midiApp;
+    MidiApp _midiApp(_midiToMainQueue);
     midiApp = &_midiApp;
 
     message.reserve(16);
@@ -80,7 +83,7 @@ inline void CALLBACK timerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_
         midiApp->tick(message);
     }
 
-    if (!queue->try_dequeue(message)) {
+    if (!mainToMidiQueue->try_dequeue(message)) {
         message = "";
     }
 }

@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "../lib/readerwriterqueue.h"
+
 #include "midi_modes.hpp"
 #include "midi_queue.hpp"
 #include "midi_service.hpp"
@@ -16,6 +18,8 @@
 
 class MidiApp {
 public:
+    moodycamel::ReaderWriterQueue<std::string>* midiToMainQueue;
+
     int midiPort;
     int curTick;
     bool playing;
@@ -33,7 +37,8 @@ public:
     ModuleChordSingleNote<MidiService> moduleChordSingleNote;
     ModuleEarTraining<MidiService> moduleEarTraining;
 
-    MidiApp() :
+    MidiApp(moodycamel::ReaderWriterQueue<std::string>* midiToMainQueue):
+        midiToMainQueue(midiToMainQueue),
         midiPort(1),
         curTick(0),
         playing(false),

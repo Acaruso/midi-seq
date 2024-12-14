@@ -18,7 +18,6 @@
 #include "../midi/midi_modes.hpp"
 #include "constants.hpp"
 #include "graphics_service.hpp"
-#include "util.hpp"
 
 class App {
 public:
@@ -26,7 +25,8 @@ public:
     GraphicsService gfx;
     // TODO: rename `queue` to `audioQueue`
     // moodycamel::ReaderWriterQueue<std::string> queue;
-    moodycamel::ReaderWriterQueue<std::string> midiQueue;
+    moodycamel::ReaderWriterQueue<std::string> mainToMidiQueue;
+    moodycamel::ReaderWriterQueue<std::string> midiToMainQueue;
     std::thread audioThread;
     std::thread midiThread;
     MidiAppMode mode;
@@ -46,7 +46,7 @@ public:
         modeStr(L"Mode: " + modeToString(mode))
     {
         // audioThread = std::thread(&audioMain, &queue);
-        midiThread = std::thread(&midiMain, &midiQueue);
+        midiThread = std::thread(&midiMain, &mainToMidiQueue, &midiToMainQueue);
     }
 
     bool shouldHandleMessage(UINT message) {
@@ -77,20 +77,20 @@ public:
             case WM_KEYDOWN: {
                 int keycode = wParam;
                 if (keycode == VK_SPACE) {
-                    midiQueue.enqueue(" ");
+                    mainToMidiQueue.enqueue(" ");
                 } else if (keycode == (int('M'))) {
-                    midiQueue.enqueue("m");
+                    mainToMidiQueue.enqueue("m");
                     changeMode();
                 } else if (keycode == (int('N'))) {
-                    midiQueue.enqueue("n");
+                    mainToMidiQueue.enqueue("n");
                 } else if (keycode == (int('A'))) {
-                    midiQueue.enqueue("a");
+                    mainToMidiQueue.enqueue("a");
                 } else if (keycode == (int('H'))) {
-                    midiQueue.enqueue("h");
+                    mainToMidiQueue.enqueue("h");
                 } else if (keycode == (int('S'))) {
-                    midiQueue.enqueue("s");
+                    mainToMidiQueue.enqueue("s");
                 } else if (keycode == (int('U'))) {
-                    midiQueue.enqueue("u");
+                    mainToMidiQueue.enqueue("u");
                 }
                 break;
             }
@@ -129,7 +129,7 @@ public:
         // queue.enqueue("quit");
         // audioThread.join();
 
-        midiQueue.enqueue("q");
+        mainToMidiQueue.enqueue("q");
         midiThread.join();
     }
 
