@@ -87,6 +87,7 @@ public:
                     changeMode();
                 } else if (keycode == (int('N'))) {
                     mainToMidiQueue.enqueue("n");
+                    showMidiToMainWStr = false;
                 } else if (keycode == (int('A'))) {
                     mainToMidiQueue.enqueue("a");
                 } else if (keycode == (int('H'))) {
@@ -95,6 +96,7 @@ public:
                     mainToMidiQueue.enqueue("s");
                 } else if (keycode == (int('U'))) {
                     mainToMidiQueue.enqueue("u");
+                    showMidiToMainWStr = false;
                 } else if (keycode == (int('X'))) {
                     showMidiToMainWStr = !showMidiToMainWStr;
                 }

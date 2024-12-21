@@ -20,11 +20,14 @@ public:
     int channel;
     int numRepeats;
     int counter;
-    int droneNote = guitarToMidi(S_D, 5);
-    int curNote;
-    int prevNote;
+    int droneNote;
+    int prevDroneNote;
+    int note;
+    int prevInterval;
     bool autoSwitch;
+    bool changeDrone;
     std::vector<int> intervals;
+    std::vector<int> droneChoices;
 
     GeneratorEarTraining(
         moodycamel::ReaderWriterQueue<std::string>* midiToMainQueue,
@@ -40,16 +43,28 @@ public:
         channel(channel),
         numRepeats(4),
         counter(0),
-        curNote(0),
-        prevNote(0),
+        droneNote(guitarToMidi(S_G, 5)),
+        prevDroneNote(droneNote),
+        note(0),
+        prevInterval(0),
         autoSwitch(false),
-        intervals({2, 4, 5, 7, 9, 11})
+        changeDrone(false),
+        // intervals({2, 4, 5, 7, 9, 11}),  // major scale
+        // intervals({2, 3, 5, 7, 8, 10}),  // minor scale
+        intervals({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}),  // all notes
+        // intervals({4, 5, 7}),
+        // droneChoices({60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71})
+        droneChoices({50, 51, 52, 53, 54, 55})
     {
         generateNextInterval();
     }
 
     void tick(std::string& message, int curTick) {
         if (message == "n") {
+            generateNextInterval();
+        }
+        if (message == "u") {
+            generateNextDrone();
             generateNextInterval();
         }
 
@@ -63,19 +78,33 @@ public:
     }
 
     void generateNextInterval() {
-        int interval = intervals[rngService.getRand(0, intervals.size() - 1)];
-        curNote = droneNote + interval;
-        while (curNote == prevNote) {
-            interval = intervals[rngService.getRand(0, intervals.size() - 1)];
-            curNote = droneNote + interval;
+        if (changeDrone) {
+            droneNote = pickNext(droneChoices, prevDroneNote);
+            prevDroneNote = droneNote;
         }
-        prevNote = curNote;
+
+        int interval = pickNext(intervals, prevInterval);
+        prevInterval = interval;
+        note = droneNote + interval;
 
         midiToMainQueue->enqueue(std::to_string(interval));
     }
 
+    void generateNextDrone() {
+        droneNote = pickNext(droneChoices, prevDroneNote);
+        prevDroneNote = droneNote;
+    }
+
     void play(int curTick) {
         midiQueue.noteOnOff(channel, droneNote,  100, curTick, beats.ticksPerBeat(B_8));
-        midiQueue.noteOnOff(channel, curNote,    100, curTick, beats.ticksPerBeat(B_8));
+        midiQueue.noteOnOff(channel, note,    100, curTick, beats.ticksPerBeat(B_8));
+    }
+
+    int pickNext(std::vector<int>& vec, int cur) {
+        int res = vec[rngService.getRand(0, vec.size() - 1)];
+        while (res == cur) {
+            res = vec[rngService.getRand(0, vec.size() - 1)];
+        }
+        return res;
     }
 };
